@@ -10,6 +10,7 @@ import Verify from "./pages/Verify";
 import Agreement from "./pages/Agreement";
 import Home from "./pages/Home";
 import DeviceControl from "./pages/DeviceControl";
+import MapCreation from "./pages/MapCreation";
 import AddDevice from "./pages/AddDevice";
 import Notifications from "./pages/Notifications";
 import Profile from "./pages/Profile";
@@ -32,6 +33,7 @@ const App = () => (
             <Route path="/agreement" element={<Agreement />} />
             <Route path="/home" element={<Home />} />
             <Route path="/device/:id" element={<DeviceControl />} />
+            <Route path="/device/:id/create-map" element={<MapCreation />} />
             <Route path="/add-device" element={<AddDevice />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/profile" element={<Profile />} />
