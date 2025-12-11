@@ -11,7 +11,14 @@ import {
   ChevronDown,
   ChevronRight,
   Droplets,
-  Wind,
+  Ban,
+  Home,
+  ListOrdered,
+  CloudUpload,
+  RotateCcw,
+  Trash2,
+  Pencil,
+  Upload,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FloorMap from "@/components/FloorMap";
@@ -19,7 +26,6 @@ import {
   Sheet,
   SheetContent,
   SheetHeader,
-  SheetTitle,
 } from "@/components/ui/sheet";
 
 const DeviceControl = () => {
@@ -30,6 +36,8 @@ const DeviceControl = () => {
   const [selectedFloor, setSelectedFloor] = useState(1);
   const [showFloorSelector, setShowFloorSelector] = useState(false);
   const [showPersonalize, setShowPersonalize] = useState(false);
+  const [showMapEditor, setShowMapEditor] = useState(false);
+  const [mapEditorTab, setMapEditorTab] = useState<"edit" | "details">("edit");
   const [vacuumPower, setVacuumPower] = useState(3); // 0-4 scale
   const [waterFlow, setWaterFlow] = useState(2); // 0-4 scale
 
@@ -57,6 +65,40 @@ const DeviceControl = () => {
 
   const vacuumLevels = ["Off", "Quiet", "Balanced", "Turbo", "Max"];
   const waterLevels = ["Off", "Low", "Medium", "High", "Custom"];
+
+  // SVG icons for vacuum power levels
+  const VacuumIcon = ({ level, active }: { level: number; active: boolean }) => {
+    const color = active ? "currentColor" : "currentColor";
+    const opacity = active ? 1 : 0.5;
+    
+    if (level === 0) return <Ban className="w-5 h-5" style={{ opacity }} />;
+    
+    return (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" style={{ opacity }}>
+        <circle cx="12" cy="12" r="3" />
+        {level >= 1 && <path d="M12 5v-2" />}
+        {level >= 2 && <><path d="M17 7l1.5-1.5" /><path d="M7 7L5.5 5.5" /></>}
+        {level >= 3 && <><path d="M19 12h2" /><path d="M5 12H3" /></>}
+        {level >= 4 && <><path d="M17 17l1.5 1.5" /><path d="M7 17l-1.5 1.5" /><path d="M12 19v2" /></>}
+      </svg>
+    );
+  };
+
+  // SVG icons for water flow levels
+  const WaterIcon = ({ level, active }: { level: number; active: boolean }) => {
+    const opacity = active ? 1 : 0.5;
+    
+    if (level === 0) return <Ban className="w-5 h-5" style={{ opacity }} />;
+    
+    return (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ opacity }}>
+        <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+        {level >= 2 && <path d="M12 8v4" strokeLinecap="round" />}
+        {level >= 3 && <path d="M10 11h4" strokeLinecap="round" />}
+        {level === 4 && <circle cx="12" cy="14" r="2" fill="currentColor" />}
+      </svg>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -104,16 +146,12 @@ const DeviceControl = () => {
       {/* Map Area */}
       <div className="flex-1 relative mx-4 mb-4">
         {/* Edit Map Button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute top-2 right-2 z-10 bg-card/50 backdrop-blur-sm"
+        <button
+          onClick={() => setShowMapEditor(true)}
+          className="absolute top-2 right-2 z-10 w-11 h-11 rounded-xl bg-card/90 backdrop-blur-sm border border-border/50 flex items-center justify-center shadow-lg hover:bg-card transition-colors"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M12 20h9" />
-            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-          </svg>
-        </Button>
+          <Pencil className="w-5 h-5 text-foreground" />
+        </button>
 
         {/* Floor Selector Button - On Map */}
         <div className="absolute bottom-2 left-2 z-10">
@@ -247,6 +285,97 @@ const DeviceControl = () => {
         </div>
       </div>
 
+      {/* Map Editor Sheet */}
+      <Sheet open={showMapEditor} onOpenChange={setShowMapEditor}>
+        <SheetContent side="bottom" className="bg-card rounded-t-3xl border-border h-auto max-h-[70vh]">
+          <SheetHeader className="pb-4">
+            <div className="flex items-center gap-6">
+              <button 
+                onClick={() => setMapEditorTab("edit")}
+                className={`text-lg font-semibold relative ${mapEditorTab === "edit" ? "text-foreground" : "text-muted-foreground"}`}
+              >
+                Edit Map
+                {mapEditorTab === "edit" && (
+                  <motion.div layoutId="map-tab" className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full" />
+                )}
+              </button>
+              <button 
+                onClick={() => setMapEditorTab("details")}
+                className={`text-lg font-semibold relative ${mapEditorTab === "details" ? "text-foreground" : "text-muted-foreground"}`}
+              >
+                Map Details
+                {mapEditorTab === "details" && (
+                  <motion.div layoutId="map-tab" className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full" />
+                )}
+              </button>
+            </div>
+          </SheetHeader>
+          
+          <div className="space-y-4 pb-4">
+            {mapEditorTab === "edit" ? (
+              <>
+                {/* Map Card */}
+                <div className="bg-muted rounded-xl p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-foreground font-medium">Map 1</span>
+                    <Upload className="w-5 h-5 text-muted-foreground" />
+                  </div>
+                  <div className="flex items-center gap-4 text-sm">
+                    <button className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
+                      <CloudUpload className="w-4 h-4" />
+                      Backup
+                    </button>
+                    <span className="text-border">|</span>
+                    <button className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
+                      <RotateCcw className="w-4 h-4" />
+                      Restore
+                    </button>
+                    <span className="text-border">|</span>
+                    <button className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
+                      <Trash2 className="w-4 h-4" />
+                      Delete
+                    </button>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="grid grid-cols-2 gap-3">
+                  <button className="flex items-center gap-3 bg-muted rounded-xl p-4 hover:bg-muted/80 transition-colors">
+                    <div className="w-10 h-10 rounded-full bg-destructive/20 flex items-center justify-center">
+                      <Ban className="w-5 h-5 text-destructive" />
+                    </div>
+                    <span className="text-foreground font-medium text-sm">No-Go Zones</span>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto" />
+                  </button>
+                  <button className="flex items-center gap-3 bg-muted rounded-xl p-4 hover:bg-muted/80 transition-colors">
+                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                      <Home className="w-5 h-5 text-primary" />
+                    </div>
+                    <span className="text-foreground font-medium text-sm">Edit Rooms</span>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto" />
+                  </button>
+                </div>
+
+                {/* Cleaning Order */}
+                <button className="w-full flex items-center gap-3 bg-muted rounded-xl p-4 hover:bg-muted/80 transition-colors">
+                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                    <ListOrdered className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="text-left flex-1">
+                    <p className="text-foreground font-medium text-sm">Cleaning Order</p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                </button>
+              </>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>Map details and statistics</p>
+              </div>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
+
       {/* Personalize Sheet */}
       <Sheet open={showPersonalize} onOpenChange={setShowPersonalize}>
         <SheetContent side="bottom" className="bg-card rounded-t-3xl border-border">
@@ -283,7 +412,7 @@ const DeviceControl = () => {
                       vacuumPower === level ? "bg-card shadow" : ""
                     }`}
                   >
-                    <Wind className={`w-5 h-5 ${vacuumPower === level ? "text-foreground" : "text-muted-foreground"}`} />
+                    <VacuumIcon level={level} active={vacuumPower === level} />
                   </button>
                 ))}
               </div>
@@ -304,7 +433,7 @@ const DeviceControl = () => {
                       waterFlow === level ? "bg-card shadow" : ""
                     }`}
                   >
-                    <Droplets className={`w-5 h-5 ${waterFlow === level ? "text-foreground" : "text-muted-foreground"}`} />
+                    <WaterIcon level={level} active={waterFlow === level} />
                   </button>
                 ))}
               </div>
