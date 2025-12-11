@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Plus, Bell, Home as HomeIcon, User, Zap, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import RobotVacuum3D from "@/components/RobotVacuum3D";
+import RobotIllustration from "@/components/RobotIllustration";
 
 interface Device {
   id: string;
@@ -42,9 +43,9 @@ const HomePage = () => {
             transition={{ duration: 0.5 }}
             className="flex flex-col items-center justify-center flex-1 w-full"
           >
-            {/* 3D Vacuum Illustration */}
+            {/* Flat Teal Illustration for empty state */}
             <div className="relative mb-8">
-              <RobotVacuum3D />
+              <RobotIllustration />
             </div>
 
             <Button
