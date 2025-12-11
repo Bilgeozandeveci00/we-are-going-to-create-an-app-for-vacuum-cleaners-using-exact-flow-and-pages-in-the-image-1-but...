@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
   MoreHorizontal,
@@ -9,17 +9,29 @@ import {
   Settings2,
   Zap,
   ChevronDown,
+  ChevronRight,
+  Droplets,
+  Wind,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FloorMap from "@/components/FloorMap";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 
 const DeviceControl = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [isRunning, setIsRunning] = useState(false);
-  const [selectedTab, setSelectedTab] = useState<"all" | "room" | "zone">("all");
+  const [selectedTab, setSelectedTab] = useState<"safe" | "normal" | "deep">("normal");
   const [selectedFloor, setSelectedFloor] = useState(1);
   const [showFloorSelector, setShowFloorSelector] = useState(false);
+  const [showPersonalize, setShowPersonalize] = useState(false);
+  const [vacuumPower, setVacuumPower] = useState(3); // 0-4 scale
+  const [waterFlow, setWaterFlow] = useState(2); // 0-4 scale
 
   // Check if map exists, if not redirect to map creation
   useEffect(() => {
@@ -32,16 +44,19 @@ const DeviceControl = () => {
   const device = {
     id,
     name: "Amphibia",
-    status: isRunning ? "Temizleniyor" : "Şarj Ediliyor",
+    status: isRunning ? "Cleaning" : "Charging",
     battery: 93,
     area: 34,
     duration: 50,
   };
 
   const floors = [
-    { id: 1, name: "1. Kat" },
-    { id: 2, name: "2. Kat" },
+    { id: 1, name: "Floor 1" },
+    { id: 2, name: "Floor 2" },
   ];
+
+  const vacuumLevels = ["Off", "Quiet", "Balanced", "Turbo", "Max"];
+  const waterLevels = ["Off", "Low", "Medium", "High", "Custom"];
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -100,56 +115,57 @@ const DeviceControl = () => {
           </svg>
         </Button>
 
+        {/* Floor Selector Button - On Map */}
+        <div className="absolute bottom-2 left-2 z-10">
+          <button
+            onClick={() => setShowFloorSelector(!showFloorSelector)}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-card/80 backdrop-blur-sm text-foreground text-sm border border-border/50"
+          >
+            <span>{floors.find(f => f.id === selectedFloor)?.name}</span>
+            <ChevronDown className={`w-4 h-4 transition-transform ${showFloorSelector ? "rotate-180" : ""}`} />
+          </button>
+          
+          <AnimatePresence>
+            {showFloorSelector && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                className="absolute bottom-full left-0 mb-2 rounded-xl bg-card border border-border overflow-hidden min-w-[140px] shadow-lg"
+              >
+                {floors.map((floor) => (
+                  <button
+                    key={floor.id}
+                    onClick={() => {
+                      setSelectedFloor(floor.id);
+                      setShowFloorSelector(false);
+                    }}
+                    className={`w-full py-2.5 px-4 text-left text-sm transition-colors ${
+                      selectedFloor === floor.id
+                        ? "bg-primary/20 text-primary"
+                        : "text-foreground hover:bg-muted"
+                    }`}
+                  >
+                    {floor.name}
+                  </button>
+                ))}
+                <button
+                  onClick={() => {
+                    setShowFloorSelector(false);
+                  }}
+                  className="w-full py-2.5 px-4 text-left text-sm text-primary border-t border-border"
+                >
+                  + Add Floor
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
         {/* Map */}
         <div className="h-full min-h-[300px] rounded-2xl overflow-hidden">
           <FloorMap isRunning={isRunning} />
         </div>
-      </div>
-
-      {/* Floor Selector */}
-      <div className="px-4 mb-4">
-        <button
-          onClick={() => setShowFloorSelector(!showFloorSelector)}
-          className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-card/50 text-primary border border-primary/30"
-        >
-          <span className="font-medium">Kat Seçimi</span>
-          <ChevronDown className={`w-4 h-4 transition-transform ${showFloorSelector ? "rotate-180" : ""}`} />
-        </button>
-        
-        {showFloorSelector && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="mt-2 rounded-xl bg-card overflow-hidden"
-          >
-            {floors.map((floor) => (
-              <button
-                key={floor.id}
-                onClick={() => {
-                  setSelectedFloor(floor.id);
-                  setShowFloorSelector(false);
-                }}
-                className={`w-full py-3 px-4 text-left transition-colors ${
-                  selectedFloor === floor.id
-                    ? "bg-primary/20 text-primary"
-                    : "text-foreground hover:bg-muted"
-                }`}
-              >
-                {floor.name}
-              </button>
-            ))}
-            <button
-              onClick={() => {
-                // Add floor logic
-                setShowFloorSelector(false);
-              }}
-              className="w-full py-3 px-4 text-left text-primary border-t border-border"
-            >
-              + Kat Ekle
-            </button>
-          </motion.div>
-        )}
       </div>
 
       {/* Bottom Control Panel */}
@@ -157,30 +173,33 @@ const DeviceControl = () => {
         {/* Tabs */}
         <div className="flex items-center justify-center gap-8 mb-6">
           <TabButton
-            label="Tüm"
-            active={selectedTab === "all"}
-            onClick={() => setSelectedTab("all")}
+            label="Safe"
+            active={selectedTab === "safe"}
+            onClick={() => setSelectedTab("safe")}
           />
           <TabButton
-            label="Oda"
-            active={selectedTab === "room"}
-            onClick={() => setSelectedTab("room")}
+            label="Normal"
+            active={selectedTab === "normal"}
+            onClick={() => setSelectedTab("normal")}
           />
           <TabButton
-            label="Bölge"
-            active={selectedTab === "zone"}
-            onClick={() => setSelectedTab("zone")}
+            label="Deep"
+            active={selectedTab === "deep"}
+            onClick={() => setSelectedTab("deep")}
           />
         </div>
 
         {/* Control Buttons */}
         <div className="flex items-center justify-center gap-6">
           {/* Customize Button */}
-          <button className="flex flex-col items-center gap-2">
+          <button 
+            className="flex flex-col items-center gap-2"
+            onClick={() => setShowPersonalize(true)}
+          >
             <div className="w-12 h-12 rounded-full bg-card-elevated flex items-center justify-center">
               <Settings2 className="w-5 h-5 text-primary" />
             </div>
-            <span className="text-xs text-muted-foreground">Kişiselleştir</span>
+            <span className="text-xs text-muted-foreground">Customize</span>
           </button>
 
           {/* Play/Pause Button */}
@@ -205,10 +224,85 @@ const DeviceControl = () => {
             <div className="w-12 h-12 rounded-full bg-card-elevated flex items-center justify-center">
               <Zap className="w-5 h-5 text-primary" />
             </div>
-            <span className="text-xs text-muted-foreground">Şarj İstasyonu</span>
+            <span className="text-xs text-muted-foreground">Dock</span>
           </button>
         </div>
       </div>
+
+      {/* Personalize Sheet */}
+      <Sheet open={showPersonalize} onOpenChange={setShowPersonalize}>
+        <SheetContent side="bottom" className="bg-card rounded-t-3xl border-border">
+          <SheetHeader className="pb-4">
+            <div className="flex items-center gap-4">
+              <button 
+                className={`text-lg font-semibold flex items-center gap-2`}
+              >
+                General
+                <span className="w-2 h-2 rounded-full bg-primary" />
+              </button>
+              <button className="text-lg text-muted-foreground">
+                Customize
+              </button>
+            </div>
+            <p className="text-sm text-muted-foreground text-left">
+              Vacuum and Mop for daily cleaning
+            </p>
+          </SheetHeader>
+          
+          <div className="space-y-6">
+            {/* Vacuum Power */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-foreground font-medium">Vacuum Power</span>
+                <span className="text-primary text-sm">{vacuumLevels[vacuumPower]}</span>
+              </div>
+              <div className="flex items-center bg-muted rounded-full p-1">
+                {[0, 1, 2, 3, 4].map((level) => (
+                  <button
+                    key={level}
+                    onClick={() => setVacuumPower(level)}
+                    className={`flex-1 py-2.5 rounded-full flex items-center justify-center transition-colors ${
+                      vacuumPower === level ? "bg-card shadow" : ""
+                    }`}
+                  >
+                    <Wind className={`w-5 h-5 ${vacuumPower === level ? "text-foreground" : "text-muted-foreground"}`} />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Water Flow */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-foreground font-medium">Water Flow</span>
+                <span className="text-primary text-sm">{waterLevels[waterFlow]}</span>
+              </div>
+              <div className="flex items-center bg-muted rounded-full p-1">
+                {[0, 1, 2, 3, 4].map((level) => (
+                  <button
+                    key={level}
+                    onClick={() => setWaterFlow(level)}
+                    className={`flex-1 py-2.5 rounded-full flex items-center justify-center transition-colors ${
+                      waterFlow === level ? "bg-card shadow" : ""
+                    }`}
+                  >
+                    <Droplets className={`w-5 h-5 ${waterFlow === level ? "text-foreground" : "text-muted-foreground"}`} />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Cleaning Order */}
+            <button className="w-full flex items-center justify-between py-4 border-t border-border">
+              <div className="text-left">
+                <p className="text-foreground font-medium">Cleaning Order</p>
+                <p className="text-sm text-muted-foreground">Set cleaning sequence for maximum efficiency</p>
+              </div>
+              <ChevronRight className="w-5 h-5 text-muted-foreground" />
+            </button>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
