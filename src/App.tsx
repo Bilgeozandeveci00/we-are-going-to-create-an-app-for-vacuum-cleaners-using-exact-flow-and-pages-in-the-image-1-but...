@@ -14,6 +14,8 @@ import MapCreation from "./pages/MapCreation";
 import AddDevice from "./pages/AddDevice";
 import Notifications from "./pages/Notifications";
 import Profile from "./pages/Profile";
+import NoGoZones from "./pages/NoGoZones";
+import RoomEditor from "./pages/RoomEditor";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +36,8 @@ const App = () => (
             <Route path="/home" element={<Home />} />
             <Route path="/device/:id" element={<DeviceControl />} />
             <Route path="/device/:id/create-map" element={<MapCreation />} />
+            <Route path="/device/:id/no-go-zones" element={<NoGoZones />} />
+            <Route path="/device/:id/room-editor" element={<RoomEditor />} />
             <Route path="/add-device" element={<AddDevice />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/profile" element={<Profile />} />
