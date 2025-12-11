@@ -1,52 +1,24 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Scan, Volume2, Trash2, Plus } from "lucide-react";
+import { motion } from "framer-motion";
+import { ArrowLeft, Wifi } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-const vacuumModels = [
-  { id: "saros-z70", name: "Saros Z70" },
-  { id: "qrevo-edge", name: "Roborock Qrevo Edge Series" },
-  { id: "qrevo-curvx", name: "Roborock Qrevo CurvX" },
-  { id: "qrevo-c", name: "Roborock Qrevo C" },
-  { id: "qrevo-l", name: "Roborock Qrevo L" },
-  { id: "qrevo-curv-series", name: "Roborock Qrevo Curv Series" },
-  { id: "saros-10", name: "Saros 10" },
-  { id: "saros-10r", name: "Saros 10R" },
-  { id: "qrevo-curv", name: "Roborock Qrevo Curv" },
-];
-
-type Tab = "robot" | "wet-dry";
-type Step = "list" | "qr-scan";
 
 const AddDevice = () => {
   const navigate = useNavigate();
-  const [step, setStep] = useState<Step>("list");
-  const [activeTab, setActiveTab] = useState<Tab>("robot");
-  const [isSearching, setIsSearching] = useState(true);
 
   const handleBack = () => {
-    if (step === "qr-scan") {
-      setStep("list");
-    } else {
-      navigate("/home");
-    }
+    navigate("/home");
   };
 
-  const handleModelSelect = (modelId: string) => {
-    // Simulate adding device
+  const handleDeviceSelect = () => {
     localStorage.setItem("hasDevice", "true");
     navigate("/home");
   };
 
-  const handleManualAdd = () => {
-    setStep("list");
-  };
-
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <header className="flex items-center justify-between px-4 py-3">
+      <header className="flex items-center px-4 py-3">
         <Button
           variant="ghost"
           size="icon"
@@ -55,156 +27,88 @@ const AddDevice = () => {
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <h1 className="text-lg font-semibold text-foreground">Add Device</h1>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setStep("qr-scan")}
-          className="text-foreground"
-        >
-          <Scan className="h-5 w-5" />
-        </Button>
+        <h1 className="text-lg font-semibold text-foreground ml-2">Add Device</h1>
       </header>
 
-      <AnimatePresence mode="wait">
-        {step === "list" && (
-          <motion.main
-            key="list"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            className="px-4 py-2"
-          >
-            {/* Nearby Devices */}
-            <div className="mb-6">
-              <div className="flex items-center gap-2 mb-1">
-                <h2 className="text-base font-medium text-foreground">Nearby Devices</h2>
-                {isSearching && (
-                  <div className="w-3 h-3 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-                )}
-              </div>
-              <p className="text-sm text-muted-foreground">Searching for nearby devices</p>
-            </div>
-
-            {/* Category Tabs */}
-            <div className="flex gap-8 mb-6 border-b border-border">
-              <button
-                onClick={() => setActiveTab("robot")}
-                className={`pb-3 text-sm font-medium relative ${
-                  activeTab === "robot" ? "text-foreground" : "text-muted-foreground"
-                }`}
-              >
-                Robot Vacuum
-                {activeTab === "robot" && (
-                  <motion.div
-                    layoutId="tab-indicator"
-                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-foreground"
-                  />
-                )}
-              </button>
-              <button
-                onClick={() => setActiveTab("wet-dry")}
-                className={`pb-3 text-sm font-medium relative ${
-                  activeTab === "wet-dry" ? "text-foreground" : "text-muted-foreground"
-                }`}
-              >
-                Wet & Dry Vacuum
-                {activeTab === "wet-dry" && (
-                  <motion.div
-                    layoutId="tab-indicator"
-                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-foreground"
-                  />
-                )}
-              </button>
-            </div>
-
-            {/* Device Grid */}
-            <div className="grid grid-cols-3 gap-4">
-              {vacuumModels.map((model) => (
-                <button
-                  key={model.id}
-                  onClick={() => handleModelSelect(model.id)}
-                  className="flex flex-col items-center text-center"
-                >
-                  <div className="w-full aspect-square rounded-xl bg-card border border-border/50 mb-2 flex items-center justify-center overflow-hidden">
-                    {/* Vacuum placeholder */}
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gray-200 to-gray-400 flex items-center justify-center">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-white to-gray-300" />
-                    </div>
-                  </div>
-                  <span className="text-xs text-muted-foreground leading-tight">{model.name}</span>
-                </button>
-              ))}
-            </div>
-          </motion.main>
-        )}
-
-        {step === "qr-scan" && (
-          <motion.main
-            key="qr-scan"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="px-4 py-2 flex flex-col"
-          >
-            {/* Instructions */}
-            <div className="mb-4">
-              <h2 className="text-xl font-semibold text-foreground mb-2">Scan QR Code</h2>
-              <p className="text-sm text-muted-foreground mb-1">
-                Point your phone camera at the QR code to automatically scan.
-              </p>
-              <button className="text-sm text-muted-foreground flex items-center gap-1">
-                Where is QR code? <span className="text-primary">›</span>
-              </button>
-            </div>
-
-            {/* Camera View Placeholder */}
-            <div className="relative w-full aspect-[4/3] rounded-2xl bg-card/50 border border-border/30 overflow-hidden mb-4">
-              {/* Simulated camera view */}
-              <div className="absolute inset-0 bg-gradient-to-br from-gray-900/90 to-gray-800/90" />
+      <main className="flex-1 px-4 py-2 flex flex-col">
+        {/* QR Scanner Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6"
+        >
+          <p className="text-sm text-muted-foreground mb-3 text-center">
+            Scan QR code on device to connect
+          </p>
+          
+          {/* Camera View */}
+          <div className="relative w-full aspect-square max-w-[280px] mx-auto rounded-3xl bg-card/30 border border-border/30 overflow-hidden">
+            {/* Simulated camera view */}
+            <div className="absolute inset-0 bg-gradient-to-br from-gray-900/95 to-gray-800/95" />
+            
+            {/* Scan frame */}
+            <div className="absolute inset-10">
+              <div className="absolute top-0 left-0 w-8 h-8 border-t-3 border-l-3 border-primary rounded-tl-xl" style={{ borderWidth: '3px' }} />
+              <div className="absolute top-0 right-0 w-8 h-8 border-t-3 border-r-3 border-primary rounded-tr-xl" style={{ borderWidth: '3px' }} />
+              <div className="absolute bottom-0 left-0 w-8 h-8 border-b-3 border-l-3 border-primary rounded-bl-xl" style={{ borderWidth: '3px' }} />
+              <div className="absolute bottom-0 right-0 w-8 h-8 border-b-3 border-r-3 border-primary rounded-br-xl" style={{ borderWidth: '3px' }} />
               
-              {/* Scan frame */}
-              <div className="absolute inset-8 border-2 border-primary/50 rounded-xl">
-                <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-primary rounded-tl-lg" />
-                <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-primary rounded-tr-lg" />
-                <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-primary rounded-bl-lg" />
-                <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-primary rounded-br-lg" />
-              </div>
+              {/* Scanning line animation */}
+              <motion.div
+                className="absolute left-2 right-2 h-0.5 bg-primary/80"
+                initial={{ top: "10%" }}
+                animate={{ top: "90%" }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  repeatType: "reverse",
+                  ease: "easeInOut"
+                }}
+              />
+            </div>
+          </div>
+        </motion.div>
 
-              {/* Camera controls */}
-              <div className="absolute bottom-4 left-4 flex gap-3">
-                <button className="w-10 h-10 rounded-full bg-card/50 backdrop-blur-sm flex items-center justify-center">
-                  <Volume2 className="w-5 h-5 text-foreground" />
-                </button>
-                <button className="w-10 h-10 rounded-full bg-card/50 backdrop-blur-sm flex items-center justify-center">
-                  <div className="w-5 h-5 rounded-full border-2 border-foreground" />
-                </button>
+        {/* Nearby Devices Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="flex-1"
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <h2 className="text-base font-medium text-foreground">Nearby Devices</h2>
+            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+          </div>
+
+          {/* Nearby Device Card */}
+          <button
+            onClick={handleDeviceSelect}
+            className="w-full flex items-center gap-4 p-4 rounded-2xl bg-card/50 border border-border/30 active:scale-[0.98] transition-transform"
+          >
+            {/* Device Icon */}
+            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-200 to-gray-400 flex items-center justify-center">
+                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-white to-gray-300" />
+              </div>
+            </div>
+            
+            {/* Device Info */}
+            <div className="flex-1 text-left">
+              <p className="text-foreground font-medium">Amphibia Robot Cleaner</p>
+              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                <Wifi className="w-3 h-3" />
+                <span>Ready to connect</span>
               </div>
             </div>
 
-            {/* Delete/Cancel button */}
-            <div className="flex justify-center mb-6">
-              <button className="w-12 h-12 rounded-full bg-card/30 flex items-center justify-center">
-                <Trash2 className="w-5 h-5 text-muted-foreground" />
-              </button>
+            {/* Connect indicator */}
+            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+              <div className="w-2 h-2 rounded-full bg-primary" />
             </div>
-
-            {/* Manual Add Option */}
-            <button
-              onClick={handleManualAdd}
-              className="flex items-center gap-3 w-full p-4 rounded-2xl bg-card/50 border border-border/30"
-            >
-              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                <Plus className="w-5 h-5 text-primary" />
-              </div>
-              <div className="text-left">
-                <p className="text-foreground font-medium">Add Manually</p>
-                <p className="text-sm text-muted-foreground">Search or select a model to add</p>
-              </div>
-            </button>
-          </motion.main>
-        )}
-      </AnimatePresence>
+          </button>
+        </motion.div>
+      </main>
     </div>
   );
 };
