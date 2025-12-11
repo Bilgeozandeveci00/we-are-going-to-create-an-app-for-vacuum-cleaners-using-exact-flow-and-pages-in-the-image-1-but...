@@ -136,52 +136,50 @@ const HomePage = () => {
   );
 };
 
-export const BottomNav = ({ currentPath, onAddDevice, hasDevices = false }: { currentPath: string; onAddDevice?: () => void; hasDevices?: boolean }) => {
+export const BottomNav = ({ currentPath }: { currentPath: string; onAddDevice?: () => void; hasDevices?: boolean }) => {
   const navigate = useNavigate();
   
-  const navItems = [
-    { icon: Bell, label: "Notifications", path: "/notifications" },
-    { icon: HomeIcon, label: "Device", path: "/home", isMain: true },
-    { icon: User, label: "Profile", path: "/profile" },
-  ];
+  const isDeviceActive = currentPath === "/home";
+  const isNotificationsActive = currentPath === "/notifications";
+  const isProfileActive = currentPath === "/profile";
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 border-t border-border bg-card/80 backdrop-blur-xl">
-      <div className="flex items-end justify-around pb-4 pt-2 px-8">
-        {navItems.map((item) => {
-          const isActive = currentPath === item.path;
-          const Icon = item.icon;
-          
-          if (item.isMain) {
-            return (
-              <button
-                key={item.path}
-                onClick={() => navigate(item.path)}
-                className="flex flex-col items-center -mt-6"
-              >
-                <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-1 ${
-                  isActive ? "bg-foreground" : "bg-card border border-border"
-                }`}>
-                  <Icon className={`h-6 w-6 ${isActive ? "text-background" : "text-muted-foreground"}`} fill={isActive ? "currentColor" : "none"} />
-                </div>
-                <span className={`text-xs ${isActive ? "text-foreground" : "text-muted-foreground"}`}>{item.label}</span>
-              </button>
-            );
-          }
-          
-          return (
-            <button
-              key={item.path}
-              onClick={() => navigate(item.path)}
-              className={`flex flex-col items-center gap-1 transition-colors ${
-                isActive ? "text-foreground" : "text-muted-foreground"
-              }`}
-            >
-              <Icon className="h-6 w-6" fill={isActive ? "currentColor" : "none"} />
-              <span className="text-xs">{item.label}</span>
-            </button>
-          );
-        })}
+    <nav className="fixed bottom-0 left-0 right-0 bg-card/90 backdrop-blur-xl safe-area-bottom">
+      <div className="flex items-center justify-around py-3 px-6 max-w-md mx-auto">
+        {/* Notifications */}
+        <button
+          onClick={() => navigate("/notifications")}
+          className="flex items-center justify-center w-12 h-12 rounded-full transition-colors"
+        >
+          <Bell 
+            className={`h-6 w-6 ${isNotificationsActive ? "text-primary" : "text-muted-foreground"}`} 
+            fill={isNotificationsActive ? "currentColor" : "none"} 
+          />
+        </button>
+
+        {/* Device - Main button as pill */}
+        <button
+          onClick={() => navigate("/home")}
+          className={`flex items-center gap-2 px-6 py-3 rounded-full transition-all ${
+            isDeviceActive 
+              ? "bg-primary text-primary-foreground" 
+              : "bg-card border border-border text-muted-foreground"
+          }`}
+        >
+          <HomeIcon className="h-5 w-5" fill={isDeviceActive ? "currentColor" : "none"} />
+          <span className="text-sm font-medium">Device</span>
+        </button>
+
+        {/* Profile */}
+        <button
+          onClick={() => navigate("/profile")}
+          className="flex items-center justify-center w-12 h-12 rounded-full transition-colors"
+        >
+          <User 
+            className={`h-6 w-6 ${isProfileActive ? "text-primary" : "text-muted-foreground"}`} 
+            fill={isProfileActive ? "currentColor" : "none"} 
+          />
+        </button>
       </div>
     </nav>
   );
