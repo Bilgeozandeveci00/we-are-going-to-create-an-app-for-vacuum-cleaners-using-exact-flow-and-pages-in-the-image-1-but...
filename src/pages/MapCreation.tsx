@@ -40,7 +40,7 @@ const MapCreation = () => {
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <h1 className="text-lg font-semibold text-foreground">Harita Oluştur</h1>
+        <h1 className="text-lg font-semibold text-foreground">Create Map</h1>
         <div className="w-10" />
       </header>
 
@@ -58,18 +58,18 @@ const MapCreation = () => {
             </div>
 
             <h2 className="text-2xl font-bold text-foreground mb-4">
-              Harita Oluşturmaya Başla
+              Start Mapping
             </h2>
 
             <p className="text-muted-foreground mb-8 max-w-sm">
-              Cihazınız evinizi tarayarak bir harita oluşturacak. Lütfen cihazın şarj istasyonunda olduğundan ve önünde engel olmadığından emin olun.
+              Your device will scan your home to create a map. Please make sure the device is on the charging station and there are no obstacles in front of it.
             </p>
 
             {/* Instructions */}
             <div className="w-full max-w-sm space-y-4 mb-8">
-              <InstructionItem number={1} text="Cihazın şarj istasyonunda olduğundan emin olun" />
-              <InstructionItem number={2} text="Kapıları açık tutun ve engelleri kaldırın" />
-              <InstructionItem number={3} text="Tarama sırasında cihaza dokunmayın" />
+              <InstructionItem number={1} text="Make sure the device is on the charging station" />
+              <InstructionItem number={2} text="Keep doors open and remove obstacles" />
+              <InstructionItem number={3} text="Do not touch the device during scanning" />
             </div>
 
             <Button
@@ -79,7 +79,7 @@ const MapCreation = () => {
               className="w-full max-w-sm h-14 rounded-2xl text-lg font-semibold"
             >
               <Play className="w-5 h-5 mr-2" />
-              Taramayı Başlat
+              Start Scanning
             </Button>
           </motion.div>
         ) : (
@@ -120,12 +120,12 @@ const MapCreation = () => {
             <div className="flex items-center gap-2 mb-4">
               <Loader2 className="w-5 h-5 text-primary animate-spin" />
               <h2 className="text-xl font-semibold text-foreground">
-                Harita Oluşturuluyor...
+                Creating Map...
               </h2>
             </div>
 
             <p className="text-muted-foreground max-w-sm">
-              Cihazınız evinizi tarıyor. Bu işlem birkaç dakika sürebilir.
+              Your device is scanning your home. This may take a few minutes.
             </p>
           </motion.div>
         )}
