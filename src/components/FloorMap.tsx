@@ -122,11 +122,6 @@ const FloorMap = ({ isRunning, selectedRoom, onRoomSelect }: FloorMapProps) => {
               <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
-          
-          {/* Drop shadow for rooms */}
-          <filter id="roomShadow" x="-5%" y="-5%" width="110%" height="110%">
-            <feDropShadow dx="1" dy="1" stdDeviation="1" floodOpacity="0.2" />
-          </filter>
         </defs>
 
         {/* Dark background */}
@@ -148,9 +143,8 @@ const FloorMap = ({ isRunning, selectedRoom, onRoomSelect }: FloorMapProps) => {
               d={room.path}
               fill={room.color}
               fillOpacity={selectedRoom === room.id ? 0.95 : 0.85}
-              stroke="hsl(220, 25%, 12%)"
-              strokeWidth="2"
-              filter="url(#roomShadow)"
+              stroke="hsl(220, 25%, 8%)"
+              strokeWidth="1.5"
               whileHover={{ fillOpacity: 0.95 }}
               transition={{ duration: 0.2 }}
             />
@@ -162,39 +156,15 @@ const FloorMap = ({ isRunning, selectedRoom, onRoomSelect }: FloorMapProps) => {
               pointerEvents="none"
             />
 
-            {/* Cleaning path lines - curved and realistic */}
+            {/* Cleaning path lines */}
             <path
               d={room.cleaningPaths}
-              stroke="rgba(255,255,255,0.25)"
-              strokeWidth="1.5"
+              stroke="rgba(255,255,255,0.2)"
+              strokeWidth="1"
               strokeLinecap="round"
               fill="none"
               pointerEvents="none"
             />
-
-            {/* Room label */}
-            <g>
-              <rect
-                x={room.labelX - 20}
-                y={room.labelY - 6}
-                width="40"
-                height="12"
-                rx="6"
-                fill="hsl(220, 20%, 15%)"
-                fillOpacity="0.9"
-              />
-              <text
-                x={room.labelX}
-                y={room.labelY + 3}
-                fontSize="5"
-                fill="white"
-                textAnchor="middle"
-                fontWeight="500"
-                opacity="0.9"
-              >
-                {room.name}
-              </text>
-            </g>
           </g>
         ))}
 
@@ -226,24 +196,33 @@ const FloorMap = ({ isRunning, selectedRoom, onRoomSelect }: FloorMapProps) => {
           ))}
         </g>
 
-        {/* Door indicators */}
-        <g stroke="hsl(220, 25%, 12%)" strokeWidth="3">
-          {/* Living to kitchen */}
-          <line x1="70" y1="95" x2="85" y2="95" />
+        {/* Door/connection indicators - clear openings between rooms */}
+        <g>
+          {/* Living to kitchen - door opening */}
+          <line x1="70" y1="95" x2="85" y2="95" stroke="hsl(210, 58%, 47%)" strokeWidth="4" />
+          <rect x="72" y="93" width="10" height="4" rx="1" fill="hsl(220, 25%, 12%)" />
+          
           {/* Living to hallway */}
-          <line x1="115" y1="90" x2="115" y2="100" />
+          <line x1="115" y1="90" x2="115" y2="100" stroke="hsl(215, 52%, 42%)" strokeWidth="4" />
+          <rect x="113" y="92" width="4" height="6" rx="1" fill="hsl(220, 25%, 12%)" />
+          
           {/* Hallway to bathroom */}
-          <line x1="155" y1="105" x2="160" y2="105" />
-          {/* Living to bedroom */}
-          <line x1="155" y1="45" x2="160" y2="45" />
+          <line x1="155" y1="105" x2="160" y2="105" stroke="hsl(200, 50%, 55%)" strokeWidth="4" />
+          <rect x="155" y="103" width="5" height="4" rx="1" fill="hsl(220, 25%, 12%)" />
+          
+          {/* Living to bedroom - connection */}
+          <line x1="155" y1="40" x2="160" y2="40" stroke="hsl(35, 70%, 55%)" strokeWidth="4" />
+          <rect x="155" y="38" width="5" height="4" rx="1" fill="hsl(220, 25%, 12%)" />
+          
+          {/* Hallway to kitchen */}
+          <line x1="105" y1="115" x2="115" y2="115" stroke="hsl(215, 50%, 45%)" strokeWidth="4" />
+          <rect x="106" y="113" width="7" height="4" rx="1" fill="hsl(220, 25%, 12%)" />
         </g>
 
         {/* Charging dock */}
         <g transform="translate(190, 140)">
-          <rect x="-8" y="-5" width="16" height="10" rx="2" fill="hsl(220, 30%, 25%)" stroke="hsl(160, 70%, 45%)" strokeWidth="1" />
-          <rect x="-5" y="-2" width="10" height="2" rx="1" fill="hsl(160, 70%, 45%)" />
-          <circle cx="-3" cy="2" r="1" fill="hsl(var(--muted-foreground))" />
-          <circle cx="3" cy="2" r="1" fill="hsl(var(--muted-foreground))" />
+          <rect x="-6" y="-4" width="12" height="8" rx="2" fill="hsl(220, 30%, 20%)" stroke="hsl(160, 70%, 45%)" strokeWidth="1" />
+          <rect x="-4" y="-2" width="8" height="2" rx="1" fill="hsl(160, 70%, 45%)" />
         </g>
 
         {/* Robot vacuum */}
