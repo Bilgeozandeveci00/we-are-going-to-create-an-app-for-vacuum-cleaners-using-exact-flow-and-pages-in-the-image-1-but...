@@ -60,7 +60,7 @@ const Splash = () => {
           <h1 className="text-3xl font-bold tracking-tight text-foreground">
             Amphibia
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">Smart Home Control</p>
+          <p className="mt-1 text-sm text-muted-foreground">Smart Home Cleaning</p>
         </motion.div>
 
         {/* Loading indicator */}
