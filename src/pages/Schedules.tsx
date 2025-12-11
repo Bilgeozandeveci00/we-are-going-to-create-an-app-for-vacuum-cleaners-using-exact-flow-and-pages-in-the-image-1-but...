@@ -8,7 +8,7 @@ const Schedules = () => {
   const { id } = useParams();
   const [startTime, setStartTime] = useState<string | null>(null);
   const [repeatMode, setRepeatMode] = useState("Once");
-  const [taskMode, setTaskMode] = useState<"all" | "room">("all");
+  const [cleaningMode, setCleaningMode] = useState<"safe" | "normal" | "deep">("normal");
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -49,37 +49,54 @@ const Schedules = () => {
           </button>
         </div>
 
-        {/* Task Section */}
+        {/* Cleaning Mode Section */}
         <div>
-          <p className="text-sm text-muted-foreground mb-3 px-1">Task</p>
+          <p className="text-sm text-muted-foreground mb-3 px-1">Cleaning Mode</p>
           <div className="bg-card rounded-2xl p-4 space-y-4">
             {/* Mode Toggle */}
             <div className="bg-muted rounded-full p-1 flex">
               <button
-                onClick={() => setTaskMode("all")}
+                onClick={() => setCleaningMode("safe")}
                 className={`flex-1 py-2.5 rounded-full text-sm font-medium transition-colors ${
-                  taskMode === "all"
+                  cleaningMode === "safe"
                     ? "bg-card text-foreground shadow"
                     : "text-muted-foreground"
                 }`}
               >
-                All
+                Safe
               </button>
               <button
-                onClick={() => setTaskMode("room")}
+                onClick={() => setCleaningMode("normal")}
                 className={`flex-1 py-2.5 rounded-full text-sm font-medium transition-colors ${
-                  taskMode === "room"
+                  cleaningMode === "normal"
                     ? "bg-card text-foreground shadow"
                     : "text-muted-foreground"
                 }`}
               >
-                Room
+                Normal
+              </button>
+              <button
+                onClick={() => setCleaningMode("deep")}
+                className={`flex-1 py-2.5 rounded-full text-sm font-medium transition-colors ${
+                  cleaningMode === "deep"
+                    ? "bg-card text-foreground shadow"
+                    : "text-muted-foreground"
+                }`}
+              >
+                Deep
               </button>
             </div>
 
-            {/* Cleaning Mode */}
+            {/* Mode Description */}
+            <p className="text-xs text-muted-foreground text-center">
+              {cleaningMode === "safe" && "Cleans carefully without getting stuck on obstacles"}
+              {cleaningMode === "normal" && "Balanced cleaning while avoiding risky areas"}
+              {cleaningMode === "deep" && "Thorough cleaning that covers every area"}
+            </p>
+
+            {/* Power Settings */}
             <button className="w-full flex items-center justify-between py-2">
-              <span className="text-foreground">Cleaning Mode</span>
+              <span className="text-foreground">Power Settings</span>
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted-foreground">
