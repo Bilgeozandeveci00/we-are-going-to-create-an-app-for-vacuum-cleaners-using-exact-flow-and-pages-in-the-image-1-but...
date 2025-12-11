@@ -7,6 +7,7 @@ interface Room {
   color: string;
   labelX: number;
   labelY: number;
+  cleaningPaths: string;
 }
 
 interface FloorMapProps {
@@ -19,166 +20,177 @@ const rooms: Room[] = [
   {
     id: "living",
     name: "Living Room",
-    path: "M15 25 L85 25 L85 55 L100 55 L100 25 L130 25 L130 95 L100 95 L100 75 L85 75 L85 95 L15 95 Z",
-    color: "hsl(200, 70%, 50%)",
-    labelX: 55,
-    labelY: 60,
+    path: "M20 60 L20 30 Q25 25 35 25 L90 25 L90 30 L95 30 L95 25 L145 25 Q155 25 155 35 L155 55 L140 55 L140 70 Q140 75 135 75 L115 75 L115 90 L100 90 L100 95 L85 95 L85 90 L75 90 Q70 90 70 85 L70 75 L55 75 L55 90 Q55 95 50 95 L30 95 Q25 95 25 90 L25 75 L20 75 Z",
+    color: "hsl(210, 60%, 45%)",
+    labelX: 85,
+    labelY: 55,
+    cleaningPaths: "M30 35 L85 35 M30 42 L85 42 M30 49 L85 49 M30 56 L85 56 M30 63 L70 63 M30 70 L65 70 M30 77 L50 77 M30 84 L45 84 M100 35 L145 35 M100 42 L145 42 M100 49 L145 49 M115 56 L135 56 M115 63 L135 63 M115 70 L130 70",
   },
   {
     id: "bedroom",
     name: "Bedroom",
-    path: "M135 25 L185 25 L185 75 L135 75 Z",
-    color: "hsl(45, 75%, 50%)",
-    labelX: 160,
+    path: "M160 25 L195 25 Q200 25 200 30 L200 75 Q200 80 195 80 L180 80 L180 95 L175 95 L175 80 L160 80 Q155 80 155 75 L155 55 L160 55 L160 30 Q160 25 165 25 Z",
+    color: "hsl(35, 70%, 55%)",
+    labelX: 178,
     labelY: 50,
+    cleaningPaths: "M165 32 L193 32 M165 40 L193 40 M165 48 L193 48 M165 56 L193 56 M165 64 L193 64 M165 72 L193 72 M177 82 L177 92",
   },
   {
     id: "bathroom",
     name: "Bathroom",
-    path: "M135 80 L185 80 L185 115 L135 115 Z",
-    color: "hsl(280, 55%, 50%)",
-    labelX: 160,
-    labelY: 97,
+    path: "M160 85 L195 85 Q200 85 200 90 L200 130 Q200 135 195 135 L165 135 Q160 135 160 130 L160 90 Q160 85 165 85 Z",
+    color: "hsl(200, 50%, 55%)",
+    labelX: 180,
+    labelY: 110,
+    cleaningPaths: "M167 92 L193 92 M167 100 L193 100 M167 108 L193 108 M167 116 L193 116 M167 124 L193 124",
   },
   {
     id: "kitchen",
     name: "Kitchen",
-    path: "M15 100 L80 100 L80 140 L15 140 Z",
-    color: "hsl(15, 70%, 55%)",
-    labelX: 47,
-    labelY: 120,
+    path: "M20 100 L70 100 L70 105 L75 105 L75 100 L100 100 L100 105 L105 105 L105 100 L115 100 L115 110 L105 110 L105 140 Q105 145 100 145 L25 145 Q20 145 20 140 Z",
+    color: "hsl(210, 55%, 50%)",
+    labelX: 62,
+    labelY: 125,
+    cleaningPaths: "M28 108 L98 108 M28 116 L98 116 M28 124 L98 124 M28 132 L98 132 M28 139 L98 139",
   },
   {
     id: "hallway",
     name: "Hallway",
-    path: "M85 100 L130 100 L130 140 L85 140 Z",
-    color: "hsl(160, 50%, 45%)",
-    labelX: 107,
-    labelY: 120,
+    path: "M110 100 L155 100 L155 145 L110 145 Z",
+    color: "hsl(220, 45%, 40%)",
+    labelX: 132,
+    labelY: 125,
+    cleaningPaths: "M115 108 L150 108 M115 116 L150 116 M115 124 L150 124 M115 132 L150 132 M115 140 L150 140",
   },
+];
+
+// Furniture and obstacles
+const furniture = [
+  // Living room - L-shaped sofa
+  { type: "sofa", path: "M28 40 L28 60 L32 60 L32 48 L55 48 L55 44 L28 44 Z", room: "living" },
+  // Living room - coffee table
+  { type: "table", path: "M38 52 L52 52 L52 58 L38 58 Z", room: "living" },
+  // Living room - TV stand
+  { type: "tv", path: "M125 30 L140 30 L140 35 L125 35 Z", room: "living" },
+  // Living room - armchair
+  { type: "chair", path: "M60 55 Q60 50 65 50 Q70 50 70 55 L70 62 L60 62 Z", room: "living" },
+  // Bedroom - bed
+  { type: "bed", path: "M168 35 L195 35 L195 70 L168 70 Z", room: "bedroom" },
+  // Bedroom - nightstand
+  { type: "nightstand", path: "M163 45 L168 45 L168 55 L163 55 Z", room: "bedroom" },
+  // Bathroom - toilet
+  { type: "toilet", path: "M188 92 Q193 92 193 97 L193 103 Q193 108 188 108 Q183 108 183 103 L183 97 Q183 92 188 92 Z", room: "bathroom" },
+  // Bathroom - sink
+  { type: "sink", path: "M167 92 Q172 92 172 97 L172 103 Q172 108 167 108 Q162 108 162 103 L162 97 Q162 92 167 92 Z", room: "bathroom" },
+  // Bathroom - shower
+  { type: "shower", path: "M175 118 L193 118 L193 133 L175 133 Z", room: "bathroom" },
+  // Kitchen - counter L-shape
+  { type: "counter", path: "M23 103 L23 142 L28 142 L28 108 L50 108 L50 103 Z", room: "kitchen" },
+  // Kitchen - island
+  { type: "island", path: "M55 118 L80 118 L80 128 L55 128 Z", room: "kitchen" },
+  // Kitchen - fridge
+  { type: "fridge", path: "M92 103 L100 103 L100 118 L92 118 Z", room: "kitchen" },
+];
+
+// No-go zones / obstacles
+const obstacles = [
+  { cx: 45, cy: 82, r: 4 }, // Plant in living room
+  { cx: 178, cy: 88, r: 3 }, // Item near bathroom door
 ];
 
 const FloorMap = ({ isRunning, selectedRoom, onRoomSelect }: FloorMapProps) => {
   return (
     <div className="relative w-full h-full">
-      <svg className="w-full h-full" viewBox="0 0 200 155" preserveAspectRatio="xMidYMid meet">
-        {/* Background grid pattern for depth */}
+      <svg className="w-full h-full" viewBox="0 0 220 160" preserveAspectRatio="xMidYMid meet">
         <defs>
-          <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
-            <path d="M 10 0 L 0 0 0 10" fill="none" stroke="hsl(var(--border))" strokeWidth="0.3" opacity="0.3" />
+          {/* Subtle texture pattern */}
+          <pattern id="floorTexture" width="4" height="4" patternUnits="userSpaceOnUse">
+            <rect width="4" height="4" fill="transparent" />
+            <circle cx="2" cy="2" r="0.3" fill="white" opacity="0.05" />
           </pattern>
-          <linearGradient id="roomGlow" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="white" stopOpacity="0.15" />
-            <stop offset="100%" stopColor="white" stopOpacity="0" />
-          </linearGradient>
-          <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+          
+          {/* Cleaning path pattern */}
+          <pattern id="cleaningPattern" width="8" height="8" patternUnits="userSpaceOnUse">
+            <path d="M0 4 L8 4" stroke="white" strokeWidth="0.5" opacity="0.15" />
+          </pattern>
+          
+          {/* Glow filter for robot */}
+          <filter id="robotGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="2" result="blur" />
             <feMerge>
-              <feMergeNode in="coloredBlur"/>
-              <feMergeNode in="SourceGraphic"/>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
+          
+          {/* Drop shadow for rooms */}
+          <filter id="roomShadow" x="-5%" y="-5%" width="110%" height="110%">
+            <feDropShadow dx="1" dy="1" stdDeviation="1" floodOpacity="0.2" />
+          </filter>
         </defs>
-        
-        {/* Background fill */}
-        <rect x="0" y="0" width="200" height="155" fill="hsl(var(--background))" />
-        <rect x="10" y="20" width="180" height="130" fill="url(#grid)" opacity="0.5" />
-        
-        {/* Outer walls shadow */}
+
+        {/* Dark background */}
+        <rect x="0" y="0" width="220" height="160" fill="hsl(220, 25%, 12%)" />
+
+        {/* Outer walls / floor area */}
         <path
-          d="M15 25 L130 25 L130 25 L130 95 L135 95 L135 25 L185 25 L185 115 L135 115 L135 140 L15 140 Z"
-          fill="none"
-          stroke="hsl(var(--muted-foreground))"
-          strokeWidth="4"
-          strokeOpacity="0.15"
-          transform="translate(2, 2)"
+          d="M15 20 L205 20 L205 150 L15 150 Z"
+          fill="hsl(220, 20%, 18%)"
+          stroke="hsl(220, 30%, 25%)"
+          strokeWidth="1"
         />
-        
-        {/* Rooms */}
+
+        {/* Rooms with organic shapes */}
         {rooms.map((room) => (
           <g key={room.id} onClick={() => onRoomSelect?.(room.id)} className="cursor-pointer">
+            {/* Room fill */}
             <motion.path
               d={room.path}
               fill={room.color}
-              fillOpacity={selectedRoom === room.id ? 0.85 : 0.65}
-              stroke="hsl(var(--background))"
-              strokeWidth="2.5"
-              whileHover={{ fillOpacity: 0.85 }}
+              fillOpacity={selectedRoom === room.id ? 0.95 : 0.85}
+              stroke="hsl(220, 25%, 12%)"
+              strokeWidth="2"
+              filter="url(#roomShadow)"
+              whileHover={{ fillOpacity: 0.95 }}
               transition={{ duration: 0.2 }}
             />
             
-            {/* Room highlight effect */}
+            {/* Floor texture overlay */}
             <path
               d={room.path}
-              fill="url(#roomGlow)"
+              fill="url(#floorTexture)"
               pointerEvents="none"
             />
-            
-            {/* Cleaning path lines inside rooms */}
-            <g opacity="0.35" strokeLinecap="round">
-              {room.id === "living" && (
-                <path 
-                  d="M20 32 L78 32 M20 40 L78 40 M20 48 L78 48 M20 56 L78 56 M20 64 L78 64 M20 72 L78 72 M20 80 L78 80 M20 88 L78 88 M105 32 L125 32 M105 40 L125 40 M105 48 L125 48 M105 56 L125 56 M105 64 L125 64 M90 60 L95 60 L95 68 L90 68" 
-                  stroke="white" 
-                  strokeWidth="0.8" 
-                  fill="none"
-                />
-              )}
-              {room.id === "bedroom" && (
-                <path 
-                  d="M140 32 L180 32 M140 40 L180 40 M140 48 L180 48 M140 56 L180 56 M140 64 L180 64 M140 70 L180 70" 
-                  stroke="white" 
-                  strokeWidth="0.8" 
-                  fill="none"
-                />
-              )}
-              {room.id === "bathroom" && (
-                <path 
-                  d="M140 87 L180 87 M140 95 L180 95 M140 103 L180 103 M140 110 L180 110" 
-                  stroke="white" 
-                  strokeWidth="0.8" 
-                  fill="none"
-                />
-              )}
-              {room.id === "kitchen" && (
-                <path 
-                  d="M20 107 L75 107 M20 115 L75 115 M20 123 L75 123 M20 131 L75 131" 
-                  stroke="white" 
-                  strokeWidth="0.8" 
-                  fill="none"
-                />
-              )}
-              {room.id === "hallway" && (
-                <path 
-                  d="M90 107 L125 107 M90 115 L125 115 M90 123 L125 123 M90 131 L125 131" 
-                  stroke="white" 
-                  strokeWidth="0.8" 
-                  fill="none"
-                />
-              )}
-            </g>
-            
-            {/* Room label with icon */}
+
+            {/* Cleaning path lines - curved and realistic */}
+            <path
+              d={room.cleaningPaths}
+              stroke="rgba(255,255,255,0.25)"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              fill="none"
+              pointerEvents="none"
+            />
+
+            {/* Room label */}
             <g>
               <rect
-                x={room.labelX - 22}
-                y={room.labelY - 7}
-                width="44"
-                height="14"
-                rx="7"
-                fill="hsl(var(--background))"
+                x={room.labelX - 20}
+                y={room.labelY - 6}
+                width="40"
+                height="12"
+                rx="6"
+                fill="hsl(220, 20%, 15%)"
                 fillOpacity="0.9"
               />
-              <g transform={`translate(${room.labelX - 18}, ${room.labelY - 4})`}>
-                <rect width="8" height="8" rx="2" fill={room.color} />
-              </g>
               <text
-                x={room.labelX + 5}
+                x={room.labelX}
                 y={room.labelY + 3}
-                fontSize="6"
-                fill="hsl(var(--foreground))"
+                fontSize="5"
+                fill="white"
                 textAnchor="middle"
                 fontWeight="500"
+                opacity="0.9"
               >
                 {room.name}
               </text>
@@ -186,128 +198,129 @@ const FloorMap = ({ isRunning, selectedRoom, onRoomSelect }: FloorMapProps) => {
           </g>
         ))}
 
-        {/* Wall borders for clarity - doors */}
-        <g stroke="hsl(var(--background))" strokeWidth="3" opacity="0.8">
-          {/* Living room to bedroom doorway */}
-          <line x1="130" y1="45" x2="135" y2="45" />
-          {/* Living room to hallway doorway */}
-          <line x1="100" y1="95" x2="100" y2="100" />
-          {/* Kitchen to hallway doorway */}
-          <line x1="80" y1="115" x2="85" y2="115" />
-          {/* Hallway to bathroom doorway */}
-          <line x1="130" y1="100" x2="135" y2="100" />
+        {/* Furniture and obstacles */}
+        <g>
+          {furniture.map((item, index) => (
+            <path
+              key={index}
+              d={item.path}
+              fill="hsl(220, 20%, 25%)"
+              stroke="hsl(220, 20%, 30%)"
+              strokeWidth="0.5"
+              opacity="0.7"
+            />
+          ))}
+          
+          {/* Circular obstacles */}
+          {obstacles.map((obs, index) => (
+            <circle
+              key={index}
+              cx={obs.cx}
+              cy={obs.cy}
+              r={obs.r}
+              fill="hsl(220, 20%, 25%)"
+              stroke="hsl(220, 20%, 30%)"
+              strokeWidth="0.5"
+              opacity="0.7"
+            />
+          ))}
         </g>
 
-        {/* Furniture hints */}
-        <g opacity="0.2" fill="white">
-          {/* Living room - sofa */}
-          <rect x="22" y="55" width="30" height="12" rx="3" />
-          {/* Living room - coffee table */}
-          <rect x="30" y="72" width="14" height="10" rx="2" />
-          {/* Living room - TV unit */}
-          <rect x="105" y="70" width="20" height="4" rx="1" />
-          
-          {/* Bedroom - bed */}
-          <rect x="145" y="35" width="32" height="28" rx="3" />
-          {/* Bedroom - nightstand */}
-          <rect x="140" y="40" width="4" height="6" rx="1" />
-          
-          {/* Kitchen - counter */}
-          <rect x="17" y="102" width="5" height="35" rx="1" />
-          <rect x="17" y="102" width="25" height="5" rx="1" />
-          
-          {/* Bathroom - fixtures */}
-          <rect x="137" y="82" width="10" height="8" rx="2" />
-          <circle cx="175" cy="106" r="5" />
+        {/* Door indicators */}
+        <g stroke="hsl(220, 25%, 12%)" strokeWidth="3">
+          {/* Living to kitchen */}
+          <line x1="70" y1="95" x2="85" y2="95" />
+          {/* Living to hallway */}
+          <line x1="115" y1="90" x2="115" y2="100" />
+          {/* Hallway to bathroom */}
+          <line x1="155" y1="105" x2="160" y2="105" />
+          {/* Living to bedroom */}
+          <line x1="155" y1="45" x2="160" y2="45" />
         </g>
 
-        {/* Dock station with modern look */}
-        <g transform="translate(170, 30)">
-          {/* Dock base */}
-          <rect x="-8" y="-3" width="16" height="18" rx="3" fill="hsl(var(--card))" stroke="hsl(var(--border))" strokeWidth="1" />
-          {/* Charging indicator */}
-          <rect x="-4" y="0" width="8" height="3" rx="1" fill="hsl(160, 70%, 45%)" />
-          {/* Connection pins */}
-          <circle cx="-3" cy="10" r="1.5" fill="hsl(var(--muted-foreground))" />
-          <circle cx="3" cy="10" r="1.5" fill="hsl(var(--muted-foreground))" />
+        {/* Charging dock */}
+        <g transform="translate(190, 140)">
+          <rect x="-8" y="-5" width="16" height="10" rx="2" fill="hsl(220, 30%, 25%)" stroke="hsl(160, 70%, 45%)" strokeWidth="1" />
+          <rect x="-5" y="-2" width="10" height="2" rx="1" fill="hsl(160, 70%, 45%)" />
+          <circle cx="-3" cy="2" r="1" fill="hsl(var(--muted-foreground))" />
+          <circle cx="3" cy="2" r="1" fill="hsl(var(--muted-foreground))" />
         </g>
 
-        {/* Robot position with glow */}
+        {/* Robot vacuum */}
         <motion.g
           animate={
             isRunning
               ? {
-                  x: [0, 20, 20, 40, 40, 60, 60, 40, 40, 20, 20, 0],
-                  y: [0, 0, 15, 15, 30, 30, 45, 45, 60, 60, 75, 75],
+                  x: [0, 25, 25, 50, 50, 75, 75, 50, 50, 25, 25, 0],
+                  y: [0, 0, 12, 12, 24, 24, 36, 36, 48, 48, 60, 60],
                 }
               : {}
           }
           transition={{
-            duration: 18,
+            duration: 20,
             repeat: Infinity,
             ease: "linear",
           }}
         >
-          {/* Robot glow effect */}
+          {/* Robot glow */}
           <circle
-            cx="40"
-            cy="45"
-            r="8"
+            cx="45"
+            cy="55"
+            r="7"
             fill="hsl(var(--primary))"
-            opacity="0.3"
-            filter="url(#glow)"
+            opacity={isRunning ? 0.4 : 0.2}
+            filter="url(#robotGlow)"
           />
           {/* Robot body */}
           <circle
-            cx="40"
-            cy="45"
-            r="6"
-            fill="hsl(var(--card))"
+            cx="45"
+            cy="55"
+            r="5"
+            fill="hsl(220, 20%, 90%)"
             stroke="hsl(var(--primary))"
-            strokeWidth="2"
+            strokeWidth="1.5"
           />
           {/* Robot direction indicator */}
-          <circle
-            cx="43"
-            cy="43"
-            r="1.5"
-            fill="hsl(var(--primary))"
-          />
-          {/* Robot sensor line */}
+          <circle cx="47" cy="53" r="1.2" fill="hsl(var(--primary))" />
+          {/* Sensor arc */}
           <path
-            d="M37 43 L43 43"
+            d="M42 52 Q45 50 48 52"
             stroke="hsl(var(--primary))"
-            strokeWidth="1"
+            strokeWidth="0.8"
+            fill="none"
             opacity="0.6"
           />
+          
+          {/* Cleaning trail when running */}
+          {isRunning && (
+            <motion.path
+              d="M45 55 L45 65"
+              stroke="hsl(var(--primary))"
+              strokeWidth="2"
+              strokeLinecap="round"
+              opacity="0.3"
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: [0, 1, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
+          )}
         </motion.g>
 
-        {/* Cleaning progress indicator when running */}
+        {/* Status indicator when running */}
         {isRunning && (
-          <motion.g
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <rect
-              x="15"
-              y="145"
-              width="170"
-              height="3"
-              rx="1.5"
-              fill="hsl(var(--muted))"
-            />
+          <g>
+            <rect x="15" y="152" width="190" height="4" rx="2" fill="hsl(220, 20%, 20%)" />
             <motion.rect
               x="15"
-              y="145"
-              height="3"
-              rx="1.5"
+              y="152"
+              height="4"
+              rx="2"
               fill="hsl(var(--primary))"
               initial={{ width: 0 }}
-              animate={{ width: 170 }}
-              transition={{ duration: 18, repeat: Infinity }}
+              animate={{ width: 190 }}
+              transition={{ duration: 20, repeat: Infinity }}
             />
-          </motion.g>
+          </g>
         )}
       </svg>
     </div>
