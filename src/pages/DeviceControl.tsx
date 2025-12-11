@@ -518,7 +518,13 @@ const DeviceControl = () => {
           <div className="space-y-4 pb-8">
             {/* Cleaning History Card */}
             <div className="bg-muted rounded-2xl p-4">
-              <button className="w-full flex items-center gap-3 mb-4">
+              <button 
+                className="w-full flex items-center gap-3 mb-4"
+                onClick={() => {
+                  setShowSettings(false);
+                  navigate(`/device/${id}/cleaning-history`);
+                }}
+              >
                 <div className="w-10 h-10 rounded-full bg-card flex items-center justify-center">
                   <Clock className="w-5 h-5 text-primary" />
                 </div>
@@ -550,7 +556,13 @@ const DeviceControl = () => {
             </div>
 
             {/* Schedules */}
-            <button className="w-full flex items-center gap-3 bg-muted rounded-2xl p-4 hover:bg-muted/80 transition-colors">
+            <button 
+              className="w-full flex items-center gap-3 bg-muted rounded-2xl p-4 hover:bg-muted/80 transition-colors"
+              onClick={() => {
+                setShowSettings(false);
+                navigate(`/device/${id}/schedules`);
+              }}
+            >
               <div className="w-10 h-10 rounded-full bg-card flex items-center justify-center">
                 <Clock className="w-5 h-5 text-primary" />
               </div>
@@ -560,14 +572,26 @@ const DeviceControl = () => {
 
             {/* Floor Cleaning Settings & Maintenance */}
             <div className="bg-muted rounded-2xl divide-y divide-border/50">
-              <button className="w-full flex items-center gap-3 p-4 hover:bg-muted/80 transition-colors">
+              <button 
+                className="w-full flex items-center gap-3 p-4 hover:bg-muted/80 transition-colors"
+                onClick={() => {
+                  setShowSettings(false);
+                  navigate(`/device/${id}/floor-settings`);
+                }}
+              >
                 <div className="w-10 h-10 rounded-full bg-card flex items-center justify-center">
                   <Layers className="w-5 h-5 text-primary" />
                 </div>
                 <span className="text-foreground font-medium flex-1 text-left">Floor Cleaning Settings</span>
                 <ChevronRight className="w-5 h-5 text-muted-foreground" />
               </button>
-              <button className="w-full flex items-center gap-3 p-4 hover:bg-muted/80 transition-colors">
+              <button 
+                className="w-full flex items-center gap-3 p-4 hover:bg-muted/80 transition-colors"
+                onClick={() => {
+                  setShowSettings(false);
+                  navigate(`/device/${id}/maintenance`);
+                }}
+              >
                 <div className="w-10 h-10 rounded-full bg-card flex items-center justify-center">
                   <Wrench className="w-5 h-5 text-primary" />
                 </div>
@@ -585,14 +609,26 @@ const DeviceControl = () => {
                 <span className="text-foreground font-medium flex-1 text-left">Manage Maps</span>
                 <ChevronRight className="w-5 h-5 text-muted-foreground" />
               </button>
-              <button className="w-full flex items-center gap-3 p-4 hover:bg-muted/80 transition-colors">
+              <button 
+                className="w-full flex items-center gap-3 p-4 hover:bg-muted/80 transition-colors"
+                onClick={() => {
+                  setShowSettings(false);
+                  navigate(`/device/${id}/robot-sound`);
+                }}
+              >
                 <div className="w-10 h-10 rounded-full bg-card flex items-center justify-center">
                   <Volume2 className="w-5 h-5 text-primary" />
                 </div>
                 <span className="text-foreground font-medium flex-1 text-left">Robot Sound</span>
                 <ChevronRight className="w-5 h-5 text-muted-foreground" />
               </button>
-              <button className="w-full flex items-center gap-3 p-4 hover:bg-muted/80 transition-colors">
+              <button 
+                className="w-full flex items-center gap-3 p-4 hover:bg-muted/80 transition-colors"
+                onClick={() => {
+                  setShowSettings(false);
+                  navigate(`/device/${id}/robot-settings`);
+                }}
+              >
                 <div className="w-10 h-10 rounded-full bg-card flex items-center justify-center">
                   <Settings className="w-5 h-5 text-primary" />
                 </div>
@@ -610,7 +646,13 @@ const DeviceControl = () => {
                 <span className="text-foreground font-medium flex-1 text-left">Pin n Go</span>
                 <ChevronRight className="w-5 h-5 text-muted-foreground" />
               </button>
-              <button className="w-full flex items-center gap-3 p-4 hover:bg-muted/80 transition-colors">
+              <button 
+                className="w-full flex items-center gap-3 p-4 hover:bg-muted/80 transition-colors"
+                onClick={() => {
+                  setShowSettings(false);
+                  navigate(`/device/${id}/remote-control`);
+                }}
+              >
                 <div className="w-10 h-10 rounded-full bg-card flex items-center justify-center">
                   <Smartphone className="w-5 h-5 text-primary" />
                 </div>
