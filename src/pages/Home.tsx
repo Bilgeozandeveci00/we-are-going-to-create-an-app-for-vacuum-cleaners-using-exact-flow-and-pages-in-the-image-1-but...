@@ -20,7 +20,7 @@ const HomePage = () => {
   useEffect(() => {
     const hasDevice = localStorage.getItem("hasDevice");
     if (hasDevice === "true") {
-      setDevices([{ id: "1", name: "S5 Max", battery: 93 }]);
+      setDevices([{ id: "1", name: "Amphibia", battery: 93 }]);
     }
   }, []);
 
@@ -31,22 +31,6 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {devices.length > 0 && (
-        <header className="flex items-center justify-between px-4 py-3">
-          <button 
-            onClick={removeDevice}
-            className="text-red-500 p-2"
-          >
-            <Trash2 className="h-5 w-5" />
-          </button>
-          <button 
-            onClick={() => navigate("/add-device")}
-            className="text-foreground p-2"
-          >
-            <Plus className="h-6 w-6" />
-          </button>
-        </header>
-      )}
 
       {/* Content */}
       <main className="flex flex-col items-center justify-center px-6 pb-32" style={{ minHeight: devices.length > 0 ? 'calc(100vh - 140px)' : 'calc(100vh - 100px)' }}>
@@ -88,6 +72,14 @@ const HomePage = () => {
           >
             {/* Device Card */}
             <div className="relative mb-8">
+              {/* Trash button - top left of robot */}
+              <button 
+                onClick={removeDevice}
+                className="absolute -top-2 -left-2 z-10 w-10 h-10 rounded-full bg-card/80 border border-border/50 flex items-center justify-center text-red-500 active:scale-95 transition-transform"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+              
               {/* Vacuum cleaner image placeholder */}
               <div className="w-64 h-64 flex items-center justify-center">
                 <div className="relative">
