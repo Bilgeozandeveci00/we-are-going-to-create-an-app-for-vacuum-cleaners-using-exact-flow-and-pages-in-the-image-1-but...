@@ -190,11 +190,22 @@ const DeviceControl = () => {
         </div>
         
         {/* Mode Description */}
-        <p className="text-xs text-muted-foreground text-center mb-4">
-          {selectedTab === "safe" && "Cleans carefully without getting stuck on obstacles"}
-          {selectedTab === "normal" && "Balanced cleaning while avoiding risky areas"}
-          {selectedTab === "deep" && "Thorough cleaning that covers every area"}
-        </p>
+        <div className="h-8 mb-4 overflow-hidden">
+          <AnimatePresence mode="wait">
+            <motion.p
+              key={selectedTab}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="text-xs text-muted-foreground text-center"
+            >
+              {selectedTab === "safe" && "Cleans carefully without getting stuck on obstacles"}
+              {selectedTab === "normal" && "Balanced cleaning while avoiding risky areas"}
+              {selectedTab === "deep" && "Thorough cleaning that covers every area"}
+            </motion.p>
+          </AnimatePresence>
+        </div>
 
         {/* Control Buttons */}
         <div className="flex items-center justify-center gap-6">
