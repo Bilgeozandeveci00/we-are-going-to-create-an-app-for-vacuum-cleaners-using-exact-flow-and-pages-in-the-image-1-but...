@@ -1,195 +1,211 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { ArrowLeft, Wifi, Search, RefreshCw } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowLeft, Scan, Volume2, Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const deviceTypes = [
-  { id: "robot-vacuum", name: "Robot Vacuum", icon: "vacuum" },
-  { id: "handheld", name: "Handheld Vacuum", icon: "handheld" },
-  { id: "air-purifier", name: "Air Purifier", icon: "purifier" },
+const vacuumModels = [
+  { id: "saros-z70", name: "Saros Z70" },
+  { id: "qrevo-edge", name: "Roborock Qrevo Edge Series" },
+  { id: "qrevo-curvx", name: "Roborock Qrevo CurvX" },
+  { id: "qrevo-c", name: "Roborock Qrevo C" },
+  { id: "qrevo-l", name: "Roborock Qrevo L" },
+  { id: "qrevo-curv-series", name: "Roborock Qrevo Curv Series" },
+  { id: "saros-10", name: "Saros 10" },
+  { id: "saros-10r", name: "Saros 10R" },
+  { id: "qrevo-curv", name: "Roborock Qrevo Curv" },
 ];
+
+type Tab = "robot" | "wet-dry";
+type Step = "list" | "qr-scan";
 
 const AddDevice = () => {
   const navigate = useNavigate();
-  const [step, setStep] = useState<"select" | "search" | "connect">("select");
-  const [selectedType, setSelectedType] = useState<string | null>(null);
-  const [isSearching, setIsSearching] = useState(false);
+  const [step, setStep] = useState<Step>("list");
+  const [activeTab, setActiveTab] = useState<Tab>("robot");
+  const [isSearching, setIsSearching] = useState(true);
 
-  const handleTypeSelect = (typeId: string) => {
-    setSelectedType(typeId);
-    setStep("search");
-    setIsSearching(true);
-    
-    // Simulate device search
-    setTimeout(() => {
-      setIsSearching(false);
-      setStep("connect");
-    }, 3000);
+  const handleBack = () => {
+    if (step === "qr-scan") {
+      setStep("list");
+    } else {
+      navigate("/home");
+    }
   };
 
-  const handleConnect = () => {
-    // Navigate to home after "connecting"
+  const handleModelSelect = (modelId: string) => {
+    // Simulate adding device
+    localStorage.setItem("hasDevice", "true");
     navigate("/home");
+  };
+
+  const handleManualAdd = () => {
+    setStep("list");
   };
 
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="flex items-center gap-4 px-4 py-3">
+      <header className="flex items-center justify-between px-4 py-3">
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => {
-            if (step === "select") navigate("/home");
-            else setStep("select");
-          }}
+          onClick={handleBack}
           className="text-foreground"
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <h1 className="text-lg font-semibold text-foreground">Add Device</h1>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setStep("qr-scan")}
+          className="text-foreground"
+        >
+          <Scan className="h-5 w-5" />
+        </Button>
       </header>
 
-      <main className="px-6 py-4">
-        {step === "select" && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-4"
+      <AnimatePresence mode="wait">
+        {step === "list" && (
+          <motion.main
+            key="list"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            className="px-4 py-2"
           >
-            <p className="text-sm text-muted-foreground">
-              Select your device type to begin pairing
-            </p>
-            
-            <div className="space-y-3">
-              {deviceTypes.map((type) => (
+            {/* Nearby Devices */}
+            <div className="mb-6">
+              <div className="flex items-center gap-2 mb-1">
+                <h2 className="text-base font-medium text-foreground">Nearby Devices</h2>
+                {isSearching && (
+                  <div className="w-3 h-3 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                )}
+              </div>
+              <p className="text-sm text-muted-foreground">Searching for nearby devices</p>
+            </div>
+
+            {/* Category Tabs */}
+            <div className="flex gap-8 mb-6 border-b border-border">
+              <button
+                onClick={() => setActiveTab("robot")}
+                className={`pb-3 text-sm font-medium relative ${
+                  activeTab === "robot" ? "text-foreground" : "text-muted-foreground"
+                }`}
+              >
+                Robot Vacuum
+                {activeTab === "robot" && (
+                  <motion.div
+                    layoutId="tab-indicator"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-foreground"
+                  />
+                )}
+              </button>
+              <button
+                onClick={() => setActiveTab("wet-dry")}
+                className={`pb-3 text-sm font-medium relative ${
+                  activeTab === "wet-dry" ? "text-foreground" : "text-muted-foreground"
+                }`}
+              >
+                Wet & Dry Vacuum
+                {activeTab === "wet-dry" && (
+                  <motion.div
+                    layoutId="tab-indicator"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-foreground"
+                  />
+                )}
+              </button>
+            </div>
+
+            {/* Device Grid */}
+            <div className="grid grid-cols-3 gap-4">
+              {vacuumModels.map((model) => (
                 <button
-                  key={type.id}
-                  onClick={() => handleTypeSelect(type.id)}
-                  className="flex w-full items-center gap-4 rounded-2xl bg-card p-4 transition-all hover:bg-card-elevated active:scale-[0.98]"
+                  key={model.id}
+                  onClick={() => handleModelSelect(model.id)}
+                  className="flex flex-col items-center text-center"
                 >
-                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10">
-                    <DeviceIcon type={type.icon} />
+                  <div className="w-full aspect-square rounded-xl bg-card border border-border/50 mb-2 flex items-center justify-center overflow-hidden">
+                    {/* Vacuum placeholder */}
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gray-200 to-gray-400 flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-white to-gray-300" />
+                    </div>
                   </div>
-                  <div className="flex-1 text-left">
-                    <h3 className="font-medium text-foreground">{type.name}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Tap to add this device
-                    </p>
-                  </div>
+                  <span className="text-xs text-muted-foreground leading-tight">{model.name}</span>
                 </button>
               ))}
             </div>
-          </motion.div>
+          </motion.main>
         )}
 
-        {step === "search" && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center py-20"
+        {step === "qr-scan" && (
+          <motion.main
+            key="qr-scan"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            className="px-4 py-2 flex flex-col"
           >
-            <div className="relative mb-8">
-              <div className="flex h-24 w-24 items-center justify-center rounded-full bg-card">
-                <Wifi className="h-10 w-10 text-primary" />
-              </div>
-              {isSearching && (
-                <>
-                  <motion.div
-                    className="absolute inset-0 rounded-full border-2 border-primary/30"
-                    animate={{ scale: [1, 1.5, 2], opacity: [0.5, 0.3, 0] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  />
-                  <motion.div
-                    className="absolute inset-0 rounded-full border-2 border-primary/30"
-                    animate={{ scale: [1, 1.5, 2], opacity: [0.5, 0.3, 0] }}
-                    transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-                  />
-                </>
-              )}
+            {/* Instructions */}
+            <div className="mb-4">
+              <h2 className="text-xl font-semibold text-foreground mb-2">Scan QR Code</h2>
+              <p className="text-sm text-muted-foreground mb-1">
+                Point your phone camera at the QR code to automatically scan.
+              </p>
+              <button className="text-sm text-muted-foreground flex items-center gap-1">
+                Where is QR code? <span className="text-primary">›</span>
+              </button>
             </div>
-            
-            <h2 className="mb-2 text-xl font-semibold text-foreground">
-              Searching for devices...
-            </h2>
-            <p className="text-center text-sm text-muted-foreground">
-              Make sure your device is powered on and in pairing mode
-            </p>
-            
-            <RefreshCw className={`mt-8 h-6 w-6 text-primary ${isSearching ? "animate-spin" : ""}`} />
-          </motion.div>
-        )}
 
-        {step === "connect" && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center py-12"
-          >
-            <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-primary/20">
-              <Search className="h-10 w-10 text-primary" />
-            </div>
-            
-            <h2 className="mb-2 text-xl font-semibold text-foreground">
-              Device Found!
-            </h2>
-            <p className="mb-8 text-center text-sm text-muted-foreground">
-              Roborock S7 MaxV is ready to connect
-            </p>
-            
-            <div className="mb-8 w-full rounded-2xl bg-card p-4">
-              <div className="flex items-center gap-4">
-                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10">
-                  <DeviceIcon type="vacuum" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-medium text-foreground">Roborock S7 MaxV</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Signal: Strong
-                  </p>
-                </div>
+            {/* Camera View Placeholder */}
+            <div className="relative w-full aspect-[4/3] rounded-2xl bg-card/50 border border-border/30 overflow-hidden mb-4">
+              {/* Simulated camera view */}
+              <div className="absolute inset-0 bg-gradient-to-br from-gray-900/90 to-gray-800/90" />
+              
+              {/* Scan frame */}
+              <div className="absolute inset-8 border-2 border-primary/50 rounded-xl">
+                <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-primary rounded-tl-lg" />
+                <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-primary rounded-tr-lg" />
+                <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-primary rounded-bl-lg" />
+                <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-primary rounded-br-lg" />
+              </div>
+
+              {/* Camera controls */}
+              <div className="absolute bottom-4 left-4 flex gap-3">
+                <button className="w-10 h-10 rounded-full bg-card/50 backdrop-blur-sm flex items-center justify-center">
+                  <Volume2 className="w-5 h-5 text-foreground" />
+                </button>
+                <button className="w-10 h-10 rounded-full bg-card/50 backdrop-blur-sm flex items-center justify-center">
+                  <div className="w-5 h-5 rounded-full border-2 border-foreground" />
+                </button>
               </div>
             </div>
-            
-            <Button
-              variant="teal"
-              size="xl"
-              className="w-full"
-              onClick={handleConnect}
+
+            {/* Delete/Cancel button */}
+            <div className="flex justify-center mb-6">
+              <button className="w-12 h-12 rounded-full bg-card/30 flex items-center justify-center">
+                <Trash2 className="w-5 h-5 text-muted-foreground" />
+              </button>
+            </div>
+
+            {/* Manual Add Option */}
+            <button
+              onClick={handleManualAdd}
+              className="flex items-center gap-3 w-full p-4 rounded-2xl bg-card/50 border border-border/30"
             >
-              Connect Device
-            </Button>
-          </motion.div>
+              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                <Plus className="w-5 h-5 text-primary" />
+              </div>
+              <div className="text-left">
+                <p className="text-foreground font-medium">Add Manually</p>
+                <p className="text-sm text-muted-foreground">Search or select a model to add</p>
+              </div>
+            </button>
+          </motion.main>
         )}
-      </main>
+      </AnimatePresence>
     </div>
-  );
-};
-
-const DeviceIcon = ({ type }: { type: string }) => {
-  if (type === "vacuum") {
-    return (
-      <svg className="h-8 w-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-        <circle cx="12" cy="12" r="9" />
-        <circle cx="12" cy="12" r="3" />
-        <path d="M12 3v3M12 18v3M3 12h3M18 12h3" />
-      </svg>
-    );
-  }
-  if (type === "handheld") {
-    return (
-      <svg className="h-8 w-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-        <path d="M4 12h16M8 8l-4 4 4 4M16 8l4 4-4 4" />
-      </svg>
-    );
-  }
-  return (
-    <svg className="h-8 w-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-      <rect x="6" y="3" width="12" height="18" rx="2" />
-      <circle cx="12" cy="9" r="3" />
-      <path d="M9 15h6M10 18h4" />
-    </svg>
   );
 };
 

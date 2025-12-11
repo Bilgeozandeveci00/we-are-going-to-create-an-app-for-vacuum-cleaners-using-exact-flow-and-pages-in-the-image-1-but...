@@ -10,11 +10,18 @@ const Login = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [agreed, setAgreed] = useState(false);
 
+  const isPhoneValid = phoneNumber.replace(/\D/g, '').length === 10;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (phoneNumber && agreed) {
+    if (isPhoneValid && agreed) {
       navigate("/verify", { state: { phone: phoneNumber } });
     }
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+    setPhoneNumber(value);
   };
 
   return (
@@ -32,7 +39,7 @@ const Login = () => {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="flex flex-1 flex-col">
+        <form onSubmit={handleSubmit} className="flex flex-col">
           <div className="space-y-6">
             <div>
               <label className="mb-3 block text-sm font-medium text-foreground">
@@ -44,7 +51,8 @@ const Login = () => {
                   type="tel"
                   placeholder="Enter your phone number"
                   value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  onChange={handlePhoneChange}
+                  maxLength={10}
                   className="flex-1 border-0 bg-transparent p-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-0"
                 />
               </div>
@@ -67,13 +75,13 @@ const Login = () => {
           </div>
 
           {/* Submit Button */}
-          <div className="mt-auto pt-8">
+          <div className="mt-8">
             <Button
               type="submit"
-              variant="dark"
+              variant={isPhoneValid && agreed ? "teal" : "dark"}
               size="xl"
               className="w-full"
-              disabled={!phoneNumber || !agreed}
+              disabled={!isPhoneValid || !agreed}
             >
               Get verification code
             </Button>
