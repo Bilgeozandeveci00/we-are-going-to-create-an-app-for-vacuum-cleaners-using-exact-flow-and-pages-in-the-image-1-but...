@@ -171,7 +171,7 @@ const DeviceControl = () => {
       {/* Bottom Control Panel */}
       <div className="bg-card rounded-t-3xl px-6 pb-8 pt-4 safe-area-bottom">
         {/* Tabs */}
-        <div className="flex items-center justify-center gap-8 mb-6">
+        <div className="flex items-center justify-center gap-8 mb-2">
           <TabButton
             label="Safe"
             active={selectedTab === "safe"}
@@ -188,6 +188,13 @@ const DeviceControl = () => {
             onClick={() => setSelectedTab("deep")}
           />
         </div>
+        
+        {/* Mode Description */}
+        <p className="text-xs text-muted-foreground text-center mb-4">
+          {selectedTab === "safe" && "Cleans carefully without getting stuck on obstacles"}
+          {selectedTab === "normal" && "Balanced cleaning while avoiding risky areas"}
+          {selectedTab === "deep" && "Thorough cleaning that covers every area"}
+        </p>
 
         {/* Control Buttons */}
         <div className="flex items-center justify-center gap-6">
