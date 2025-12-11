@@ -19,6 +19,14 @@ import {
   Trash2,
   Pencil,
   Upload,
+  Clock,
+  Layers,
+  Wrench,
+  Map,
+  Volume2,
+  Settings,
+  MapPin,
+  Smartphone,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FloorMap from "@/components/FloorMap";
@@ -41,6 +49,7 @@ const DeviceControl = () => {
   const [mapEditorTab, setMapEditorTab] = useState<"edit" | "details">("edit");
   const [vacuumPower, setVacuumPower] = useState(3); // 0-4 scale
   const [waterFlow, setWaterFlow] = useState(2); // 0-4 scale
+  const [showSettings, setShowSettings] = useState(false);
 
   const handleDock = () => {
     setIsRunning(false);
@@ -132,7 +141,12 @@ const DeviceControl = () => {
           <h1 className="text-lg font-semibold text-foreground">{device.name}</h1>
           <p className="text-xs text-muted-foreground">{device.status}</p>
         </div>
-        <Button variant="ghost" size="icon" className="text-muted-foreground">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="text-foreground bg-card/50 rounded-full"
+          onClick={() => setShowSettings(true)}
+        >
           <MoreHorizontal className="h-5 w-5" />
         </Button>
       </header>
@@ -490,6 +504,120 @@ const DeviceControl = () => {
               </div>
               <ChevronRight className="w-5 h-5 text-muted-foreground" />
             </button>
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Settings Sheet */}
+      <Sheet open={showSettings} onOpenChange={setShowSettings}>
+        <SheetContent side="bottom" className="bg-card rounded-t-3xl border-border h-[85vh] overflow-y-auto">
+          <SheetHeader className="pb-4">
+            <h2 className="text-lg font-semibold text-foreground text-center">Settings</h2>
+          </SheetHeader>
+          
+          <div className="space-y-4 pb-8">
+            {/* Cleaning History Card */}
+            <div className="bg-muted rounded-2xl p-4">
+              <button className="w-full flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-card flex items-center justify-center">
+                  <Clock className="w-5 h-5 text-primary" />
+                </div>
+                <span className="text-foreground font-medium flex-1 text-left">Cleaning History</span>
+                <ChevronRight className="w-5 h-5 text-muted-foreground" />
+              </button>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-card rounded-xl p-4">
+                  <div className="flex items-baseline">
+                    <span className="text-3xl font-light text-foreground">{device.duration}</span>
+                    <span className="text-sm text-muted-foreground ml-1">min</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">Last cleaning time</p>
+                </div>
+                <div className="bg-card rounded-xl p-4">
+                  <div className="flex items-baseline">
+                    <span className="text-3xl font-light text-foreground">{device.area}</span>
+                    <span className="text-sm text-muted-foreground ml-1">m²</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">Last cleaning area</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/50">
+                <span className="text-sm text-muted-foreground">Total cleaning time and area</span>
+                <span className="text-sm text-foreground font-medium">508h | 23Km²</span>
+              </div>
+            </div>
+
+            {/* Schedules */}
+            <button className="w-full flex items-center gap-3 bg-muted rounded-2xl p-4 hover:bg-muted/80 transition-colors">
+              <div className="w-10 h-10 rounded-full bg-card flex items-center justify-center">
+                <Clock className="w-5 h-5 text-primary" />
+              </div>
+              <span className="text-foreground font-medium flex-1 text-left">Schedules</span>
+              <ChevronRight className="w-5 h-5 text-muted-foreground" />
+            </button>
+
+            {/* Floor Cleaning Settings & Maintenance */}
+            <div className="bg-muted rounded-2xl divide-y divide-border/50">
+              <button className="w-full flex items-center gap-3 p-4 hover:bg-muted/80 transition-colors">
+                <div className="w-10 h-10 rounded-full bg-card flex items-center justify-center">
+                  <Layers className="w-5 h-5 text-primary" />
+                </div>
+                <span className="text-foreground font-medium flex-1 text-left">Floor Cleaning Settings</span>
+                <ChevronRight className="w-5 h-5 text-muted-foreground" />
+              </button>
+              <button className="w-full flex items-center gap-3 p-4 hover:bg-muted/80 transition-colors">
+                <div className="w-10 h-10 rounded-full bg-card flex items-center justify-center">
+                  <Wrench className="w-5 h-5 text-primary" />
+                </div>
+                <span className="text-foreground font-medium flex-1 text-left">Maintenance</span>
+                <ChevronRight className="w-5 h-5 text-muted-foreground" />
+              </button>
+            </div>
+
+            {/* Manage Maps, Robot Sound, Robot Settings */}
+            <div className="bg-muted rounded-2xl divide-y divide-border/50">
+              <button className="w-full flex items-center gap-3 p-4 hover:bg-muted/80 transition-colors">
+                <div className="w-10 h-10 rounded-full bg-card flex items-center justify-center">
+                  <Map className="w-5 h-5 text-primary" />
+                </div>
+                <span className="text-foreground font-medium flex-1 text-left">Manage Maps</span>
+                <ChevronRight className="w-5 h-5 text-muted-foreground" />
+              </button>
+              <button className="w-full flex items-center gap-3 p-4 hover:bg-muted/80 transition-colors">
+                <div className="w-10 h-10 rounded-full bg-card flex items-center justify-center">
+                  <Volume2 className="w-5 h-5 text-primary" />
+                </div>
+                <span className="text-foreground font-medium flex-1 text-left">Robot Sound</span>
+                <ChevronRight className="w-5 h-5 text-muted-foreground" />
+              </button>
+              <button className="w-full flex items-center gap-3 p-4 hover:bg-muted/80 transition-colors">
+                <div className="w-10 h-10 rounded-full bg-card flex items-center justify-center">
+                  <Settings className="w-5 h-5 text-primary" />
+                </div>
+                <span className="text-foreground font-medium flex-1 text-left">Robot Settings</span>
+                <ChevronRight className="w-5 h-5 text-muted-foreground" />
+              </button>
+            </div>
+
+            {/* Pin n Go & Remote Control */}
+            <div className="bg-muted rounded-2xl divide-y divide-border/50">
+              <button className="w-full flex items-center gap-3 p-4 hover:bg-muted/80 transition-colors">
+                <div className="w-10 h-10 rounded-full bg-card flex items-center justify-center">
+                  <MapPin className="w-5 h-5 text-primary" />
+                </div>
+                <span className="text-foreground font-medium flex-1 text-left">Pin n Go</span>
+                <ChevronRight className="w-5 h-5 text-muted-foreground" />
+              </button>
+              <button className="w-full flex items-center gap-3 p-4 hover:bg-muted/80 transition-colors">
+                <div className="w-10 h-10 rounded-full bg-card flex items-center justify-center">
+                  <Smartphone className="w-5 h-5 text-primary" />
+                </div>
+                <span className="text-foreground font-medium flex-1 text-left">Remote Control</span>
+                <ChevronRight className="w-5 h-5 text-muted-foreground" />
+              </button>
+            </div>
           </div>
         </SheetContent>
       </Sheet>
