@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Plus, Bell, Home as HomeIcon, User, Zap, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import RobotVacuum3D from "@/components/RobotVacuum3D";
 
 interface Device {
   id: string;
@@ -41,18 +42,9 @@ const HomePage = () => {
             transition={{ duration: 0.5 }}
             className="flex flex-col items-center justify-center flex-1 w-full"
           >
-            {/* 3D Vacuum Illustration Placeholder */}
+            {/* 3D Vacuum Illustration */}
             <div className="relative mb-8">
-              <div className="w-64 h-64 rounded-full bg-gradient-to-b from-primary/20 to-transparent flex items-center justify-center">
-                <div className="w-48 h-48 rounded-full bg-card/50 border border-border/30 flex items-center justify-center backdrop-blur-sm">
-                  <div className="w-32 h-32 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center">
-                    <div className="w-20 h-20 rounded-full bg-card border border-primary/30 shadow-lg shadow-primary/20" />
-                  </div>
-                </div>
-              </div>
-              {/* Decorative elements */}
-              <div className="absolute top-4 right-8 w-2 h-2 bg-primary rounded-full animate-pulse" />
-              <div className="absolute bottom-12 left-4 w-1.5 h-1.5 bg-primary/60 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }} />
+              <RobotVacuum3D />
             </div>
 
             <Button
@@ -80,23 +72,8 @@ const HomePage = () => {
                 <Trash2 className="h-4 w-4" />
               </button>
               
-              {/* Vacuum cleaner image placeholder */}
-              <div className="w-64 h-64 flex items-center justify-center">
-                <div className="relative">
-                  {/* Main body */}
-                  <div className="w-52 h-52 rounded-full bg-gradient-to-br from-gray-100 to-gray-300 shadow-2xl flex items-center justify-center">
-                    <div className="w-44 h-44 rounded-full bg-gradient-to-br from-white to-gray-200 flex items-center justify-center shadow-inner">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-100 to-gray-300 border-4 border-gray-200 shadow-md">
-                        <div className="w-full h-full rounded-full bg-gradient-to-br from-orange-300 to-orange-500 opacity-60" />
-                      </div>
-                    </div>
-                  </div>
-                  {/* LIDAR bump */}
-                  <div className="absolute top-2 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 shadow-md" />
-                  {/* Front sensor */}
-                  <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-8 h-2 rounded-full bg-gray-800" />
-                </div>
-              </div>
+              {/* 3D Robot Vacuum */}
+              <RobotVacuum3D />
             </div>
 
             {/* Device Info */}
