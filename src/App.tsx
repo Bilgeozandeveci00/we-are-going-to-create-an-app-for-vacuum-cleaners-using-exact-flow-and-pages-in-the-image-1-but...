@@ -16,6 +16,13 @@ import Notifications from "./pages/Notifications";
 import Profile from "./pages/Profile";
 import NoGoZones from "./pages/NoGoZones";
 import RoomEditor from "./pages/RoomEditor";
+import CleaningHistory from "./pages/CleaningHistory";
+import Schedules from "./pages/Schedules";
+import Maintenance from "./pages/Maintenance";
+import RobotSound from "./pages/RobotSound";
+import FloorSettings from "./pages/FloorSettings";
+import RobotSettings from "./pages/RobotSettings";
+import RemoteControl from "./pages/RemoteControl";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +45,13 @@ const App = () => (
             <Route path="/device/:id/create-map" element={<MapCreation />} />
             <Route path="/device/:id/no-go-zones" element={<NoGoZones />} />
             <Route path="/device/:id/room-editor" element={<RoomEditor />} />
+            <Route path="/device/:id/cleaning-history" element={<CleaningHistory />} />
+            <Route path="/device/:id/schedules" element={<Schedules />} />
+            <Route path="/device/:id/maintenance" element={<Maintenance />} />
+            <Route path="/device/:id/robot-sound" element={<RobotSound />} />
+            <Route path="/device/:id/floor-settings" element={<FloorSettings />} />
+            <Route path="/device/:id/robot-settings" element={<RobotSettings />} />
+            <Route path="/device/:id/remote-control" element={<RemoteControl />} />
             <Route path="/add-device" element={<AddDevice />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/profile" element={<Profile />} />
