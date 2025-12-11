@@ -32,6 +32,7 @@ const DeviceControl = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [isRunning, setIsRunning] = useState(false);
+  const [isDocking, setIsDocking] = useState(false);
   const [selectedTab, setSelectedTab] = useState<"safe" | "normal" | "deep">("normal");
   const [selectedFloor, setSelectedFloor] = useState(1);
   const [showFloorSelector, setShowFloorSelector] = useState(false);
@@ -41,6 +42,15 @@ const DeviceControl = () => {
   const [vacuumPower, setVacuumPower] = useState(3); // 0-4 scale
   const [waterFlow, setWaterFlow] = useState(2); // 0-4 scale
 
+  const handleDock = () => {
+    setIsRunning(false);
+    setIsDocking(true);
+    // Simulate docking process
+    setTimeout(() => {
+      setIsDocking(false);
+    }, 5000);
+  };
+
   // Check if map exists, if not redirect to map creation
   useEffect(() => {
     const hasMap = localStorage.getItem("hasMap");
@@ -49,10 +59,16 @@ const DeviceControl = () => {
     }
   }, [id, navigate]);
 
+  const getDeviceStatus = () => {
+    if (isDocking) return "Returning to dock...";
+    if (isRunning) return "Cleaning";
+    return "Charging";
+  };
+
   const device = {
     id,
     name: "Amphibia",
-    status: isRunning ? "Cleaning" : "Charging",
+    status: getDeviceStatus(),
     battery: 93,
     area: 34,
     duration: 50,
@@ -276,11 +292,26 @@ const DeviceControl = () => {
           </motion.button>
 
           {/* Charging Station Button */}
-          <button className="flex flex-col items-center gap-2">
-            <div className="w-12 h-12 rounded-full bg-card-elevated flex items-center justify-center">
-              <Zap className="w-5 h-5 text-primary" />
+          <button 
+            className="flex flex-col items-center gap-2"
+            onClick={handleDock}
+            disabled={isDocking}
+          >
+            <div className={`w-12 h-12 rounded-full bg-card-elevated flex items-center justify-center ${isDocking ? "animate-pulse" : ""}`}>
+              {isDocking ? (
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                >
+                  <Zap className="w-5 h-5 text-amber-500" />
+                </motion.div>
+              ) : (
+                <Zap className="w-5 h-5 text-primary" />
+              )}
             </div>
-            <span className="text-xs text-muted-foreground">Dock</span>
+            <span className="text-xs text-muted-foreground">
+              {isDocking ? "Docking..." : "Dock"}
+            </span>
           </button>
         </div>
       </div>
@@ -340,14 +371,26 @@ const DeviceControl = () => {
 
                 {/* Action Buttons */}
                 <div className="grid grid-cols-2 gap-3">
-                  <button className="flex items-center gap-3 bg-muted rounded-xl p-4 hover:bg-muted/80 transition-colors">
+                  <button 
+                    className="flex items-center gap-3 bg-muted rounded-xl p-4 hover:bg-muted/80 transition-colors"
+                    onClick={() => {
+                      setShowMapEditor(false);
+                      navigate(`/device/${id}/no-go-zones`);
+                    }}
+                  >
                     <div className="w-10 h-10 rounded-full bg-destructive/20 flex items-center justify-center">
                       <Ban className="w-5 h-5 text-destructive" />
                     </div>
                     <span className="text-foreground font-medium text-sm">No-Go Zones</span>
                     <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto" />
                   </button>
-                  <button className="flex items-center gap-3 bg-muted rounded-xl p-4 hover:bg-muted/80 transition-colors">
+                  <button 
+                    className="flex items-center gap-3 bg-muted rounded-xl p-4 hover:bg-muted/80 transition-colors"
+                    onClick={() => {
+                      setShowMapEditor(false);
+                      navigate(`/device/${id}/room-editor`);
+                    }}
+                  >
                     <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
                       <Home className="w-5 h-5 text-primary" />
                     </div>
