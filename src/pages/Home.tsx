@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Plus, Bell, Home as HomeIcon, User, Zap } from "lucide-react";
+import { Plus, Bell, Home as HomeIcon, User, Zap, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Device {
@@ -24,14 +24,21 @@ const HomePage = () => {
     }
   }, []);
 
+  const removeDevice = () => {
+    localStorage.removeItem("hasDevice");
+    setDevices([]);
+  };
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Header when device exists */}
       {devices.length > 0 && (
         <header className="flex items-center justify-between px-4 py-3">
-          <div className="w-10 h-10 rounded-full bg-rose-500/20 flex items-center justify-center">
-            <span className="text-lg">🐷</span>
-          </div>
+          <button 
+            onClick={removeDevice}
+            className="text-red-500 p-2"
+          >
+            <Trash2 className="h-5 w-5" />
+          </button>
           <button 
             onClick={() => navigate("/add-device")}
             className="text-foreground p-2"
