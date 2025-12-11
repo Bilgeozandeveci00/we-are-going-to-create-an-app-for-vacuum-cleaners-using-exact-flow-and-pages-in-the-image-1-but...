@@ -11,6 +11,7 @@ const RobotSound = () => {
   const [selectedLanguage, setSelectedLanguage] = useState("English");
 
   const languages = [
+    "Türkçe",
     "中文普通话版",
     "臺灣普通話版",
     "English",
