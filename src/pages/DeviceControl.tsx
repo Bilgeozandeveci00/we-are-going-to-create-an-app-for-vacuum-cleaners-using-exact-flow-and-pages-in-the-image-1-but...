@@ -575,30 +575,6 @@ const DeviceControl = () => {
           <div className="space-y-4 pb-4">
             {mapEditorTab === "edit" ? (
               <>
-                {/* Map Card */}
-                <div className="bg-muted rounded-xl p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-foreground font-medium">Map 1</span>
-                    <Upload className="w-5 h-5 text-muted-foreground" />
-                  </div>
-                  <div className="flex items-center gap-4 text-sm">
-                    <button className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
-                      <CloudUpload className="w-4 h-4" />
-                      Backup
-                    </button>
-                    <span className="text-border">|</span>
-                    <button className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
-                      <RotateCcw className="w-4 h-4" />
-                      Restore
-                    </button>
-                    <span className="text-border">|</span>
-                    <button className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
-                      <Trash2 className="w-4 h-4" />
-                      Delete
-                    </button>
-                  </div>
-                </div>
-
                 {/* Action Buttons */}
                 <div className="grid grid-cols-2 gap-3">
                   <button 
@@ -628,17 +604,6 @@ const DeviceControl = () => {
                     <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto" />
                   </button>
                 </div>
-
-                {/* Cleaning Order */}
-                <button className="w-full flex items-center gap-3 bg-muted rounded-xl p-4 hover:bg-muted/80 transition-colors">
-                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                    <ListOrdered className="w-5 h-5 text-primary" />
-                  </div>
-                  <div className="text-left flex-1">
-                    <p className="text-foreground font-medium text-sm">Cleaning Order</p>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                </button>
               </>
             ) : (
               <div className="text-center py-8 text-muted-foreground">
@@ -745,14 +710,6 @@ const DeviceControl = () => {
               </div>
             </div>
 
-            {/* Cleaning Order */}
-            <button className="w-full flex items-center justify-between py-4 border-t border-border">
-              <div className="text-left">
-                <p className="text-foreground font-medium">Cleaning Order</p>
-                <p className="text-sm text-muted-foreground">Set cleaning sequence for maximum efficiency</p>
-              </div>
-              <ChevronRight className="w-5 h-5 text-muted-foreground" />
-            </button>
           </div>
         </SheetContent>
       </Sheet>
