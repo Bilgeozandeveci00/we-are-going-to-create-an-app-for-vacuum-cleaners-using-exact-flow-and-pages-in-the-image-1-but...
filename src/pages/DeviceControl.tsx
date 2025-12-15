@@ -42,6 +42,7 @@ const DeviceControl = () => {
   const [isDocking, setIsDocking] = useState(false);
   const [selectedTab, setSelectedTab] = useState<"safe" | "normal" | "deep">("normal");
   const [selectedFloor, setSelectedFloor] = useState(1);
+  const [selectedRooms, setSelectedRooms] = useState<string[]>([]);
   const [showFloorSelector, setShowFloorSelector] = useState(false);
   const [showPersonalize, setShowPersonalize] = useState(false);
   const [showMapEditor, setShowMapEditor] = useState(false);
@@ -49,6 +50,26 @@ const DeviceControl = () => {
   const [vacuumPower, setVacuumPower] = useState(3); // 0-4 scale
   const [waterFlow, setWaterFlow] = useState(2); // 0-4 scale
   const [showSettings, setShowSettings] = useState(false);
+
+  const roomNames: Record<string, string> = {
+    living: "Living Room",
+    dining: "Dining",
+    hallway: "Hallway",
+    bedroom1: "Bedroom 1",
+    bedroom2: "Bedroom 2",
+    bathroom: "Bathroom",
+    kitchen: "Kitchen",
+    laundry: "Laundry",
+  };
+
+  const handleRoomSelect = (roomId: string) => {
+    if (isRunning) return; // Can't select while running
+    setSelectedRooms(prev => 
+      prev.includes(roomId) 
+        ? prev.filter(id => id !== roomId)
+        : [...prev, roomId]
+    );
+  };
 
   const handleDock = () => {
     setIsRunning(false);
@@ -152,8 +173,12 @@ const DeviceControl = () => {
           {isDocking 
             ? "Returning to dock" 
             : isRunning 
-              ? "Cleaning will be finished in 47 min" 
-              : "Robot is ready to go"
+              ? selectedRooms.length > 0
+                ? `Cleaning ${selectedRooms.map(id => roomNames[id]).join(", ")}`
+                : "Cleaning will be finished in 47 min"
+              : selectedRooms.length > 0
+                ? `${selectedRooms.length} room${selectedRooms.length > 1 ? "s" : ""} selected`
+                : "Tap rooms to select, then start"
           }
         </h2>
       </div>
@@ -209,7 +234,12 @@ const DeviceControl = () => {
 
           {/* Map */}
           <div className="absolute inset-0">
-            <FloorMap isRunning={isRunning} showLabels />
+            <FloorMap 
+              isRunning={isRunning} 
+              showLabels 
+              selectedRooms={selectedRooms}
+              onRoomSelect={handleRoomSelect}
+            />
           </div>
         </div>
       </div>

@@ -19,7 +19,7 @@ interface Door {
 
 interface FloorMapProps {
   isRunning: boolean;
-  selectedRoom?: string;
+  selectedRooms?: string[];
   onRoomSelect?: (roomId: string) => void;
   showLabels?: boolean;
 }
@@ -150,10 +150,12 @@ const getCleaningPaths = (room: Room) => {
   return paths.join(" ");
 };
 
-const FloorMap = ({ isRunning, selectedRoom, onRoomSelect, showLabels = false }: FloorMapProps) => {
+const FloorMap = ({ isRunning, selectedRooms = [], onRoomSelect, showLabels = false }: FloorMapProps) => {
   // Robot position in hallway
   const robotX = 65;
   const robotY = 100;
+
+  const isRoomSelected = (roomId: string) => selectedRooms.includes(roomId);
 
   return (
     <div className="relative w-full h-full bg-background">
@@ -170,10 +172,13 @@ const FloorMap = ({ isRunning, selectedRoom, onRoomSelect, showLabels = false }:
             <motion.path
               d={room.path}
               fill={room.color}
-              stroke={room.borderColor}
-              strokeWidth="2"
+              stroke={isRoomSelected(room.id) ? "hsl(var(--primary))" : room.borderColor}
+              strokeWidth={isRoomSelected(room.id) ? "3" : "2"}
               whileHover={{ opacity: 0.95 }}
-              opacity={selectedRoom === room.id ? 1 : 0.9}
+              opacity={isRoomSelected(room.id) ? 1 : 0.75}
+              animate={{
+                opacity: isRoomSelected(room.id) ? 1 : 0.75,
+              }}
             />
             
             {/* Cleaning path lines */}
