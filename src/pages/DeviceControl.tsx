@@ -40,6 +40,8 @@ const DeviceControl = () => {
   const { id } = useParams();
   const [isRunning, setIsRunning] = useState(false);
   const [isDocking, setIsDocking] = useState(false);
+  const [isCharging, setIsCharging] = useState(false);
+  const [battery, setBattery] = useState(93);
   const [selectedTab, setSelectedTab] = useState<"safe" | "normal" | "deep">("normal");
   const [selectedFloor, setSelectedFloor] = useState(1);
   const [selectedRooms, setSelectedRooms] = useState<string[]>([]);
@@ -94,8 +96,24 @@ const DeviceControl = () => {
     // Simulate docking process
     setTimeout(() => {
       setIsDocking(false);
+      setIsCharging(true);
+      // Simulate charging complete after 25 seconds (for demo)
+      setTimeout(() => {
+        setIsCharging(false);
+        setBattery(93);
+      }, 25000);
     }, 5000);
   };
+
+  // Battery drain when running
+  useEffect(() => {
+    if (isRunning) {
+      const timer = setTimeout(() => {
+        setBattery(15);
+      }, 10000);
+      return () => clearTimeout(timer);
+    }
+  }, [isRunning]);
 
   // Check if map exists, if not redirect to map creation
   useEffect(() => {
@@ -115,7 +133,6 @@ const DeviceControl = () => {
     id,
     name: "Amphibia",
     status: getDeviceStatus(),
-    battery: 93,
     area: 34,
     duration: 50,
   };
@@ -204,15 +221,17 @@ const DeviceControl = () => {
       {/* Status Text */}
       <div className="text-center px-4 py-2">
         <h2 className="text-xl font-light text-foreground">
-          {isDocking 
-            ? "Returning to dock" 
-            : isRunning 
-              ? selectedRooms.length > 0
-                ? `Cleaning ${selectedRooms.map(id => roomNames[id]).join(", ")}`
-                : "Cleaning will be finished in 47 min"
-              : selectedRooms.length > 0
-                ? `${selectedRooms.length} room${selectedRooms.length > 1 ? "s" : ""} selected`
-                : "Tap rooms to select, then start"
+          {isCharging
+            ? "Amphibia will be ready in 25 min"
+            : isDocking 
+              ? "Returning to dock" 
+              : isRunning 
+                ? selectedRooms.length > 0
+                  ? `Cleaning ${selectedRooms.map(id => roomNames[id]).join(", ")}`
+                  : "Cleaning will be finished in 47 min"
+                : selectedRooms.length > 0
+                  ? `${selectedRooms.length} room${selectedRooms.length > 1 ? "s" : ""} selected`
+                  : "Amphibia is ready for cleaning"
           }
         </h2>
       </div>
@@ -221,7 +240,7 @@ const DeviceControl = () => {
       <div className="flex items-center justify-center gap-8 py-2">
         <div className="flex items-center gap-1.5">
           <Battery className="w-5 h-5 text-primary" />
-          <span className="text-lg text-foreground">{device.battery}%</span>
+          <span className="text-lg text-foreground">{battery}%</span>
         </div>
         <div className="text-center">
           <span className="text-lg text-foreground">Total, {selectedTime}min</span>
@@ -259,7 +278,7 @@ const DeviceControl = () => {
               ))}
               <button
                 onClick={handleAddFloor}
-                className="px-3 py-2 text-sm font-medium text-primary hover:bg-primary/10 transition-colors"
+                className="px-3 py-2 text-sm font-medium text-primary bg-primary/10 transition-colors"
               >
                 +
               </button>
