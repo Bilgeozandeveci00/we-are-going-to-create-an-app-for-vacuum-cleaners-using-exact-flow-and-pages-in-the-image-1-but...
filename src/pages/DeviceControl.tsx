@@ -514,7 +514,7 @@ const DeviceControl = () => {
                 <Clock className="w-3 h-3" />
                 <span className="text-xs font-medium">~50 min</span>
               </div>
-              <span className="text-[10px] text-primary font-medium -mt-1">Recommended</span>
+              
             </motion.button>
 
             {/* Deep Mode */}
@@ -618,20 +618,7 @@ const DeviceControl = () => {
       <Sheet open={showPersonalize} onOpenChange={setShowPersonalize}>
         <SheetContent side="bottom" className="bg-card rounded-t-3xl border-border">
           <SheetHeader className="pb-4">
-            <div className="flex items-center gap-4">
-              <button 
-                className={`text-lg font-semibold flex items-center gap-2`}
-              >
-                General
-                <span className="w-2 h-2 rounded-full bg-primary" />
-              </button>
-              <button className="text-lg text-muted-foreground">
-                Customize
-              </button>
-            </div>
-            <p className="text-sm text-muted-foreground text-left">
-              Vacuum and Mop for daily cleaning
-            </p>
+            <h2 className="text-lg font-semibold text-foreground text-left">General</h2>
           </SheetHeader>
           
           <div className="space-y-6">
