@@ -20,6 +20,7 @@ interface Door {
 interface FloorMapProps {
   isRunning: boolean;
   isStuck?: boolean;
+  isCompleted?: boolean;
   selectedRooms?: string[];
   onRoomSelect?: (roomId: string) => void;
   showLabels?: boolean;
@@ -151,10 +152,10 @@ const getCleaningPaths = (room: Room) => {
   return paths.join(" ");
 };
 
-const FloorMap = ({ isRunning, isStuck = false, selectedRooms = [], onRoomSelect, showLabels = false }: FloorMapProps) => {
-  // Robot position in hallway
-  const robotX = 65;
-  const robotY = 100;
+const FloorMap = ({ isRunning, isStuck = false, isCompleted = false, selectedRooms = [], onRoomSelect, showLabels = false }: FloorMapProps) => {
+  // Robot position - in hallway normally, at dock when completed
+  const robotX = isCompleted ? 120 : 65;
+  const robotY = isCompleted ? 38 : 100;
 
   const isRoomSelected = (roomId: string) => selectedRooms.includes(roomId);
 
@@ -277,8 +278,8 @@ const FloorMap = ({ isRunning, isStuck = false, selectedRooms = [], onRoomSelect
             cx={robotX}
             cy={robotY}
             r="4"
-            fill={isStuck ? "hsl(0, 70%, 50%)" : "white"}
-            stroke={isStuck ? "hsl(0, 70%, 40%)" : "hsl(220, 20%, 50%)"}
+            fill={isStuck ? "hsl(0, 70%, 50%)" : isCompleted ? "hsl(142, 70%, 45%)" : "white"}
+            stroke={isStuck ? "hsl(0, 70%, 40%)" : isCompleted ? "hsl(142, 70%, 35%)" : "hsl(220, 20%, 50%)"}
             strokeWidth="1"
           />
           
