@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Zap, Trash2 } from "lucide-react";
+import { Plus, Zap, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import RobotVacuum3D from "@/components/RobotVacuum3D";
 
@@ -28,7 +28,19 @@ const DeviceCarousel = ({
   const startX = useRef(0);
   const isDragging = useRef(false);
 
-  const totalSlides = devices.length + 1; // devices + add device slide
+  const totalSlides = devices.length + 1;
+
+  const goToPrev = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex((prev) => prev - 1);
+    }
+  };
+
+  const goToNext = () => {
+    if (currentIndex < totalSlides - 1) {
+      setCurrentIndex((prev) => prev + 1);
+    }
+  };
 
   const handleTouchStart = (e: React.TouchEvent) => {
     startX.current = e.touches[0].clientX;
@@ -71,12 +83,34 @@ const DeviceCarousel = ({
     isDragging.current = false;
   };
 
+  const currentDevice = devices[currentIndex];
+  const isOnAddSlide = currentIndex === devices.length;
+
   return (
-    <div className="flex flex-col items-center w-full">
+    <div className="flex flex-col items-center w-full h-full relative">
+      {/* Navigation Arrows */}
+      {currentIndex > 0 && (
+        <button
+          onClick={goToPrev}
+          className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-card/60 border border-border/30 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-card/80 transition-all"
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+      )}
+      
+      {currentIndex < totalSlides - 1 && (
+        <button
+          onClick={goToNext}
+          className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-card/60 border border-border/30 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-card/80 transition-all"
+        >
+          <ChevronRight className="w-5 h-5" />
+        </button>
+      )}
+
       {/* Carousel Container */}
       <div
         ref={containerRef}
-        className="w-full max-w-sm overflow-hidden cursor-grab active:cursor-grabbing"
+        className="w-full flex-1 overflow-hidden cursor-grab active:cursor-grabbing"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
         onMouseDown={handleMouseDown}
@@ -84,7 +118,7 @@ const DeviceCarousel = ({
         onMouseLeave={() => (isDragging.current = false)}
       >
         <motion.div
-          className="flex"
+          className="flex h-full"
           animate={{ x: `-${currentIndex * 100}%` }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
         >
@@ -92,32 +126,37 @@ const DeviceCarousel = ({
           {devices.map((device) => (
             <div
               key={device.id}
-              className="flex-shrink-0 w-full flex flex-col items-center px-6"
+              className="flex-shrink-0 w-full h-full flex flex-col items-center justify-center px-6"
             >
-              {/* Device Card */}
-              <div className="relative mb-8">
+              {/* Device Card with Platform */}
+              <div className="relative flex flex-col items-center">
                 {/* Trash button */}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     onRemoveDevice(device.id);
                   }}
-                  className="absolute -top-2 -left-2 z-10 w-10 h-10 rounded-full bg-card/80 border border-border/50 flex items-center justify-center text-red-500 active:scale-95 transition-transform"
+                  className="absolute -top-4 left-0 z-10 w-10 h-10 rounded-full bg-card/80 border border-border/50 flex items-center justify-center text-red-500 active:scale-95 transition-transform"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
 
-                {/* 3D Robot Vacuum */}
-                <RobotVacuum3D />
+                {/* 3D Robot Vacuum - larger size */}
+                <RobotVacuum3D size="large" />
+                
+                {/* Circular Platform Glow */}
+                <div className="absolute bottom-8 w-64 h-8">
+                  <div className="w-full h-full rounded-[50%] bg-primary/20 blur-xl" />
+                  <div className="absolute inset-0 w-full h-full rounded-[50%] border border-primary/30" />
+                </div>
               </div>
 
               {/* Device Info */}
-              <div className="text-center mb-6">
+              <div className="text-center mt-4 mb-4">
                 <div className="flex items-center justify-center gap-2 mb-1">
                   <h2 className="text-xl font-semibold text-foreground">
                     {device.name}
                   </h2>
-                  <span className="text-muted-foreground">∠</span>
                 </div>
                 <div className="flex items-center justify-center gap-1 text-green-500">
                   <Zap className="w-4 h-4 fill-current" />
@@ -129,7 +168,7 @@ const DeviceCarousel = ({
               <Button
                 onClick={() => onEnterDevice(device.id)}
                 variant="outline"
-                className="w-full max-w-sm h-12 rounded-full border-border/50 bg-card/50 text-foreground font-medium"
+                className="w-full max-w-xs h-12 rounded-full border-border/50 bg-card/50 text-foreground font-medium"
               >
                 Enter
               </Button>
@@ -137,26 +176,35 @@ const DeviceCarousel = ({
           ))}
 
           {/* Add Device Slide */}
-          <div className="flex-shrink-0 w-full flex flex-col items-center justify-center px-6 min-h-[400px]">
+          <div className="flex-shrink-0 w-full h-full flex flex-col items-center justify-center px-6">
             <button
               onClick={onAddDevice}
-              className="w-24 h-24 rounded-full border-2 border-dashed border-border/50 flex items-center justify-center mb-6 active:scale-95 transition-transform"
+              className="w-28 h-28 rounded-full border-2 border-dashed border-primary/50 flex items-center justify-center mb-6 active:scale-95 transition-transform hover:border-primary hover:bg-primary/5"
             >
-              <Plus className="w-10 h-10 text-muted-foreground" />
+              <Plus className="w-12 h-12 text-primary/70" />
             </button>
-            <p className="text-muted-foreground text-lg">Add Device</p>
+            <p className="text-muted-foreground text-lg mb-6">Add Device</p>
+            <Button
+              onClick={onAddDevice}
+              variant="outline"
+              className="w-full max-w-xs h-12 rounded-full border-primary/50 text-primary font-medium hover:bg-primary/10"
+            >
+              Add device
+            </Button>
           </div>
         </motion.div>
       </div>
 
       {/* Page Dots */}
-      <div className="flex gap-2 mt-6">
+      <div className="flex gap-2 py-4">
         {Array.from({ length: totalSlides }).map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentIndex(index)}
-            className={`w-2 h-2 rounded-full transition-colors ${
-              currentIndex === index ? "bg-foreground" : "bg-muted-foreground/40"
+            className={`w-2 h-2 rounded-full transition-all ${
+              currentIndex === index 
+                ? "bg-primary w-4" 
+                : "bg-muted-foreground/40"
             }`}
           />
         ))}

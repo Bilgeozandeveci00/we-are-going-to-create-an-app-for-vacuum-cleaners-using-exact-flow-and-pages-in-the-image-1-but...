@@ -120,9 +120,15 @@ const RobotVacuumModel = () => {
   );
 };
 
-const RobotVacuum3D = () => {
+interface RobotVacuum3DProps {
+  size?: "default" | "large";
+}
+
+const RobotVacuum3D = ({ size = "default" }: RobotVacuum3DProps) => {
+  const sizeClass = size === "large" ? "w-72 h-72 sm:w-80 sm:h-80" : "w-64 h-64";
+  
   return (
-    <div className="w-64 h-64 touch-none">
+    <div className={`${sizeClass} touch-none`}>
       <Canvas camera={{ position: [0, 2.5, 4.5], fov: 35 }}>
         <ambientLight intensity={0.4} />
         <directionalLight position={[5, 8, 5]} intensity={1.2} castShadow />
