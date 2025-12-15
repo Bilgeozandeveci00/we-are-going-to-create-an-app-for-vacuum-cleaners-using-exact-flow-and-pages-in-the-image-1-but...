@@ -14,6 +14,7 @@ interface FloorMapProps {
   isRunning: boolean;
   selectedRoom?: string;
   onRoomSelect?: (roomId: string) => void;
+  showLabels?: boolean;
 }
 
 const rooms: Room[] = [
@@ -98,7 +99,7 @@ const obstacles = [
   { cx: 178, cy: 88, r: 3 }, // Item near bathroom door
 ];
 
-const FloorMap = ({ isRunning, selectedRoom, onRoomSelect }: FloorMapProps) => {
+const FloorMap = ({ isRunning, selectedRoom, onRoomSelect, showLabels = false }: FloorMapProps) => {
   return (
     <div className="relative w-full h-full">
       <svg className="w-full h-full" viewBox="0 0 220 160" preserveAspectRatio="xMidYMid meet">
@@ -165,6 +166,33 @@ const FloorMap = ({ isRunning, selectedRoom, onRoomSelect }: FloorMapProps) => {
               fill="none"
               pointerEvents="none"
             />
+
+            {/* Room label */}
+            {showLabels && (
+              <g transform={`translate(${room.labelX}, ${room.labelY})`}>
+                {/* Label background pill */}
+                <rect
+                  x={-room.name.length * 2.5 - 4}
+                  y="-6"
+                  width={room.name.length * 5 + 8}
+                  height="12"
+                  rx="3"
+                  fill="hsl(220, 20%, 18%)"
+                  opacity="0.85"
+                />
+                <text
+                  x="0"
+                  y="3"
+                  textAnchor="middle"
+                  fill="white"
+                  fontSize="6"
+                  fontWeight="500"
+                  style={{ fontFamily: 'system-ui, sans-serif' }}
+                >
+                  {room.name}
+                </text>
+              </g>
+            )}
           </g>
         ))}
 

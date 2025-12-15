@@ -129,163 +129,130 @@ const DeviceControl = () => {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="flex items-center justify-between px-4 py-3">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate("/home")}
-          className="text-foreground"
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <div className="text-center">
-          <h1 className="text-lg font-semibold text-foreground">{device.name}</h1>
-          <p className="text-xs text-muted-foreground">{device.status}</p>
-        </div>
+        <div className="w-10" />
+        <h1 className="text-base font-medium text-foreground">{device.name}</h1>
         <Button 
           variant="ghost" 
           size="icon" 
-          className="text-foreground bg-card/50 rounded-full"
+          className="text-foreground"
           onClick={() => setShowSettings(true)}
         >
           <MoreHorizontal className="h-5 w-5" />
         </Button>
       </header>
 
+      {/* Status Text */}
+      <div className="text-center px-4 py-2">
+        <h2 className="text-2xl font-light text-foreground">
+          {isDocking ? "Returning to dock" : isRunning ? "Cleaning in progress" : "Robot is ready to go"}
+        </h2>
+      </div>
+
       {/* Stats Row */}
-      <div className="flex items-center justify-center gap-8 py-4">
+      <div className="flex items-center justify-center gap-12 py-2">
         <div className="text-center">
-          <div className="flex items-baseline justify-center">
-            <span className="text-3xl font-light text-foreground">{device.area}</span>
-            <span className="text-sm text-muted-foreground ml-0.5">m²</span>
-          </div>
+          <span className="text-lg text-foreground">{device.battery}%</span>
         </div>
         <div className="text-center">
-          <div className="flex items-baseline justify-center">
-            <span className="text-3xl font-light text-foreground">{device.battery}</span>
-            <span className="text-sm text-muted-foreground ml-0.5">%</span>
-          </div>
-        </div>
-        <div className="text-center">
-          <div className="flex items-baseline justify-center">
-            <span className="text-3xl font-light text-foreground">{device.duration}</span>
-            <span className="text-sm text-muted-foreground ml-0.5">min</span>
-          </div>
+          <span className="text-lg text-foreground">{device.duration} min</span>
         </div>
       </div>
 
-      {/* Map Area */}
-      <div className="flex-1 relative mx-4 mb-4">
-        {/* Edit Map Button */}
-        <button
-          onClick={() => setShowMapEditor(true)}
-          className="absolute top-2 right-2 z-10 w-11 h-11 rounded-xl bg-card/90 backdrop-blur-sm border border-border/50 flex items-center justify-center shadow-lg hover:bg-card transition-colors"
-        >
-          <Pencil className="w-5 h-5 text-foreground" />
-        </button>
-
-        {/* Floor Selector Button - On Map */}
-        <div className="absolute bottom-2 left-2 z-10">
+      {/* Map Area with Mode Tabs */}
+      <div className="flex-1 relative mx-4 mb-4 flex flex-col">
+        {/* Map Container */}
+        <div className="flex-1 relative rounded-2xl overflow-hidden bg-muted">
+          {/* Edit Map Button */}
           <button
-            onClick={() => setShowFloorSelector(!showFloorSelector)}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-card/80 backdrop-blur-sm text-foreground text-sm border border-border/50"
+            onClick={() => setShowMapEditor(true)}
+            className="absolute top-3 right-3 z-10 w-10 h-10 rounded-lg bg-card/80 backdrop-blur-sm border border-border/50 flex items-center justify-center shadow-md hover:bg-card transition-colors"
           >
-            <span>{floors.find(f => f.id === selectedFloor)?.name}</span>
-            <ChevronDown className={`w-4 h-4 transition-transform ${showFloorSelector ? "rotate-180" : ""}`} />
+            <Pencil className="w-4 h-4 text-foreground" />
           </button>
-          
-          <AnimatePresence>
-            {showFloorSelector && (
-              <motion.div
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                className="absolute bottom-full left-0 mb-2 rounded-xl bg-card border border-border overflow-hidden min-w-[140px] shadow-lg"
-              >
-                {floors.map((floor) => (
-                  <button
-                    key={floor.id}
-                    onClick={() => {
-                      setSelectedFloor(floor.id);
-                      setShowFloorSelector(false);
-                    }}
-                    className={`w-full py-2.5 px-4 text-left text-sm transition-colors ${
-                      selectedFloor === floor.id
-                        ? "bg-primary/20 text-primary"
-                        : "text-foreground hover:bg-muted"
-                    }`}
-                  >
-                    {floor.name}
-                  </button>
-                ))}
-                <button
-                  onClick={() => {
-                    setShowFloorSelector(false);
-                  }}
-                  className="w-full py-2.5 px-4 text-left text-sm text-primary border-t border-border"
-                >
-                  + Add Floor
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
 
-        {/* Map */}
-        <div className="h-full min-h-[300px] rounded-2xl overflow-hidden">
-          <FloorMap isRunning={isRunning} />
+          {/* Floor Selector */}
+          <div className="absolute bottom-14 left-3 z-10">
+            <button
+              onClick={() => setShowFloorSelector(!showFloorSelector)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-card/80 backdrop-blur-sm text-foreground text-sm border border-border/50"
+            >
+              <span>{floors.find(f => f.id === selectedFloor)?.name}</span>
+              <ChevronDown className={`w-4 h-4 transition-transform ${showFloorSelector ? "rotate-180" : ""}`} />
+            </button>
+            
+            <AnimatePresence>
+              {showFloorSelector && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  className="absolute bottom-full left-0 mb-2 rounded-xl bg-card border border-border overflow-hidden min-w-[120px] shadow-lg"
+                >
+                  {floors.map((floor) => (
+                    <button
+                      key={floor.id}
+                      onClick={() => {
+                        setSelectedFloor(floor.id);
+                        setShowFloorSelector(false);
+                      }}
+                      className={`w-full py-2 px-3 text-left text-sm transition-colors ${
+                        selectedFloor === floor.id
+                          ? "bg-primary/20 text-primary"
+                          : "text-foreground hover:bg-muted"
+                      }`}
+                    >
+                      {floor.name}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => setShowFloorSelector(false)}
+                    className="w-full py-2 px-3 text-left text-sm text-primary border-t border-border"
+                  >
+                    + Add Floor
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Map */}
+          <div className="h-full min-h-[280px]">
+            <FloorMap isRunning={isRunning} showLabels />
+          </div>
+
+          {/* Mode Tabs - Bottom of Map */}
+          <div className="absolute bottom-0 left-0 right-0 flex bg-muted/90 backdrop-blur-sm border-t border-border/30">
+            <ModeTab
+              label="Safe"
+              active={selectedTab === "safe"}
+              onClick={() => setSelectedTab("safe")}
+            />
+            <ModeTab
+              label="Regular"
+              active={selectedTab === "normal"}
+              onClick={() => setSelectedTab("normal")}
+            />
+            <ModeTab
+              label="Deep"
+              active={selectedTab === "deep"}
+              onClick={() => setSelectedTab("deep")}
+            />
+          </div>
         </div>
       </div>
 
       {/* Bottom Control Panel */}
-      <div className="bg-card rounded-t-3xl px-6 pb-8 pt-4 safe-area-bottom">
-        {/* Tabs */}
-        <div className="flex items-center justify-center gap-8 mb-2">
-          <TabButton
-            label="Safe"
-            active={selectedTab === "safe"}
-            onClick={() => setSelectedTab("safe")}
-          />
-          <TabButton
-            label="Normal"
-            active={selectedTab === "normal"}
-            onClick={() => setSelectedTab("normal")}
-          />
-          <TabButton
-            label="Deep"
-            active={selectedTab === "deep"}
-            onClick={() => setSelectedTab("deep")}
-          />
-        </div>
-        
-        {/* Mode Description */}
-        <div className="h-8 mb-4 overflow-hidden">
-          <AnimatePresence mode="wait">
-            <motion.p
-              key={selectedTab}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
-              className="text-xs text-muted-foreground text-center"
-            >
-              {selectedTab === "safe" && "Cleans carefully without getting stuck on obstacles"}
-              {selectedTab === "normal" && "Balanced cleaning while avoiding risky areas"}
-              {selectedTab === "deep" && "Thorough cleaning that covers every area"}
-            </motion.p>
-          </AnimatePresence>
-        </div>
-
+      <div className="px-6 pb-8 pt-4 safe-area-bottom">
         {/* Control Buttons */}
-        <div className="flex items-center justify-center gap-6">
-          {/* Customize Button */}
+        <div className="flex items-center justify-center gap-8">
+          {/* Settings Button */}
           <button 
-            className="flex flex-col items-center gap-2"
+            className="flex flex-col items-center"
             onClick={() => setShowPersonalize(true)}
           >
-            <div className="w-12 h-12 rounded-full bg-card-elevated flex items-center justify-center">
-              <Settings2 className="w-5 h-5 text-primary" />
+            <div className="w-14 h-14 rounded-full border-2 border-border flex items-center justify-center">
+              <Settings2 className="w-6 h-6 text-muted-foreground" />
             </div>
-            <span className="text-xs text-muted-foreground">Customize</span>
           </button>
 
           {/* Play/Pause Button */}
@@ -294,38 +261,33 @@ const DeviceControl = () => {
             onClick={() => setIsRunning(!isRunning)}
             className="relative"
           >
-            <div className="w-20 h-20 rounded-full bg-gradient-to-b from-primary/80 to-primary flex items-center justify-center shadow-lg shadow-primary/30">
+            <div className="w-16 h-16 rounded-full border-2 border-foreground flex items-center justify-center bg-background">
               {isRunning ? (
-                <Pause className="w-8 h-8 text-primary-foreground" />
+                <Pause className="w-7 h-7 text-foreground" />
               ) : (
-                <Play className="w-8 h-8 text-primary-foreground ml-1" />
+                <Play className="w-7 h-7 text-foreground ml-1" />
               )}
             </div>
-            {/* Outer ring */}
-            <div className="absolute inset-0 rounded-full border-4 border-primary/30 -m-1" />
           </motion.button>
 
           {/* Charging Station Button */}
           <button 
-            className="flex flex-col items-center gap-2"
+            className="flex flex-col items-center"
             onClick={handleDock}
             disabled={isDocking}
           >
-            <div className={`w-12 h-12 rounded-full bg-card-elevated flex items-center justify-center ${isDocking ? "animate-pulse" : ""}`}>
+            <div className={`w-14 h-14 rounded-full border-2 border-border flex items-center justify-center ${isDocking ? "animate-pulse" : ""}`}>
               {isDocking ? (
                 <motion.div
                   animate={{ rotate: 360 }}
                   transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                 >
-                  <Zap className="w-5 h-5 text-amber-500" />
+                  <Zap className="w-6 h-6 text-amber-500" />
                 </motion.div>
               ) : (
-                <Zap className="w-5 h-5 text-primary" />
+                <Zap className="w-6 h-6 text-muted-foreground" />
               )}
             </div>
-            <span className="text-xs text-muted-foreground">
-              {isDocking ? "Docking..." : "Dock"}
-            </span>
           </button>
         </div>
       </div>
@@ -689,6 +651,25 @@ const TabButton = ({
         className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary"
       />
     )}
+  </button>
+);
+
+const ModeTab = ({
+  label,
+  active,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) => (
+  <button
+    onClick={onClick}
+    className={`flex-1 py-3 text-sm font-medium transition-colors ${
+      active ? "text-foreground bg-muted/50" : "text-muted-foreground"
+    }`}
+  >
+    {label}
   </button>
 );
 
