@@ -127,22 +127,22 @@ const DeviceCarousel = ({
 
   return (
     <div className="flex flex-col items-center w-full h-full relative">
-      {/* Navigation Arrows */}
+      {/* Navigation Arrows - positioned outside stat area */}
       {currentIndex > 0 && (
         <button
           onClick={goToPrev}
-          className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-card/60 border border-border/30 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-card/80 transition-all"
+          className="absolute left-1 top-1/2 -translate-y-1/2 z-30 w-8 h-8 rounded-full bg-card/80 border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-card transition-all"
         >
-          <ChevronLeft className="w-5 h-5" />
+          <ChevronLeft className="w-4 h-4" />
         </button>
       )}
       
       {currentIndex < totalSlides - 1 && (
         <button
           onClick={goToNext}
-          className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-card/60 border border-border/30 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-card/80 transition-all"
+          className="absolute right-1 top-1/2 -translate-y-1/2 z-30 w-8 h-8 rounded-full bg-card/80 border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-card transition-all"
         >
-          <ChevronRight className="w-5 h-5" />
+          <ChevronRight className="w-4 h-4" />
         </button>
       )}
 
@@ -184,15 +184,15 @@ const DeviceCarousel = ({
                 </div>
 
                 {/* Device showcase area */}
-                <div className="relative flex items-center justify-center w-full py-4">
+                <div className="relative flex items-center justify-center w-full max-w-[320px] py-4 mx-auto">
                   {/* Stats - Left Side */}
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 flex flex-col gap-5 z-10">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 flex flex-col gap-5 z-10">
                     <StatBar filled={stats.speed} label="Speed" align="right" />
                     <StatBar filled={stats.power} label="Power" align="right" />
                   </div>
 
                   {/* Stats - Right Side */}
-                  <div className="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col gap-5 z-10">
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-5 z-10">
                     <StatBar filled={stats.battery} label="Battery" align="left" />
                     <StatBar filled={stats.quiet} label="Quiet" align="left" />
                   </div>
@@ -234,17 +234,9 @@ const DeviceCarousel = ({
 
           {/* Add Device Slide */}
           <div className="flex-shrink-0 w-full h-full flex flex-col items-center justify-center px-6">
-            <button
-              onClick={onAddDevice}
-              className="w-28 h-28 rounded-full border-2 border-dashed border-primary/50 flex items-center justify-center mb-6 active:scale-95 transition-transform hover:border-primary hover:bg-primary/5"
-            >
-              <Plus className="w-12 h-12 text-primary/70" />
-            </button>
-            <p className="text-muted-foreground text-lg mb-6">Add Device</p>
             <Button
               onClick={onAddDevice}
-              variant="outline"
-              className="w-full max-w-xs h-12 rounded-full border-primary/50 text-primary font-medium hover:bg-primary/10"
+              className="w-full max-w-xs h-14 rounded-2xl bg-primary text-primary-foreground font-semibold text-base shadow-[0_8px_32px_hsl(var(--primary)/0.4)] hover:shadow-[0_12px_40px_hsl(var(--primary)/0.5)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
             >
               Add device
             </Button>
