@@ -436,68 +436,72 @@ const DeviceControl = () => {
       {/* Mode Selector Sheet */}
       <Sheet open={showModeSelector} onOpenChange={setShowModeSelector}>
         <SheetContent side="bottom" className="bg-card rounded-t-3xl border-border">
-          <SheetHeader className="pb-2">
+          <SheetHeader className="pb-4">
             <h2 className="text-lg font-semibold text-foreground text-center">Choose Cleaning Mode</h2>
-            <p className="text-sm text-muted-foreground text-center">Select how thoroughly you want to clean</p>
           </SheetHeader>
           
-          <div className="space-y-3 pb-6">
+          <div className="grid grid-cols-3 gap-3 pb-6">
             {/* Safe Mode */}
             <motion.button
-              whileTap={{ scale: 0.98 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => startCleaning("safe")}
-              className="w-full flex items-start gap-4 bg-muted rounded-2xl p-4 hover:bg-muted/80 transition-colors text-left"
+              className="flex flex-col items-center gap-3 bg-muted rounded-2xl p-4 hover:bg-muted/80 transition-colors"
             >
-              <div className="w-14 h-14 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="hsl(142, 70%, 45%)" strokeWidth="2">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                  <path d="M9 12l2 2 4-4" />
+              <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center">
+                {/* House with person away icon */}
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                  <path d="M3 12l9-9 9 9" stroke="hsl(142, 70%, 45%)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M5 10v10a1 1 0 001 1h12a1 1 0 001-1V10" stroke="hsl(142, 70%, 45%)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <circle cx="17" cy="6" r="4" fill="hsl(142, 70%, 45%)" fillOpacity="0.3" stroke="hsl(142, 70%, 45%)" strokeWidth="1.5"/>
+                  <path d="M15.5 7.5l3-3M18.5 7.5l-3-3" stroke="hsl(142, 70%, 45%)" strokeWidth="1.5" strokeLinecap="round"/>
                 </svg>
               </div>
-              <div className="flex-1">
-                <h3 className="text-foreground font-semibold text-base mb-1">Safe Mode</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  Robot carefully avoids all obstacles and furniture to prevent getting stuck. Best for homes with lots of items on the floor.
-                </p>
+              <div className="text-center">
+                <h3 className="text-foreground font-semibold text-sm">Safe</h3>
+                <p className="text-muted-foreground text-xs mt-1">When away</p>
               </div>
             </motion.button>
 
             {/* Regular Mode */}
             <motion.button
-              whileTap={{ scale: 0.98 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => startCleaning("normal")}
-              className="w-full flex items-start gap-4 bg-muted rounded-2xl p-4 hover:bg-muted/80 transition-colors text-left"
+              className="flex flex-col items-center gap-3 bg-muted rounded-2xl p-4 hover:bg-muted/80 transition-colors ring-2 ring-primary/50"
             >
-              <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--primary))" strokeWidth="2">
-                  <circle cx="12" cy="12" r="10" />
-                  <path d="M12 6v6l4 2" />
+              <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
+                {/* Balanced/everyday icon */}
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="9" stroke="hsl(var(--primary))" strokeWidth="2"/>
+                  <path d="M12 7v5l3 3" stroke="hsl(var(--primary))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <circle cx="12" cy="12" r="2" fill="hsl(var(--primary))"/>
                 </svg>
               </div>
-              <div className="flex-1">
-                <h3 className="text-foreground font-semibold text-base mb-1">Regular Mode</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  Balanced cleaning that skips risky zones while covering most areas. Recommended for everyday cleaning.
-                </p>
+              <div className="text-center">
+                <h3 className="text-foreground font-semibold text-sm">Regular</h3>
+                <p className="text-muted-foreground text-xs mt-1">Everyday</p>
               </div>
+              <span className="text-[10px] text-primary font-medium">Recommended</span>
             </motion.button>
 
             {/* Deep Mode */}
             <motion.button
-              whileTap={{ scale: 0.98 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => startCleaning("deep")}
-              className="w-full flex items-start gap-4 bg-muted rounded-2xl p-4 hover:bg-muted/80 transition-colors text-left"
+              className="flex flex-col items-center gap-3 bg-muted rounded-2xl p-4 hover:bg-muted/80 transition-colors"
             >
-              <div className="w-14 h-14 rounded-full bg-orange-500/20 flex items-center justify-center flex-shrink-0">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="hsl(25, 95%, 53%)" strokeWidth="2">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+              <div className="w-16 h-16 rounded-full bg-orange-500/20 flex items-center justify-center">
+                {/* Person at home icon */}
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                  <path d="M3 12l9-9 9 9" stroke="hsl(25, 95%, 53%)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M5 10v10a1 1 0 001 1h12a1 1 0 001-1V10" stroke="hsl(25, 95%, 53%)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <circle cx="12" cy="14" r="2" fill="hsl(25, 95%, 53%)"/>
+                  <path d="M12 12v-2" stroke="hsl(25, 95%, 53%)" strokeWidth="2" strokeLinecap="round"/>
+                  <path d="M10 18h4" stroke="hsl(25, 95%, 53%)" strokeWidth="2" strokeLinecap="round"/>
                 </svg>
               </div>
-              <div className="flex-1">
-                <h3 className="text-foreground font-semibold text-base mb-1">Deep Mode</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  Maximum coverage that cleans every corner including tight spaces. May occasionally get stuck in challenging areas.
-                </p>
+              <div className="text-center">
+                <h3 className="text-foreground font-semibold text-sm">Deep</h3>
+                <p className="text-muted-foreground text-xs mt-1">When home</p>
               </div>
             </motion.button>
           </div>
