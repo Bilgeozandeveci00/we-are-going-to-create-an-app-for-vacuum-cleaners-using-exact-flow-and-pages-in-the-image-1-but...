@@ -41,6 +41,7 @@ const DeviceControl = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [isDocking, setIsDocking] = useState(false);
   const [isCharging, setIsCharging] = useState(false);
+  const [isStuck, setIsStuck] = useState(false);
   const [battery, setBattery] = useState(93);
   const [selectedTab, setSelectedTab] = useState<"safe" | "normal" | "deep">("normal");
   const [selectedFloor, setSelectedFloor] = useState(1);
@@ -52,6 +53,27 @@ const DeviceControl = () => {
   const [vacuumPower, setVacuumPower] = useState(3); // 0-4 scale
   const [waterFlow, setWaterFlow] = useState(2); // 0-4 scale
   const [showSettings, setShowSettings] = useState(false);
+
+  // Deep mode stuck simulation - robot gets stuck after 3 seconds
+  useEffect(() => {
+    if (isRunning && selectedTab === "deep") {
+      const timer = setTimeout(() => {
+        setIsStuck(true);
+        setIsRunning(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [isRunning, selectedTab]);
+
+  // Reset stuck state when starting new cleaning session
+  const handleStartStop = () => {
+    if (isRunning) {
+      setIsRunning(false);
+    } else {
+      setIsStuck(false);
+      setIsRunning(true);
+    }
+  };
 
   const roomNames: Record<string, string> = {
     living: "Living Room",
@@ -203,7 +225,7 @@ const DeviceControl = () => {
           variant="ghost" 
           size="icon" 
           className="text-foreground"
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/home")}
         >
           <ChevronDown className="h-5 w-5 rotate-90" />
         </Button>
@@ -220,18 +242,20 @@ const DeviceControl = () => {
 
       {/* Status Text */}
       <div className="text-center px-4 py-2">
-        <h2 className="text-xl font-light text-foreground">
-          {isCharging
-            ? "Amphibia will be ready in 25 min"
-            : isDocking 
-              ? "Returning to dock" 
-              : isRunning 
-                ? selectedRooms.length > 0
-                  ? `Cleaning ${selectedRooms.map(id => roomNames[id]).join(", ")}`
-                  : "Cleaning will be finished in 47 min"
-                : selectedRooms.length > 0
-                  ? `${selectedRooms.length} room${selectedRooms.length > 1 ? "s" : ""} selected`
-                  : "Amphibia is ready for cleaning"
+        <h2 className={`text-xl font-light ${isStuck ? "text-destructive" : "text-foreground"}`}>
+          {isStuck
+            ? "Robot got stuck"
+            : isCharging
+              ? "Amphibia will be ready in 25 min"
+              : isDocking 
+                ? "Returning to dock" 
+                : isRunning 
+                  ? selectedRooms.length > 0
+                    ? `Cleaning ${selectedRooms.map(id => roomNames[id]).join(", ")}`
+                    : "Cleaning will be finished in 47 min"
+                  : selectedRooms.length > 0
+                    ? `${selectedRooms.length} room${selectedRooms.length > 1 ? "s" : ""} selected`
+                    : "Amphibia is ready for cleaning"
           }
         </h2>
       </div>
@@ -289,6 +313,7 @@ const DeviceControl = () => {
           <div className="absolute inset-0">
             <FloorMap 
               isRunning={isRunning} 
+              isStuck={isStuck}
               showLabels 
               selectedRooms={selectedRooms}
               onRoomSelect={handleRoomSelect}
@@ -356,7 +381,7 @@ const DeviceControl = () => {
           {/* Play/Pause Button */}
           <motion.button
             whileTap={{ scale: 0.95 }}
-            onClick={() => setIsRunning(!isRunning)}
+            onClick={handleStartStop}
             className="relative"
           >
             <div className="w-16 h-16 rounded-full bg-gradient-to-b from-primary/30 to-primary/50 flex items-center justify-center border-2 border-primary/40">
