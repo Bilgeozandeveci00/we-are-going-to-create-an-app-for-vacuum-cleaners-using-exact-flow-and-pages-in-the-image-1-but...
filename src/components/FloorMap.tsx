@@ -156,7 +156,7 @@ const FloorMap = ({ isRunning, selectedRoom, onRoomSelect, showLabels = false }:
   const robotY = 100;
 
   return (
-    <div className="relative w-full h-full bg-[hsl(220,20%,10%)]">
+    <div className="relative w-full h-full bg-background">
       {/* Map SVG - Vertical layout */}
       <svg 
         className="w-full h-full" 
