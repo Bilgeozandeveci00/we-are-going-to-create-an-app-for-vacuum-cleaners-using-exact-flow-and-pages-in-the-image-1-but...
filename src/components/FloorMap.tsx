@@ -19,6 +19,7 @@ interface Door {
 
 interface FloorMapProps {
   isRunning: boolean;
+  isStuck?: boolean;
   selectedRooms?: string[];
   onRoomSelect?: (roomId: string) => void;
   showLabels?: boolean;
@@ -150,7 +151,7 @@ const getCleaningPaths = (room: Room) => {
   return paths.join(" ");
 };
 
-const FloorMap = ({ isRunning, selectedRooms = [], onRoomSelect, showLabels = false }: FloorMapProps) => {
+const FloorMap = ({ isRunning, isStuck = false, selectedRooms = [], onRoomSelect, showLabels = false }: FloorMapProps) => {
   // Robot position in hallway
   const robotX = 65;
   const robotY = 100;
@@ -255,10 +256,10 @@ const FloorMap = ({ isRunning, selectedRooms = [], onRoomSelect, showLabels = fa
           />
         </g>
 
-        {/* Robot vacuum - white circle */}
+        {/* Robot vacuum - white circle (red when stuck) */}
         <motion.g
           animate={
-            isRunning
+            isRunning && !isStuck
               ? {
                   x: [0, -15, -15, 0, 0, 15, 15, 0],
                   y: [0, 0, -20, -20, -40, -40, -20, -20],
@@ -276,13 +277,48 @@ const FloorMap = ({ isRunning, selectedRooms = [], onRoomSelect, showLabels = fa
             cx={robotX}
             cy={robotY}
             r="4"
-            fill="white"
-            stroke="hsl(220, 20%, 50%)"
+            fill={isStuck ? "hsl(0, 70%, 50%)" : "white"}
+            stroke={isStuck ? "hsl(0, 70%, 40%)" : "hsl(220, 20%, 50%)"}
             strokeWidth="1"
           />
           
+          {/* Need help speech bubble when stuck */}
+          {isStuck && (
+            <g>
+              {/* Bubble background */}
+              <path
+                d={`M${robotX - 18} ${robotY - 22} 
+                    L${robotX + 18} ${robotY - 22} 
+                    Q${robotX + 20} ${robotY - 22} ${robotX + 20} ${robotY - 20}
+                    L${robotX + 20} ${robotY - 12}
+                    Q${robotX + 20} ${robotY - 10} ${robotX + 18} ${robotY - 10}
+                    L${robotX + 4} ${robotY - 10}
+                    L${robotX} ${robotY - 6}
+                    L${robotX - 4} ${robotY - 10}
+                    L${robotX - 18} ${robotY - 10}
+                    Q${robotX - 20} ${robotY - 10} ${robotX - 20} ${robotY - 12}
+                    L${robotX - 20} ${robotY - 20}
+                    Q${robotX - 20} ${robotY - 22} ${robotX - 18} ${robotY - 22}
+                    Z`}
+                fill="hsl(0, 70%, 50%)"
+              />
+              {/* Text */}
+              <text
+                x={robotX}
+                y={robotY - 14}
+                textAnchor="middle"
+                fill="white"
+                fontSize="5"
+                fontWeight="600"
+                style={{ fontFamily: 'system-ui, sans-serif' }}
+              >
+                Need help
+              </text>
+            </g>
+          )}
+          
           {/* Cleaning trail when running */}
-          {isRunning && (
+          {isRunning && !isStuck && (
             <motion.line
               x1={robotX}
               y1={robotY}
