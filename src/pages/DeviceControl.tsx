@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  ArrowLeft,
   MoreHorizontal,
   Play,
   Pause,
@@ -10,7 +9,6 @@ import {
   Zap,
   ChevronDown,
   ChevronRight,
-  Droplets,
   Ban,
   Home,
   ListOrdered,
@@ -27,6 +25,7 @@ import {
   Settings,
   MapPin,
   Smartphone,
+  Battery,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FloorMap from "@/components/FloorMap";
@@ -143,14 +142,20 @@ const DeviceControl = () => {
 
       {/* Status Text */}
       <div className="text-center px-4 py-2">
-        <h2 className="text-2xl font-light text-foreground">
-          {isDocking ? "Returning to dock" : isRunning ? "Cleaning in progress" : "Robot is ready to go"}
+        <h2 className="text-xl font-light text-foreground">
+          {isDocking 
+            ? "Returning to dock" 
+            : isRunning 
+              ? "Cleaning will be finished in 47 min" 
+              : "Robot is ready to go"
+          }
         </h2>
       </div>
 
       {/* Stats Row */}
-      <div className="flex items-center justify-center gap-12 py-2">
-        <div className="text-center">
+      <div className="flex items-center justify-center gap-8 py-2">
+        <div className="flex items-center gap-1.5">
+          <Battery className="w-5 h-5 text-primary" />
           <span className="text-lg text-foreground">{device.battery}%</span>
         </div>
         <div className="text-center">

@@ -3,12 +3,18 @@ import { motion } from "framer-motion";
 interface Room {
   id: string;
   name: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
+  path: string;
   color: string;
   borderColor: string;
+  labelX: number;
+  labelY: number;
+}
+
+interface Door {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
 }
 
 interface FloorMapProps {
@@ -19,120 +25,150 @@ interface FloorMapProps {
 }
 
 const rooms: Room[] = [
-  // Main living area - light blue
+  // Living Room - large L-shaped blue area at top
   {
-    id: "living1",
+    id: "living",
     name: "Living Room",
-    x: 10,
-    y: 10,
-    width: 75,
-    height: 65,
+    path: "M15 15 L15 70 L55 70 L55 50 L85 50 L85 15 Z",
     color: "hsl(205, 70%, 65%)",
-    borderColor: "hsl(210, 30%, 35%)",
+    borderColor: "hsl(210, 30%, 30%)",
+    labelX: 45,
+    labelY: 38,
   },
-  // Connected living area - light blue
+  // Dining - blue area connected to living
   {
-    id: "living2",
+    id: "dining",
     name: "Dining",
-    x: 10,
-    y: 75,
-    width: 60,
-    height: 50,
+    path: "M15 75 L15 120 L50 120 L50 75 Z",
     color: "hsl(205, 70%, 65%)",
-    borderColor: "hsl(210, 30%, 35%)",
+    borderColor: "hsl(210, 30%, 30%)",
+    labelX: 32,
+    labelY: 98,
   },
-  // Hallway connector - light blue
+  // Hallway - blue connector
   {
     id: "hallway",
     name: "Hallway",
-    x: 85,
-    y: 35,
-    width: 30,
-    height: 55,
+    path: "M55 55 L55 120 L75 120 L75 55 Z",
     color: "hsl(205, 70%, 65%)",
-    borderColor: "hsl(210, 30%, 35%)",
+    borderColor: "hsl(210, 30%, 30%)",
+    labelX: 65,
+    labelY: 88,
   },
-  // Bedroom 1 - yellow/gold
+  // Bedroom 1 - yellow room top right
   {
     id: "bedroom1",
     name: "Bedroom 1",
-    x: 115,
-    y: 10,
-    width: 55,
-    height: 40,
+    path: "M90 15 L90 55 L130 55 L130 25 L120 25 L120 15 Z",
     color: "hsl(42, 70%, 60%)",
-    borderColor: "hsl(42, 40%, 35%)",
+    borderColor: "hsl(42, 40%, 30%)",
+    labelX: 108,
+    labelY: 38,
   },
-  // Bedroom 2 - yellow/gold
+  // Bedroom 2 - yellow room middle right
   {
     id: "bedroom2",
     name: "Bedroom 2",
-    x: 115,
-    y: 50,
-    width: 55,
-    height: 40,
+    path: "M80 60 L80 95 L130 95 L130 60 Z",
     color: "hsl(42, 70%, 60%)",
-    borderColor: "hsl(42, 40%, 35%)",
+    borderColor: "hsl(42, 40%, 30%)",
+    labelX: 105,
+    labelY: 78,
   },
-  // Bathroom - coral/salmon
+  // Bathroom - coral room
   {
     id: "bathroom",
     name: "Bathroom",
-    x: 115,
-    y: 90,
-    width: 55,
-    height: 35,
+    path: "M80 100 L80 135 L110 135 L110 100 Z",
     color: "hsl(15, 60%, 60%)",
-    borderColor: "hsl(15, 40%, 35%)",
+    borderColor: "hsl(15, 40%, 30%)",
+    labelX: 95,
+    labelY: 118,
   },
-  // Kitchen - coral/salmon
+  // Kitchen - coral L-shaped room bottom
   {
     id: "kitchen",
     name: "Kitchen",
-    x: 70,
-    y: 90,
-    width: 45,
-    height: 35,
+    path: "M15 125 L15 170 L70 170 L70 145 L50 145 L50 125 Z",
     color: "hsl(15, 60%, 60%)",
-    borderColor: "hsl(15, 40%, 35%)",
+    borderColor: "hsl(15, 40%, 30%)",
+    labelX: 40,
+    labelY: 155,
+  },
+  // Laundry - coral small room
+  {
+    id: "laundry",
+    name: "Laundry",
+    path: "M115 100 L115 135 L130 135 L130 100 Z",
+    color: "hsl(15, 60%, 60%)",
+    borderColor: "hsl(15, 40%, 30%)",
+    labelX: 122,
+    labelY: 118,
   },
 ];
 
-// Generate cleaning path lines for a room
+const doors: Door[] = [
+  // Living to Hallway
+  { x1: 55, y1: 58, x2: 55, y2: 68 },
+  // Dining to Hallway
+  { x1: 50, y1: 85, x2: 55, y2: 85 },
+  // Living to Bedroom 1
+  { x1: 85, y1: 30, x2: 90, y2: 30 },
+  // Hallway to Bedroom 2
+  { x1: 75, y1: 75, x2: 80, y2: 75 },
+  // Hallway to Bathroom
+  { x1: 75, y1: 110, x2: 80, y2: 110 },
+  // Dining to Kitchen
+  { x1: 30, y1: 120, x2: 30, y2: 125 },
+  // Bathroom to Laundry
+  { x1: 110, y1: 115, x2: 115, y2: 115 },
+];
+
+// Generate cleaning path lines for a room based on its bounding area
 const getCleaningPaths = (room: Room) => {
-  const paths: string[] = [];
-  const spacing = 8;
-  const padding = 5;
+  // Parse path to get approximate bounding box
+  const matches = room.path.match(/[ML]\s*(\d+)\s+(\d+)/g);
+  if (!matches) return "";
   
-  for (let y = room.y + padding; y < room.y + room.height - padding; y += spacing) {
-    paths.push(`M${room.x + padding} ${y} L${room.x + room.width - padding} ${y}`);
+  const coords = matches.map(m => {
+    const nums = m.match(/(\d+)/g);
+    return nums ? { x: parseInt(nums[0]), y: parseInt(nums[1]) } : { x: 0, y: 0 };
+  });
+  
+  const minX = Math.min(...coords.map(c => c.x)) + 5;
+  const maxX = Math.max(...coords.map(c => c.x)) - 5;
+  const minY = Math.min(...coords.map(c => c.y)) + 5;
+  const maxY = Math.max(...coords.map(c => c.y)) - 5;
+  
+  const paths: string[] = [];
+  const spacing = 6;
+  
+  for (let y = minY; y < maxY; y += spacing) {
+    paths.push(`M${minX} ${y} L${maxX} ${y}`);
   }
   
   return paths.join(" ");
 };
 
 const FloorMap = ({ isRunning, selectedRoom, onRoomSelect, showLabels = false }: FloorMapProps) => {
-  // Robot position
-  const robotX = 130;
-  const robotY = 75;
+  // Robot position in hallway
+  const robotX = 65;
+  const robotY = 100;
 
   return (
-    <div className="relative w-full h-full bg-[hsl(220,20%,12%)]">
-      {/* Map SVG */}
+    <div className="relative w-full h-full bg-[hsl(220,20%,10%)]">
+      {/* Map SVG - Vertical layout */}
       <svg 
         className="w-full h-full" 
-        viewBox="0 0 180 135" 
+        viewBox="0 0 145 185" 
         preserveAspectRatio="xMidYMid meet"
       >
         {/* Rooms */}
         {rooms.map((room) => (
           <g key={room.id} onClick={() => onRoomSelect?.(room.id)} className="cursor-pointer">
-            {/* Room shape with pixelated border effect */}
-            <motion.rect
-              x={room.x}
-              y={room.y}
-              width={room.width}
-              height={room.height}
+            {/* Room shape */}
+            <motion.path
+              d={room.path}
               fill={room.color}
               stroke={room.borderColor}
               strokeWidth="2"
@@ -143,8 +179,8 @@ const FloorMap = ({ isRunning, selectedRoom, onRoomSelect, showLabels = false }:
             {/* Cleaning path lines */}
             <path
               d={getCleaningPaths(room)}
-              stroke="rgba(255,255,255,0.25)"
-              strokeWidth="1"
+              stroke="rgba(255,255,255,0.2)"
+              strokeWidth="0.8"
               strokeLinecap="round"
               fill="none"
               pointerEvents="none"
@@ -152,23 +188,23 @@ const FloorMap = ({ isRunning, selectedRoom, onRoomSelect, showLabels = false }:
 
             {/* Room label */}
             {showLabels && (
-              <g transform={`translate(${room.x + room.width / 2}, ${room.y + room.height / 2})`}>
+              <g transform={`translate(${room.labelX}, ${room.labelY})`}>
                 {/* Label background */}
                 <rect
-                  x={-28}
-                  y="-8"
-                  width="56"
-                  height="16"
-                  rx="4"
-                  fill="hsl(220, 20%, 15%)"
-                  opacity="0.85"
+                  x={-24}
+                  y="-7"
+                  width="48"
+                  height="14"
+                  rx="3"
+                  fill="hsl(220, 20%, 12%)"
+                  opacity="0.9"
                 />
                 <text
                   x="0"
                   y="4"
                   textAnchor="middle"
                   fill="white"
-                  fontSize="6"
+                  fontSize="5"
                   fontWeight="500"
                   style={{ fontFamily: 'system-ui, sans-serif' }}
                 >
@@ -179,25 +215,42 @@ const FloorMap = ({ isRunning, selectedRoom, onRoomSelect, showLabels = false }:
           </g>
         ))}
 
+        {/* Door connections */}
+        {doors.map((door, index) => (
+          <g key={index}>
+            {/* Door opening - darker gap */}
+            <line
+              x1={door.x1}
+              y1={door.y1}
+              x2={door.x2}
+              y2={door.y2}
+              stroke="hsl(220, 20%, 10%)"
+              strokeWidth="4"
+            />
+            {/* Door frame */}
+            <line
+              x1={door.x1}
+              y1={door.y1}
+              x2={door.x2}
+              y2={door.y2}
+              stroke="hsl(220, 20%, 25%)"
+              strokeWidth="1"
+              strokeDasharray="2,1"
+            />
+          </g>
+        ))}
+
         {/* Charging dock */}
-        <g transform="translate(140, 15)">
+        <g transform="translate(122, 40)">
           <rect 
-            x="-5" 
-            y="-3" 
-            width="10" 
-            height="6" 
+            x="-4" 
+            y="-2" 
+            width="8" 
+            height="5" 
             rx="1" 
-            fill="hsl(0, 70%, 50%)" 
+            fill="hsl(160, 70%, 45%)" 
           />
-          <line 
-            x1="0" 
-            y1="3" 
-            x2="0" 
-            y2="12" 
-            stroke="hsl(0, 70%, 50%)" 
-            strokeWidth="2"
-          />
-          <circle cx="0" cy="12" r="3" fill="white" stroke="hsl(0, 70%, 50%)" strokeWidth="1.5" />
+          <circle cx="0" cy="0" r="1.5" fill="white" opacity="0.9" />
         </g>
 
         {/* Robot vacuum - white circle */}
@@ -205,24 +258,24 @@ const FloorMap = ({ isRunning, selectedRoom, onRoomSelect, showLabels = false }:
           animate={
             isRunning
               ? {
-                  x: [0, -20, -20, -40, -40, -20, -20, 0],
-                  y: [0, 0, 15, 15, 30, 30, 45, 45],
+                  x: [0, -15, -15, 0, 0, 15, 15, 0],
+                  y: [0, 0, -20, -20, -40, -40, -20, -20],
                 }
               : {}
           }
           transition={{
-            duration: 16,
+            duration: 20,
             repeat: Infinity,
             ease: "linear",
           }}
         >
-          {/* Robot body - white circle like in reference */}
+          {/* Robot body */}
           <circle
             cx={robotX}
             cy={robotY}
-            r="5"
+            r="4"
             fill="white"
-            stroke="hsl(220, 20%, 40%)"
+            stroke="hsl(220, 20%, 50%)"
             strokeWidth="1"
           />
           
@@ -232,11 +285,11 @@ const FloorMap = ({ isRunning, selectedRoom, onRoomSelect, showLabels = false }:
               x1={robotX}
               y1={robotY}
               x2={robotX}
-              y2={robotY + 8}
-              stroke="rgba(255,255,255,0.4)"
+              y2={robotY + 6}
+              stroke="rgba(255,255,255,0.3)"
               strokeWidth="1"
               strokeLinecap="round"
-              strokeDasharray="2,2"
+              strokeDasharray="1,1"
             />
           )}
         </motion.g>
