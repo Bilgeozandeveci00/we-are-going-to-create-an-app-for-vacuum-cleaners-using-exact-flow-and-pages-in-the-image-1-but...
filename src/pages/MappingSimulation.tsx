@@ -21,6 +21,24 @@ const MappingSimulation = () => {
           clearInterval(progressInterval);
           setIsComplete(true);
           localStorage.setItem("hasMap", "true");
+          
+          // Check if we're adding a new floor
+          const pendingFloor = localStorage.getItem(`pending-floor-${id}`);
+          if (pendingFloor) {
+            const newFloor = JSON.parse(pendingFloor);
+            const existingFloors = localStorage.getItem(`floors-${id}`);
+            const floors = existingFloors ? JSON.parse(existingFloors) : [{ id: 1, name: "Floor 1" }];
+            floors.push(newFloor);
+            localStorage.setItem(`floors-${id}`, JSON.stringify(floors));
+            localStorage.removeItem(`pending-floor-${id}`);
+          } else {
+            // First floor creation - ensure floors exist
+            const existingFloors = localStorage.getItem(`floors-${id}`);
+            if (!existingFloors) {
+              localStorage.setItem(`floors-${id}`, JSON.stringify([{ id: 1, name: "Floor 1" }]));
+            }
+          }
+          
           return 100;
         }
         return prev + 1;
