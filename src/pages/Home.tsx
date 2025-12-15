@@ -47,33 +47,58 @@ const HomePage = () => {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
-            className="flex flex-col items-center justify-center flex-1 w-full px-6 gap-10"
+            className="relative flex flex-col items-center justify-center flex-1 w-full px-6"
           >
-            {/* Simple crosshair + button */}
-            <button
-              onClick={() => navigate("/add-device")}
-              className="relative w-40 h-40 flex items-center justify-center group"
-            >
-              {/* Circle outline */}
-              <div className="absolute w-full h-full rounded-full border-2 border-muted-foreground/50 group-hover:border-primary transition-colors" />
-              
-              {/* Crosshair lines */}
-              <div className="absolute w-full h-0.5 bg-muted-foreground/50 group-hover:bg-primary transition-colors" />
-              <div className="absolute h-full w-0.5 bg-muted-foreground/50 group-hover:bg-primary transition-colors" />
-              
-              {/* Plus icon in center */}
-              <div className="relative z-10 w-10 h-10 rounded-full bg-background flex items-center justify-center">
-                <Plus className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
-              </div>
-            </button>
+            {/* Ambient background glow */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-primary/10 rounded-full blur-[100px] animate-pulse" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-primary/5 rounded-full blur-[80px]" />
+            </div>
 
-            <Button
-              onClick={() => navigate("/add-device")}
-              variant="outline"
-              className="w-full max-w-sm h-14 rounded-full border-2 border-muted-foreground/60 bg-transparent text-foreground text-lg font-medium hover:border-primary hover:text-primary transition-colors"
-            >
-              Add device
-            </Button>
+            {/* Hero illustration area */}
+            <div className="relative z-10 flex flex-col items-center gap-8">
+              {/* Glowing platform with robot silhouette */}
+              <button
+                onClick={() => navigate("/add-device")}
+                className="relative group"
+              >
+                {/* Outer ring glow */}
+                <div className="absolute -inset-8 rounded-full bg-gradient-to-b from-primary/20 to-transparent blur-2xl group-hover:from-primary/30 transition-all duration-500" />
+                
+                {/* Platform rings */}
+                <div className="relative w-48 h-48 flex items-center justify-center">
+                  {/* Outermost ring */}
+                  <div className="absolute w-full h-full rounded-full border border-primary/20" />
+                  {/* Middle ring */}
+                  <div className="absolute w-40 h-40 rounded-full border border-primary/30" />
+                  {/* Inner ring with glow */}
+                  <div className="absolute w-32 h-32 rounded-full border-2 border-primary/50 shadow-[0_0_30px_hsl(var(--primary)/0.3)]" />
+                  
+                  {/* Center icon */}
+                  <div className="relative z-10 w-20 h-20 rounded-full bg-gradient-to-b from-card to-card/80 border border-primary/30 flex items-center justify-center shadow-[0_0_40px_hsl(var(--primary)/0.2)] group-hover:shadow-[0_0_60px_hsl(var(--primary)/0.4)] transition-all duration-300">
+                    <Plus className="w-8 h-8 text-primary group-hover:scale-110 transition-transform" />
+                  </div>
+                </div>
+              </button>
+
+              {/* Text content */}
+              <div className="flex flex-col items-center gap-3 text-center">
+                <h2 className="text-2xl font-semibold text-foreground">
+                  Welcome Home
+                </h2>
+                <p className="text-muted-foreground text-sm max-w-xs">
+                  Add your first robot vacuum to start automating your cleaning
+                </p>
+              </div>
+
+              {/* CTA Button */}
+              <Button
+                onClick={() => navigate("/add-device")}
+                className="w-full max-w-xs h-14 rounded-2xl bg-primary text-primary-foreground font-semibold text-base shadow-[0_8px_32px_hsl(var(--primary)/0.4)] hover:shadow-[0_12px_40px_hsl(var(--primary)/0.5)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+              >
+                Add Your Device
+              </Button>
+            </div>
           </motion.div>
         ) : (
           <motion.div

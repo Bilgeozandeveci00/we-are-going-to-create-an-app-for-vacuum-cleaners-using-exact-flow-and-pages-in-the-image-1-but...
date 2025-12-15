@@ -33,18 +33,21 @@ const deviceStatsMap: Record<string, DeviceStats> = {
 
 const defaultStats: DeviceStats = { speed: 4, power: 4, battery: 4, quiet: 3 };
 
-// StatBar component - renders 5 boxes like racing game stats
+// StatBar component - premium style with value display
 const StatBar = ({ filled, label, align = 'left' }: { filled: number; label: string; align?: 'left' | 'right' }) => (
-  <div className={`flex flex-col gap-1 ${align === 'right' ? 'items-end' : 'items-start'}`}>
-    <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">{label}</span>
-    <div className={`flex gap-0.5 ${align === 'right' ? 'flex-row-reverse' : ''}`}>
+  <div className={`flex flex-col gap-1.5 ${align === 'right' ? 'items-end' : 'items-start'}`}>
+    <div className={`flex items-center gap-2 ${align === 'right' ? 'flex-row-reverse' : ''}`}>
+      <span className="text-[11px] text-foreground/70 uppercase tracking-wide font-medium">{label}</span>
+      <span className="text-[10px] text-primary font-semibold">{filled}/5</span>
+    </div>
+    <div className={`flex gap-1 ${align === 'right' ? 'flex-row-reverse' : ''}`}>
       {[1, 2, 3, 4, 5].map((i) => (
         <div
           key={i}
-          className={`w-3 h-5 rounded-sm transition-all duration-300 ${
+          className={`w-2.5 h-6 rounded-sm transition-all duration-300 ${
             i <= filled 
-              ? 'bg-primary shadow-[0_0_8px_hsl(var(--primary)/0.6)]' 
-              : 'bg-white/30'
+              ? 'bg-gradient-to-t from-primary to-primary/80 shadow-[0_0_12px_hsl(var(--primary)/0.5)]' 
+              : 'bg-foreground/10'
           }`}
         />
       ))}
@@ -164,54 +167,67 @@ const DeviceCarousel = ({
             return (
               <div
                 key={device.id}
-                className="flex-shrink-0 w-full h-full flex flex-col items-center justify-center px-4"
+                className="flex-shrink-0 w-full h-full flex flex-col items-center justify-center px-6"
               >
-                {/* Device Card with Platform */}
-                <div className="relative flex flex-col items-center w-full max-w-[280px]">
-                  {/* Stats - Left Side (Racing Game Style) */}
-                  <div className="absolute left-0 top-4 flex flex-col gap-4 z-10">
+                {/* Device name - Hero style at top */}
+                <div className="text-center mb-2">
+                  <h2 className="text-2xl font-bold text-foreground tracking-tight">
+                    {device.name}
+                  </h2>
+                  <div className="flex items-center justify-center gap-1.5 mt-1">
+                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                    <span className="text-sm text-muted-foreground">Ready</span>
+                    <span className="text-muted-foreground/50 mx-1">•</span>
+                    <Zap className="w-3.5 h-3.5 text-green-500 fill-current" />
+                    <span className="text-sm text-green-500 font-medium">{device.battery}%</span>
+                  </div>
+                </div>
+
+                {/* Device showcase area */}
+                <div className="relative flex items-center justify-center w-full py-4">
+                  {/* Stats - Left Side */}
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 flex flex-col gap-5 z-10">
                     <StatBar filled={stats.speed} label="Speed" align="right" />
                     <StatBar filled={stats.power} label="Power" align="right" />
                   </div>
 
-                  {/* Stats - Right Side (Racing Game Style) */}
-                  <div className="absolute right-0 top-4 flex flex-col gap-4 z-10">
+                  {/* Stats - Right Side */}
+                  <div className="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col gap-5 z-10">
                     <StatBar filled={stats.battery} label="Battery" align="left" />
                     <StatBar filled={stats.quiet} label="Quiet" align="left" />
                   </div>
 
-                  {/* 3D Robot Vacuum */}
-                  <div className="w-full flex items-center justify-center">
-                    <RobotVacuum3D size="large" />
-                  </div>
-                  
-                  {/* Circular Platform Glow */}
-                  <div className="absolute bottom-4 w-48 h-6">
-                    <div className="w-full h-full rounded-[50%] bg-primary/20 blur-xl" />
-                    <div className="absolute inset-0 w-full h-full rounded-[50%] border border-primary/30" />
+                  {/* 3D Model with platform */}
+                  <div className="relative flex flex-col items-center">
+                    {/* Ambient glow behind model */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-primary/15 rounded-full blur-[60px]" />
+                    
+                    {/* 3D Robot Vacuum */}
+                    <div className="relative z-10">
+                      <RobotVacuum3D size="large" />
+                    </div>
+                    
+                    {/* Platform with concentric rings */}
+                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex items-center justify-center">
+                      {/* Outer glow ring */}
+                      <div className="absolute w-56 h-8 rounded-[50%] bg-primary/10 blur-xl" />
+                      {/* Middle ring */}
+                      <div className="absolute w-48 h-6 rounded-[50%] border border-primary/20" />
+                      {/* Inner bright ring */}
+                      <div className="absolute w-40 h-4 rounded-[50%] border border-primary/40 shadow-[0_0_20px_hsl(var(--primary)/0.3)]" />
+                      {/* Core ring */}
+                      <div className="absolute w-32 h-3 rounded-[50%] bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+                    </div>
                   </div>
                 </div>
 
-              {/* Device Info */}
-              <div className="text-center mt-4 mb-4">
-                <div className="flex items-center justify-center gap-2 mb-1">
-                  <h2 className="text-xl font-semibold text-foreground">
-                    {device.name}
-                  </h2>
-                </div>
-                <div className="flex items-center justify-center gap-1 text-green-500">
-                  <Zap className="w-4 h-4 fill-current" />
-                  <span className="text-sm">{device.battery}%</span>
-                </div>
-              </div>
-
-              {/* Enter Button - Main CTA */}
-              <Button
-                onClick={() => onEnterDevice(device.id)}
-                className="w-full max-w-xs h-14 rounded-full bg-primary text-primary-foreground font-semibold text-lg shadow-[0_0_20px_hsl(var(--primary)/0.4)] hover:shadow-[0_0_30px_hsl(var(--primary)/0.6)] hover:scale-105 active:scale-95 transition-all duration-200"
-              >
-                Enter Device
-              </Button>
+                {/* Enter Button - Premium CTA */}
+                <Button
+                  onClick={() => onEnterDevice(device.id)}
+                  className="w-full max-w-[280px] h-14 rounded-2xl bg-primary text-primary-foreground font-semibold text-base shadow-[0_8px_32px_hsl(var(--primary)/0.4)] hover:shadow-[0_12px_40px_hsl(var(--primary)/0.5)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 mt-4"
+                >
+                  Enter Device
+                </Button>
               </div>
             );
           })}
