@@ -471,11 +471,11 @@ const DeviceControl = () => {
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={() => startCleaning("safe")}
-              className="flex flex-col items-center gap-3 bg-muted rounded-2xl p-4 hover:bg-muted/80 transition-colors"
+              className="flex flex-col items-center gap-2 bg-muted rounded-2xl p-4 hover:bg-muted/80 transition-colors"
             >
-              <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center">
+              <div className="w-14 h-14 rounded-full bg-green-500/20 flex items-center justify-center">
                 {/* House with person away icon */}
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                   <path d="M3 12l9-9 9 9" stroke="hsl(142, 70%, 45%)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M5 10v10a1 1 0 001 1h12a1 1 0 001-1V10" stroke="hsl(142, 70%, 45%)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <circle cx="17" cy="6" r="4" fill="hsl(142, 70%, 45%)" fillOpacity="0.3" stroke="hsl(142, 70%, 45%)" strokeWidth="1.5"/>
@@ -484,7 +484,11 @@ const DeviceControl = () => {
               </div>
               <div className="text-center">
                 <h3 className="text-foreground font-semibold text-sm">Safe</h3>
-                <p className="text-muted-foreground text-xs mt-1">When away</p>
+                <p className="text-muted-foreground text-xs">When away</p>
+              </div>
+              <div className="flex items-center gap-1 text-green-500">
+                <Clock className="w-3 h-3" />
+                <span className="text-xs font-medium">~35 min</span>
               </div>
             </motion.button>
 
@@ -492,11 +496,11 @@ const DeviceControl = () => {
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={() => startCleaning("normal")}
-              className="flex flex-col items-center gap-3 bg-muted rounded-2xl p-4 hover:bg-muted/80 transition-colors ring-2 ring-primary/50"
+              className="flex flex-col items-center gap-2 bg-muted rounded-2xl p-4 hover:bg-muted/80 transition-colors ring-2 ring-primary/50"
             >
-              <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
+              <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center">
                 {/* Balanced/everyday icon */}
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                   <circle cx="12" cy="12" r="9" stroke="hsl(var(--primary))" strokeWidth="2"/>
                   <path d="M12 7v5l3 3" stroke="hsl(var(--primary))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <circle cx="12" cy="12" r="2" fill="hsl(var(--primary))"/>
@@ -504,20 +508,24 @@ const DeviceControl = () => {
               </div>
               <div className="text-center">
                 <h3 className="text-foreground font-semibold text-sm">Regular</h3>
-                <p className="text-muted-foreground text-xs mt-1">Everyday</p>
+                <p className="text-muted-foreground text-xs">Everyday</p>
               </div>
-              <span className="text-[10px] text-primary font-medium">Recommended</span>
+              <div className="flex items-center gap-1 text-primary">
+                <Clock className="w-3 h-3" />
+                <span className="text-xs font-medium">~50 min</span>
+              </div>
+              <span className="text-[10px] text-primary font-medium -mt-1">Recommended</span>
             </motion.button>
 
             {/* Deep Mode */}
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={() => startCleaning("deep")}
-              className="flex flex-col items-center gap-3 bg-muted rounded-2xl p-4 hover:bg-muted/80 transition-colors"
+              className="flex flex-col items-center gap-2 bg-muted rounded-2xl p-4 hover:bg-muted/80 transition-colors"
             >
-              <div className="w-16 h-16 rounded-full bg-orange-500/20 flex items-center justify-center">
+              <div className="w-14 h-14 rounded-full bg-orange-500/20 flex items-center justify-center">
                 {/* Person at home icon */}
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                   <path d="M3 12l9-9 9 9" stroke="hsl(25, 95%, 53%)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M5 10v10a1 1 0 001 1h12a1 1 0 001-1V10" stroke="hsl(25, 95%, 53%)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <circle cx="12" cy="14" r="2" fill="hsl(25, 95%, 53%)"/>
@@ -527,7 +535,11 @@ const DeviceControl = () => {
               </div>
               <div className="text-center">
                 <h3 className="text-foreground font-semibold text-sm">Deep</h3>
-                <p className="text-muted-foreground text-xs mt-1">When home</p>
+                <p className="text-muted-foreground text-xs">When home</p>
+              </div>
+              <div className="flex items-center gap-1 text-orange-500">
+                <Clock className="w-3 h-3" />
+                <span className="text-xs font-medium">~75 min</span>
               </div>
             </motion.button>
           </div>
@@ -695,6 +707,39 @@ const DeviceControl = () => {
                     }`}
                   >
                     <WaterIcon level={level} active={waterFlow === level} />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Floor Management */}
+            <div className="border-t border-border pt-4">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-foreground font-medium">Floors</span>
+                <button 
+                  onClick={handleAddFloor}
+                  className="text-primary text-sm font-medium"
+                >
+                  + Add Floor
+                </button>
+              </div>
+              <div className="space-y-2">
+                {floors.map((floor) => (
+                  <button
+                    key={floor.id}
+                    onClick={() => {
+                      setSelectedFloor(floor.id);
+                      setShowPersonalize(false);
+                    }}
+                    className={`w-full flex items-center gap-3 p-3 rounded-xl transition-colors ${
+                      selectedFloor === floor.id ? "bg-primary/20 border border-primary/30" : "bg-muted"
+                    }`}
+                  >
+                    <Layers className="w-4 h-4 text-primary" />
+                    <span className="text-foreground text-sm flex-1 text-left">{floor.name}</span>
+                    {selectedFloor === floor.id && (
+                      <span className="text-xs text-primary">Active</span>
+                    )}
                   </button>
                 ))}
               </div>
