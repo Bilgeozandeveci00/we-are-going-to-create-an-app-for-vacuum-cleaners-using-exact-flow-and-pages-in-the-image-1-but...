@@ -175,64 +175,37 @@ const DeviceControl = () => {
             <Pencil className="w-4 h-4 text-foreground" />
           </button>
 
-          {/* Floor Selector - Right aligned, wider */}
-          <div className="absolute bottom-3 right-3 z-20">
-            <button
-              onClick={() => setShowFloorSelector(!showFloorSelector)}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-card backdrop-blur-sm text-foreground text-sm border border-border shadow-lg"
-            >
-              <span className="font-medium">{floors.find(f => f.id === selectedFloor)?.name}</span>
-              <ChevronDown className={`w-4 h-4 transition-transform ${showFloorSelector ? "rotate-180" : ""}`} />
-            </button>
-            
-            <AnimatePresence>
-              {showFloorSelector && (
-                <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 8 }}
-                  className="absolute bottom-full right-0 mb-2 rounded-xl bg-card border border-border overflow-hidden min-w-[180px] shadow-xl z-30"
+          {/* Floor Selector - Bar style like mode tabs */}
+          <div className="absolute bottom-3 left-3 right-3 z-20">
+            <div className="flex rounded-xl overflow-hidden bg-muted">
+              {floors.map((floor) => (
+                <button
+                  key={floor.id}
+                  onClick={() => setSelectedFloor(floor.id)}
+                  className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors ${
+                    selectedFloor === floor.id 
+                      ? "text-foreground bg-muted/50" 
+                      : "text-muted-foreground"
+                  }`}
                 >
-                  {floors.map((floor) => (
-                    <div
-                      key={floor.id}
-                      className={`flex items-center justify-between py-2.5 px-4 transition-colors ${
-                        selectedFloor === floor.id
-                          ? "bg-primary/20"
-                          : "hover:bg-muted"
-                      }`}
-                    >
-                      <button
-                        onClick={() => {
-                          setSelectedFloor(floor.id);
-                          setShowFloorSelector(false);
-                        }}
-                        className={`flex-1 text-left text-sm ${
-                          selectedFloor === floor.id ? "text-primary font-medium" : "text-foreground"
-                        }`}
-                      >
-                        {floor.name}
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          // Could add rename functionality here
-                        }}
-                        className="p-1 rounded hover:bg-muted-foreground/20 transition-colors"
-                      >
-                        <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
-                      </button>
-                    </div>
-                  ))}
+                  <span>{floor.name}</span>
                   <button
-                    onClick={() => setShowFloorSelector(false)}
-                    className="w-full py-2.5 px-4 text-left text-sm text-primary border-t border-border hover:bg-muted transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // Rename functionality
+                    }}
+                    className="p-0.5 rounded hover:bg-background/50 transition-colors"
                   >
-                    + Add Floor
+                    <Pencil className="w-3 h-3" />
                   </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                </button>
+              ))}
+              <button
+                className="px-4 py-3 text-sm font-medium text-primary"
+              >
+                +
+              </button>
+            </div>
           </div>
 
           {/* Map */}
