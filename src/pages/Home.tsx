@@ -35,9 +35,9 @@ const HomePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="h-screen bg-background flex flex-col overflow-hidden">
       {/* Content */}
-      <main className="flex flex-col items-center justify-center px-0 pb-32" style={{ minHeight: 'calc(100vh - 100px)' }}>
+      <main className="flex-1 flex flex-col items-center justify-center px-0 pb-24 overflow-hidden">
         {devices.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -76,7 +76,7 @@ const HomePage = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
-            className="flex flex-col items-center w-full flex-1 justify-center"
+            className="flex flex-col items-center w-full h-full"
           >
             <DeviceCarousel
               devices={devices}
