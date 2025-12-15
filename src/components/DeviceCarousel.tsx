@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { Plus, Zap, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, Zap, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import RobotVacuum3D from "@/components/RobotVacuum3D";
 
@@ -164,42 +164,33 @@ const DeviceCarousel = ({
             return (
               <div
                 key={device.id}
-                className="flex-shrink-0 w-full h-full flex flex-col items-center justify-center px-6"
+                className="flex-shrink-0 w-full h-full flex flex-col items-center justify-center px-4"
               >
                 {/* Device Card with Platform */}
-                <div className="relative flex flex-col items-center">
-                  {/* Trash button - top right corner */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onRemoveDevice(device.id);
-                    }}
-                    className="absolute -top-8 right-0 z-20 w-8 h-8 rounded-full bg-card/90 border border-border/50 flex items-center justify-center text-red-500 active:scale-95 transition-transform"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-
-                  {/* Stats - Left Side (Racing Game Style) - positioned above model */}
-                  <div className="absolute -left-2 top-0 flex flex-col gap-4">
+                <div className="relative flex flex-col items-center w-full max-w-[280px]">
+                  {/* Stats - Left Side (Racing Game Style) */}
+                  <div className="absolute left-0 top-4 flex flex-col gap-4 z-10">
                     <StatBar filled={stats.speed} label="Speed" align="right" />
                     <StatBar filled={stats.power} label="Power" align="right" />
                   </div>
 
-                  {/* Stats - Right Side (Racing Game Style) - positioned above model */}
-                  <div className="absolute -right-2 top-0 flex flex-col gap-4">
+                  {/* Stats - Right Side (Racing Game Style) */}
+                  <div className="absolute right-0 top-4 flex flex-col gap-4 z-10">
                     <StatBar filled={stats.battery} label="Battery" align="left" />
                     <StatBar filled={stats.quiet} label="Quiet" align="left" />
                   </div>
 
-                {/* 3D Robot Vacuum - larger size */}
-                <RobotVacuum3D size="large" />
-                
-                {/* Circular Platform Glow */}
-                <div className="absolute bottom-8 w-64 h-8">
-                  <div className="w-full h-full rounded-[50%] bg-primary/20 blur-xl" />
-                  <div className="absolute inset-0 w-full h-full rounded-[50%] border border-primary/30" />
+                  {/* 3D Robot Vacuum */}
+                  <div className="w-full flex items-center justify-center">
+                    <RobotVacuum3D size="large" />
+                  </div>
+                  
+                  {/* Circular Platform Glow */}
+                  <div className="absolute bottom-4 w-48 h-6">
+                    <div className="w-full h-full rounded-[50%] bg-primary/20 blur-xl" />
+                    <div className="absolute inset-0 w-full h-full rounded-[50%] border border-primary/30" />
+                  </div>
                 </div>
-              </div>
 
               {/* Device Info */}
               <div className="text-center mt-4 mb-4">
