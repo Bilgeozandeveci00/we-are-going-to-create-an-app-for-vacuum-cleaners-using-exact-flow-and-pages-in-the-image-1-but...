@@ -62,6 +62,23 @@ const DeviceControl = () => {
     laundry: "Laundry",
   };
 
+  // Estimated cleaning time per room (in minutes)
+  const roomTimes: Record<string, number> = {
+    living: 12,
+    dining: 8,
+    hallway: 5,
+    bedroom1: 10,
+    bedroom2: 9,
+    bathroom: 6,
+    kitchen: 8,
+    laundry: 4,
+  };
+
+  const totalRoomTime = 50; // Total time for all rooms
+  const selectedTime = selectedRooms.length > 0 
+    ? selectedRooms.reduce((acc, roomId) => acc + (roomTimes[roomId] || 0), 0)
+    : totalRoomTime;
+
   const handleRoomSelect = (roomId: string) => {
     if (isRunning) return; // Can't select while running
     setSelectedRooms(prev => 
@@ -190,7 +207,7 @@ const DeviceControl = () => {
           <span className="text-lg text-foreground">{device.battery}%</span>
         </div>
         <div className="text-center">
-          <span className="text-lg text-foreground">{device.duration} min</span>
+          <span className="text-lg text-foreground">Total, {selectedTime}min</span>
         </div>
       </div>
 
