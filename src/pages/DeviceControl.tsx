@@ -185,20 +185,22 @@ const DeviceControl = () => {
     }, 5000);
   };
 
-  // Charging animation - battery fills up over 3 seconds
+  // Charging animation - battery fills up over 3 seconds with whole numbers
   useEffect(() => {
     if (isCharging && battery < 100) {
-      const increment = (100 - battery) / 30; // 30 steps over 3 seconds (100ms each)
+      const remainingPercent = 100 - Math.floor(battery);
+      const intervalMs = 3000 / remainingPercent; // Distribute time evenly
       const timer = setInterval(() => {
         setBattery(prev => {
-          if (prev >= 100) {
+          const next = Math.floor(prev) + 1;
+          if (next >= 100) {
             clearInterval(timer);
             setIsCharging(false);
             return 100;
           }
-          return Math.min(prev + increment, 100);
+          return next;
         });
-      }, 100);
+      }, intervalMs);
       return () => clearInterval(timer);
     }
   }, [isCharging]);
