@@ -186,31 +186,20 @@ const FloorMap = ({ isRunning, selectedRoom, onRoomSelect, showLabels = false }:
               pointerEvents="none"
             />
 
-            {/* Room label */}
+            {/* Room label - small text, no background */}
             {showLabels && (
-              <g transform={`translate(${room.labelX}, ${room.labelY})`}>
-                {/* Label background */}
-                <rect
-                  x={-24}
-                  y="-7"
-                  width="48"
-                  height="14"
-                  rx="3"
-                  fill="hsl(220, 20%, 12%)"
-                  opacity="0.9"
-                />
-                <text
-                  x="0"
-                  y="4"
-                  textAnchor="middle"
-                  fill="white"
-                  fontSize="5"
-                  fontWeight="500"
-                  style={{ fontFamily: 'system-ui, sans-serif' }}
-                >
-                  {room.name}
-                </text>
-              </g>
+              <text
+                x={room.labelX}
+                y={room.labelY}
+                textAnchor="middle"
+                fill="white"
+                fontSize="4"
+                fontWeight="400"
+                opacity="0.9"
+                style={{ fontFamily: 'system-ui, sans-serif' }}
+              >
+                {room.name}
+              </text>
             )}
           </g>
         ))}
