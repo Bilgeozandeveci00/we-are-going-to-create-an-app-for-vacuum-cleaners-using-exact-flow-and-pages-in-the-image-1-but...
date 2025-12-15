@@ -229,17 +229,25 @@ const FloorMap = ({ isRunning, selectedRoom, onRoomSelect, showLabels = false }:
           </g>
         ))}
 
-        {/* Charging dock */}
-        <g transform="translate(122, 40)">
+        {/* Charging dock icon in Bedroom 1 */}
+        <g transform="translate(120, 38)">
+          {/* Dock base */}
           <rect 
-            x="-4" 
+            x="-5" 
             y="-2" 
-            width="8" 
-            height="5" 
-            rx="1" 
-            fill="hsl(160, 70%, 45%)" 
+            width="10" 
+            height="6" 
+            rx="1.5" 
+            fill="hsl(160, 70%, 40%)" 
+            stroke="hsl(160, 50%, 30%)"
+            strokeWidth="0.5"
           />
-          <circle cx="0" cy="0" r="1.5" fill="white" opacity="0.9" />
+          {/* Lightning bolt icon */}
+          <path
+            d="M0 -1 L2 -1 L0.5 1 L2.5 1 L-1 4 L0 1.5 L-2 1.5 Z"
+            fill="white"
+            opacity="0.95"
+          />
         </g>
 
         {/* Robot vacuum - white circle */}

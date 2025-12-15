@@ -127,7 +127,14 @@ const DeviceControl = () => {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="flex items-center justify-between px-4 py-3">
-        <div className="w-10" />
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="text-foreground"
+          onClick={() => navigate("/")}
+        >
+          <ChevronDown className="h-5 w-5 rotate-90" />
+        </Button>
         <h1 className="text-base font-medium text-foreground">{device.name}</h1>
         <Button 
           variant="ghost" 
@@ -209,24 +216,46 @@ const DeviceControl = () => {
 
       {/* Bottom Control Panel - Card style */}
       <div className="mx-4 mb-4 rounded-2xl bg-card border border-border p-4 safe-area-bottom">
-        {/* Mode Tabs */}
-        <div className="flex items-center justify-center gap-6 mb-4">
-          <ModeTab
-            label="Safe"
-            active={selectedTab === "safe"}
+        {/* Mode Buttons */}
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <button
             onClick={() => setSelectedTab("safe")}
-          />
-          <ModeTab
-            label="Regular"
-            active={selectedTab === "normal"}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+              selectedTab === "safe"
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:bg-muted/80"
+            }`}
+          >
+            Safe
+          </button>
+          <button
             onClick={() => setSelectedTab("normal")}
-          />
-          <ModeTab
-            label="Deep"
-            active={selectedTab === "deep"}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+              selectedTab === "normal"
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:bg-muted/80"
+            }`}
+          >
+            Regular
+          </button>
+          <button
             onClick={() => setSelectedTab("deep")}
-          />
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+              selectedTab === "deep"
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:bg-muted/80"
+            }`}
+          >
+            Deep
+          </button>
         </div>
+
+        {/* Mode Description */}
+        <p className="text-xs text-muted-foreground text-center mb-4">
+          {selectedTab === "safe" && "Avoids obstacles to prevent getting stuck"}
+          {selectedTab === "normal" && "Skips risky zones for balanced cleaning"}
+          {selectedTab === "deep" && "Cleans every corner of your home"}
+        </p>
 
         {/* Control Buttons */}
         <div className="flex items-center justify-center gap-6">
@@ -633,25 +662,6 @@ const TabButton = ({
         className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary"
       />
     )}
-  </button>
-);
-
-const ModeTab = ({
-  label,
-  active,
-  onClick,
-}: {
-  label: string;
-  active: boolean;
-  onClick: () => void;
-}) => (
-  <button
-    onClick={onClick}
-    className={`flex-1 py-3 text-sm font-medium transition-colors ${
-      active ? "text-foreground bg-muted/50" : "text-muted-foreground"
-    }`}
-  >
-    {label}
   </button>
 );
 
