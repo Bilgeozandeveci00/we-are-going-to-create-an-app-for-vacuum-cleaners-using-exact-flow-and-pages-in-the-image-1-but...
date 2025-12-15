@@ -141,13 +141,26 @@ const DeviceControl = () => {
     setTimeout(() => {
       setIsDocking(false);
       setIsCharging(true);
-      // Simulate charging complete after 25 seconds (for demo)
-      setTimeout(() => {
-        setIsCharging(false);
-        setBattery(93);
-      }, 25000);
     }, 5000);
   };
+
+  // Charging animation - battery fills up over 3 seconds
+  useEffect(() => {
+    if (isCharging && battery < 100) {
+      const increment = (100 - battery) / 30; // 30 steps over 3 seconds (100ms each)
+      const timer = setInterval(() => {
+        setBattery(prev => {
+          if (prev >= 100) {
+            clearInterval(timer);
+            setIsCharging(false);
+            return 100;
+          }
+          return Math.min(prev + increment, 100);
+        });
+      }, 100);
+      return () => clearInterval(timer);
+    }
+  }, [isCharging]);
 
   // Battery drain when running
   useEffect(() => {
