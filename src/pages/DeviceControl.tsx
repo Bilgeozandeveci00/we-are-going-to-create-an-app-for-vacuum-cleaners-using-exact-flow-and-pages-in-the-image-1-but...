@@ -256,26 +256,21 @@ const DeviceControl = () => {
             </div>
           </motion.button>
 
-          {/* Dock Button */}
-          <button 
-            className="flex flex-col items-center gap-1"
-            onClick={handleDock}
-            disabled={isDocking || !isRunning}
-          >
-            <div className={`w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center ${isDocking ? "animate-pulse" : ""} ${!isRunning ? "opacity-40" : ""}`}>
-              {isDocking ? (
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                >
-                  <Zap className="w-5 h-5 text-primary" />
-                </motion.div>
-              ) : (
-                <Zap className="w-5 h-5 text-primary" />
-              )}
-            </div>
-            <span className="text-xs text-muted-foreground">Dock</span>
-          </button>
+          {/* Return Button - Only visible when running */}
+          {isRunning ? (
+            <button 
+              className="flex flex-col items-center gap-1"
+              onClick={handleDock}
+              disabled={isDocking}
+            >
+              <div className={`w-12 h-12 rounded-full border border-border flex items-center justify-center ${isDocking ? "animate-pulse border-primary" : ""}`}>
+                <Home className="w-5 h-5 text-muted-foreground" />
+              </div>
+              <span className="text-xs text-muted-foreground">Return</span>
+            </button>
+          ) : (
+            <div className="w-12" />
+          )}
         </div>
       </div>
 
