@@ -136,10 +136,34 @@ const DeviceCarousel = ({
                     e.stopPropagation();
                     onRemoveDevice(device.id);
                   }}
-                  className="absolute -top-4 left-0 z-10 w-10 h-10 rounded-full bg-card/80 border border-border/50 flex items-center justify-center text-red-500 active:scale-95 transition-transform"
+                  className="absolute -top-2 left-4 z-10 w-9 h-9 rounded-full bg-card/80 border border-border/50 flex items-center justify-center text-red-500 active:scale-95 transition-transform"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
+
+                {/* Stats - Left Side */}
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 flex flex-col gap-4 text-right pr-2">
+                  <div className="flex flex-col items-end">
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider">Suction</span>
+                    <span className="text-sm font-semibold text-foreground">5000 Pa</span>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider">Runtime</span>
+                    <span className="text-sm font-semibold text-foreground">180 min</span>
+                  </div>
+                </div>
+
+                {/* Stats - Right Side */}
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col gap-4 text-left pl-2">
+                  <div className="flex flex-col items-start">
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider">Noise</span>
+                    <span className="text-sm font-semibold text-foreground">67 dB</span>
+                  </div>
+                  <div className="flex flex-col items-start">
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider">Tank</span>
+                    <span className="text-sm font-semibold text-foreground">300 ml</span>
+                  </div>
+                </div>
 
                 {/* 3D Robot Vacuum - larger size */}
                 <RobotVacuum3D size="large" />
