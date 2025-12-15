@@ -42,6 +42,7 @@ const DeviceControl = () => {
   const [isDocking, setIsDocking] = useState(false);
   const [isCharging, setIsCharging] = useState(false);
   const [isStuck, setIsStuck] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(false);
   const [battery, setBattery] = useState(93);
   const [selectedTab, setSelectedTab] = useState<"safe" | "normal" | "deep">("normal");
   const [selectedFloor, setSelectedFloor] = useState(1);
@@ -65,12 +66,33 @@ const DeviceControl = () => {
     }
   }, [isRunning, selectedTab]);
 
-  // Reset stuck state when starting new cleaning session
+  // Safe mode completion simulation - cleaning completes after 10 seconds
+  useEffect(() => {
+    if (isRunning && selectedTab === "safe") {
+      const timer = setTimeout(() => {
+        setIsCompleted(true);
+        setIsRunning(false);
+        // Return to dock after showing completion
+        setTimeout(() => {
+          setIsDocking(true);
+          setTimeout(() => {
+            setIsDocking(false);
+            setIsCompleted(false);
+            setIsCharging(true);
+          }, 3000);
+        }, 2000);
+      }, 10000);
+      return () => clearTimeout(timer);
+    }
+  }, [isRunning, selectedTab]);
+
+  // Reset stuck/completed state when starting new cleaning session
   const handleStartStop = () => {
     if (isRunning) {
       setIsRunning(false);
     } else {
       setIsStuck(false);
+      setIsCompleted(false);
       setIsRunning(true);
     }
   };
@@ -242,20 +264,22 @@ const DeviceControl = () => {
 
       {/* Status Text */}
       <div className="text-center px-4 py-2">
-        <h2 className={`text-xl font-light ${isStuck ? "text-destructive" : "text-foreground"}`}>
+        <h2 className={`text-xl font-light ${isStuck ? "text-destructive" : isCompleted ? "text-green-500" : "text-foreground"}`}>
           {isStuck
             ? "Robot got stuck"
-            : isCharging
-              ? "Amphibia will be ready in 25 min"
-              : isDocking 
-                ? "Returning to dock" 
-                : isRunning 
-                  ? selectedRooms.length > 0
-                    ? `Cleaning ${selectedRooms.map(id => roomNames[id]).join(", ")}`
-                    : "Cleaning will be finished in 47 min"
-                  : selectedRooms.length > 0
-                    ? `${selectedRooms.length} room${selectedRooms.length > 1 ? "s" : ""} selected`
-                    : "Amphibia is ready for cleaning"
+            : isCompleted
+              ? "Cleaning completed"
+              : isCharging
+                ? "Amphibia will be ready in 25 min"
+                : isDocking 
+                  ? "Returning to dock" 
+                  : isRunning 
+                    ? selectedRooms.length > 0
+                      ? `Cleaning ${selectedRooms.map(id => roomNames[id]).join(", ")}`
+                      : "Cleaning will be finished in 47 min"
+                    : selectedRooms.length > 0
+                      ? `${selectedRooms.length} room${selectedRooms.length > 1 ? "s" : ""} selected`
+                      : "Amphibia is ready for cleaning"
           }
         </h2>
       </div>
@@ -314,6 +338,7 @@ const DeviceControl = () => {
             <FloorMap 
               isRunning={isRunning} 
               isStuck={isStuck}
+              isCompleted={isCompleted}
               showLabels 
               selectedRooms={selectedRooms}
               onRoomSelect={handleRoomSelect}
