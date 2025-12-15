@@ -184,26 +184,14 @@ const DeviceCarousel = ({
 
                 {/* Device showcase area */}
                 <div className="relative flex flex-col items-center w-full py-4">
-                  {/* 3D Model with platform */}
+                  {/* 3D Model */}
                   <div className="relative flex flex-col items-center">
                     {/* Ambient glow behind model */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-primary/15 rounded-full blur-[60px]" />
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-primary/10 rounded-full blur-[80px]" />
                     
                     {/* 3D Robot Vacuum */}
                     <div className="relative z-10">
                       <RobotVacuum3D size="large" />
-                    </div>
-                    
-                    {/* Platform with concentric rings */}
-                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex items-center justify-center">
-                      {/* Outer glow ring */}
-                      <div className="absolute w-56 h-8 rounded-[50%] bg-primary/10 blur-xl" />
-                      {/* Middle ring */}
-                      <div className="absolute w-48 h-6 rounded-[50%] border border-primary/20" />
-                      {/* Inner bright ring */}
-                      <div className="absolute w-40 h-4 rounded-[50%] border border-primary/40 shadow-[0_0_20px_hsl(var(--primary)/0.3)]" />
-                      {/* Core ring */}
-                      <div className="absolute w-32 h-3 rounded-[50%] bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
                     </div>
                   </div>
 
