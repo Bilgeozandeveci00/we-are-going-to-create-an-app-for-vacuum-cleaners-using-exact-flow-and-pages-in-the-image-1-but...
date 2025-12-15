@@ -12,7 +12,7 @@ const RobotVacuumModel = () => {
   });
 
   return (
-    <group ref={groupRef} rotation={[0.15, -0.3, 0]}>
+    <group ref={groupRef} rotation={[0.25, -0.3, 0]} scale={0.55}>
       {/* Main body - base */}
       <mesh position={[0, -0.12, 0]}>
         <cylinderGeometry args={[1.5, 1.55, 0.3, 64]} />
@@ -124,13 +124,13 @@ interface RobotVacuum3DProps {
 }
 
 const RobotVacuum3D = ({ size = "default" }: RobotVacuum3DProps) => {
-  const sizeClass = size === "large" ? "w-40 h-40" : "w-32 h-32";
+  const sizeClass = size === "large" ? "w-48 h-48" : "w-36 h-36";
   
   return (
-    <div className={`${sizeClass} touch-none pointer-events-none`}>
-      <Canvas camera={{ position: [0, 2.5, 5], fov: 24 }}>
-        <ambientLight intensity={0.6} />
-        <directionalLight position={[5, 8, 5]} intensity={1.4} castShadow />
+    <div className={`${sizeClass} touch-none pointer-events-none relative z-20`}>
+      <Canvas camera={{ position: [0, 1.8, 3.5], fov: 30 }}>
+        <ambientLight intensity={0.7} />
+        <directionalLight position={[5, 8, 5]} intensity={1.2} castShadow />
         <directionalLight position={[-3, 5, -3]} intensity={0.4} />
         <pointLight position={[0, 5, 0]} intensity={0.3} color="#14b8a6" />
         <RobotVacuumModel />
