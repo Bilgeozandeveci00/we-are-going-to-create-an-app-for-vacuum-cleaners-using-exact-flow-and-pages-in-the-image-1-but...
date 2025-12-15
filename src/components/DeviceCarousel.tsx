@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { Plus, Zap, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, Zap, ChevronLeft, ChevronRight, Gauge, BatteryFull, Volume2, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import RobotVacuum3D from "@/components/RobotVacuum3D";
 
@@ -33,20 +33,19 @@ const deviceStatsMap: Record<string, DeviceStats> = {
 
 const defaultStats: DeviceStats = { speed: 4, power: 4, battery: 4, quiet: 3 };
 
-// StatBar component - premium style with value display
-const StatBar = ({ filled, label, align = 'left' }: { filled: number; label: string; align?: 'left' | 'right' }) => (
-  <div className={`flex flex-col gap-1.5 ${align === 'right' ? 'items-end' : 'items-start'}`}>
-    <div className={`flex items-center gap-2 ${align === 'right' ? 'flex-row-reverse' : ''}`}>
-      <span className="text-[11px] text-foreground/70 uppercase tracking-wide font-medium">{label}</span>
-      <span className="text-[10px] text-primary font-semibold">{filled}/5</span>
+// Horizontal stat bar with icon - racing game style
+const HorizontalStatBar = ({ filled, label, icon: Icon }: { filled: number; label: string; icon: React.ElementType }) => (
+  <div className="flex items-center gap-2">
+    <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
+      <Icon className="w-4 h-4 text-primary" />
     </div>
-    <div className={`flex gap-1 ${align === 'right' ? 'flex-row-reverse' : ''}`}>
+    <div className="flex gap-0.5">
       {[1, 2, 3, 4, 5].map((i) => (
         <div
           key={i}
-          className={`w-2.5 h-6 rounded-sm transition-all duration-300 ${
+          className={`w-5 h-3 rounded-sm transition-all duration-300 ${
             i <= filled 
-              ? 'bg-gradient-to-t from-primary to-primary/80 shadow-[0_0_12px_hsl(var(--primary)/0.5)]' 
+              ? 'bg-gradient-to-r from-primary to-primary/80 shadow-[0_0_8px_hsl(var(--primary)/0.4)]' 
               : 'bg-foreground/10'
           }`}
         />
@@ -184,19 +183,7 @@ const DeviceCarousel = ({
                 </div>
 
                 {/* Device showcase area */}
-                <div className="relative flex items-center justify-center w-full max-w-[320px] py-4 mx-auto">
-                  {/* Stats - Left Side */}
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 flex flex-col gap-5 z-10">
-                    <StatBar filled={stats.speed} label="Speed" align="right" />
-                    <StatBar filled={stats.power} label="Power" align="right" />
-                  </div>
-
-                  {/* Stats - Right Side */}
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-5 z-10">
-                    <StatBar filled={stats.battery} label="Battery" align="left" />
-                    <StatBar filled={stats.quiet} label="Quiet" align="left" />
-                  </div>
-
+                <div className="relative flex flex-col items-center w-full py-4">
                   {/* 3D Model with platform */}
                   <div className="relative flex flex-col items-center">
                     {/* Ambient glow behind model */}
@@ -219,6 +206,18 @@ const DeviceCarousel = ({
                       <div className="absolute w-32 h-3 rounded-[50%] bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
                     </div>
                   </div>
+
+                  {/* Stats - Horizontal layout below model */}
+                  <div className="flex flex-col gap-2 mt-6 w-full max-w-[280px]">
+                    <div className="flex justify-between">
+                      <HorizontalStatBar filled={stats.speed} label="Speed" icon={Gauge} />
+                      <HorizontalStatBar filled={stats.battery} label="Battery" icon={BatteryFull} />
+                    </div>
+                    <div className="flex justify-between">
+                      <HorizontalStatBar filled={stats.power} label="Power" icon={Flame} />
+                      <HorizontalStatBar filled={stats.quiet} label="Quiet" icon={Volume2} />
+                    </div>
+                  </div>
                 </div>
 
                 {/* Enter Button - Premium CTA */}
@@ -233,7 +232,13 @@ const DeviceCarousel = ({
           })}
 
           {/* Add Device Slide */}
-          <div className="flex-shrink-0 w-full h-full flex flex-col items-center justify-center px-6">
+          <div className="flex-shrink-0 w-full h-full flex flex-col items-center justify-center px-6 gap-6">
+            <button
+              onClick={onAddDevice}
+              className="w-24 h-24 rounded-full border-2 border-dashed border-primary/50 flex items-center justify-center active:scale-95 transition-transform hover:border-primary hover:bg-primary/5"
+            >
+              <Plus className="w-10 h-10 text-primary/70" />
+            </button>
             <Button
               onClick={onAddDevice}
               className="w-full max-w-xs h-14 rounded-2xl bg-primary text-primary-foreground font-semibold text-base shadow-[0_8px_32px_hsl(var(--primary)/0.4)] hover:shadow-[0_12px_40px_hsl(var(--primary)/0.5)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
