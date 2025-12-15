@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
 
 interface Room {
   id: string;
@@ -24,6 +25,8 @@ interface FloorMapProps {
   selectedRooms?: string[];
   onRoomSelect?: (roomId: string) => void;
   showLabels?: boolean;
+  currentCleaningRoom?: string;
+  cleanedRooms?: string[];
 }
 
 const rooms: Room[] = [
@@ -152,41 +155,163 @@ const getCleaningPaths = (room: Room) => {
   return paths.join(" ");
 };
 
-const FloorMap = ({ isRunning, isStuck = false, isCompleted = false, selectedRooms = [], onRoomSelect, showLabels = false }: FloorMapProps) => {
-  // Robot position - in hallway normally, at dock when completed
-  const robotX = isCompleted ? 120 : 65;
-  const robotY = isCompleted ? 38 : 100;
+// Get room center for robot position
+const getRoomCenter = (roomId: string) => {
+  const room = rooms.find(r => r.id === roomId);
+  if (!room) return { x: 65, y: 100 };
+  return { x: room.labelX, y: room.labelY };
+};
+
+const FloorMap = ({ 
+  isRunning, 
+  isStuck = false, 
+  isCompleted = false, 
+  selectedRooms = [], 
+  onRoomSelect, 
+  showLabels = false,
+  currentCleaningRoom,
+  cleanedRooms = []
+}: FloorMapProps) => {
+  const [showHint, setShowHint] = useState(true);
+
+  // Hide hint after user selects a room or after 5 seconds
+  useEffect(() => {
+    if (selectedRooms.length > 0) {
+      setShowHint(false);
+    }
+    const timer = setTimeout(() => setShowHint(false), 8000);
+    return () => clearTimeout(timer);
+  }, [selectedRooms.length]);
+
+  // Robot position - at dock when completed, in current room when cleaning, hallway otherwise
+  const robotPosition = isCompleted 
+    ? { x: 120, y: 38 }
+    : currentCleaningRoom 
+      ? getRoomCenter(currentCleaningRoom)
+      : { x: 65, y: 100 };
 
   const isRoomSelected = (roomId: string) => selectedRooms.includes(roomId);
+  const isRoomCleaned = (roomId: string) => cleanedRooms.includes(roomId);
+  const isRoomBeingCleaned = (roomId: string) => currentCleaningRoom === roomId;
 
   return (
     <div className="relative w-full h-full bg-background">
+      {/* Tap to select hint */}
+      <AnimatePresence>
+        {showHint && !isRunning && selectedRooms.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="absolute top-3 left-1/2 -translate-x-1/2 z-20 bg-primary/90 text-primary-foreground px-4 py-2 rounded-full text-sm font-medium shadow-lg backdrop-blur-sm flex items-center gap-2"
+          >
+            <motion.span
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ repeat: Infinity, duration: 1.5 }}
+            >
+              👆
+            </motion.span>
+            Tap rooms to select
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Map SVG - Vertical layout */}
       <svg 
         className="w-full h-full" 
         viewBox="0 0 145 185" 
         preserveAspectRatio="xMidYMid meet"
       >
+        {/* Sparkle filter for completion */}
+        <defs>
+          <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+          <linearGradient id="cleanedGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="hsl(142, 70%, 45%)" stopOpacity="0.3"/>
+            <stop offset="100%" stopColor="hsl(142, 70%, 65%)" stopOpacity="0.5"/>
+          </linearGradient>
+          <linearGradient id="cleaningGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.4">
+              <animate attributeName="stopOpacity" values="0.2;0.5;0.2" dur="1.5s" repeatCount="indefinite"/>
+            </stop>
+            <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.6">
+              <animate attributeName="stopOpacity" values="0.4;0.7;0.4" dur="1.5s" repeatCount="indefinite"/>
+            </stop>
+          </linearGradient>
+        </defs>
+
         {/* Rooms */}
         {rooms.map((room) => (
           <g key={room.id} onClick={() => onRoomSelect?.(room.id)} className="cursor-pointer">
             {/* Room shape */}
             <motion.path
               d={room.path}
-              fill={room.color}
+              fill={
+                isRoomCleaned(room.id) 
+                  ? "url(#cleanedGradient)" 
+                  : isRoomBeingCleaned(room.id) 
+                    ? "url(#cleaningGradient)" 
+                    : room.color
+              }
               stroke={isRoomSelected(room.id) ? "hsl(var(--primary))" : room.borderColor}
               strokeWidth={isRoomSelected(room.id) ? "3" : "2"}
               whileHover={{ opacity: 0.95 }}
               opacity={isRoomSelected(room.id) ? 1 : 0.75}
               animate={{
-                opacity: isRoomSelected(room.id) ? 1 : 0.75,
+                opacity: isRoomSelected(room.id) || isRoomBeingCleaned(room.id) ? 1 : 0.75,
               }}
             />
+
+            {/* Cleaned room sparkle overlay */}
+            {isRoomCleaned(room.id) && (
+              <motion.path
+                d={room.path}
+                fill="none"
+                stroke="hsl(142, 70%, 60%)"
+                strokeWidth="2"
+                filter="url(#glow)"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: [0.5, 1, 0.5] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              />
+            )}
+
+            {/* Room being cleaned - pulsing overlay */}
+            {isRoomBeingCleaned(room.id) && (
+              <motion.path
+                d={room.path}
+                fill="none"
+                stroke="hsl(var(--primary))"
+                strokeWidth="3"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: [0.3, 0.8, 0.3] }}
+                transition={{ duration: 1, repeat: Infinity }}
+              />
+            )}
+
+            {/* Pulsing border hint for unselected rooms */}
+            {!isRunning && selectedRooms.length === 0 && showHint && (
+              <motion.path
+                d={room.path}
+                fill="none"
+                stroke="hsl(var(--primary))"
+                strokeWidth="2"
+                strokeDasharray="4,4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: [0.2, 0.6, 0.2] }}
+                transition={{ duration: 2, repeat: Infinity, delay: rooms.indexOf(room) * 0.1 }}
+              />
+            )}
             
             {/* Cleaning path lines */}
             <path
               d={getCleaningPaths(room)}
-              stroke="rgba(255,255,255,0.2)"
+              stroke={isRoomCleaned(room.id) ? "rgba(74, 222, 128, 0.4)" : "rgba(255,255,255,0.2)"}
               strokeWidth="0.8"
               strokeLinecap="round"
               fill="none"
@@ -207,6 +332,30 @@ const FloorMap = ({ isRunning, isStuck = false, isCompleted = false, selectedRoo
               >
                 {room.name}
               </text>
+            )}
+
+            {/* Cleaned checkmark */}
+            {isRoomCleaned(room.id) && (
+              <motion.g
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <circle
+                  cx={room.labelX}
+                  cy={room.labelY + 8}
+                  r="5"
+                  fill="hsl(142, 70%, 45%)"
+                />
+                <path
+                  d={`M${room.labelX - 2.5} ${room.labelY + 8} l2 2 l3 -4`}
+                  stroke="white"
+                  strokeWidth="1.5"
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </motion.g>
             )}
           </g>
         ))}
@@ -257,56 +406,107 @@ const FloorMap = ({ isRunning, isStuck = false, isCompleted = false, selectedRoo
           />
         </g>
 
-        {/* Robot vacuum - white circle (red when stuck) */}
+        {/* Completion sparkles */}
+        {isCompleted && (
+          <>
+            {[...Array(12)].map((_, i) => (
+              <motion.circle
+                key={i}
+                cx={30 + (i % 4) * 35}
+                cy={40 + Math.floor(i / 4) * 50}
+                r="1.5"
+                fill="hsl(142, 70%, 60%)"
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ 
+                  opacity: [0, 1, 0],
+                  scale: [0, 1.5, 0],
+                }}
+                transition={{ 
+                  duration: 1.5, 
+                  repeat: Infinity,
+                  delay: i * 0.15,
+                }}
+              />
+            ))}
+          </>
+        )}
+
+        {/* Robot vacuum - white circle (red when stuck, green when completed) */}
         <motion.g
           animate={
             isRunning && !isStuck
               ? {
-                  x: [0, -15, -15, 0, 0, 15, 15, 0],
-                  y: [0, 0, -20, -20, -40, -40, -20, -20],
+                  x: [0, 5, -5, 5, -5, 0],
+                  y: [0, 3, -3, -3, 3, 0],
                 }
               : {}
           }
           transition={{
-            duration: 20,
+            duration: 2,
             repeat: Infinity,
-            ease: "linear",
+            ease: "easeInOut",
           }}
         >
           {/* Robot body */}
-          <circle
-            cx={robotX}
-            cy={robotY}
+          <motion.circle
+            cx={robotPosition.x}
+            cy={robotPosition.y}
             r="4"
             fill={isStuck ? "hsl(0, 70%, 50%)" : isCompleted ? "hsl(142, 70%, 45%)" : "white"}
             stroke={isStuck ? "hsl(0, 70%, 40%)" : isCompleted ? "hsl(142, 70%, 35%)" : "hsl(220, 20%, 50%)"}
             strokeWidth="1"
+            filter={isCompleted ? "url(#glow)" : undefined}
+            animate={isRunning && !isStuck ? {
+              scale: [1, 1.1, 1],
+            } : {}}
+            transition={{
+              duration: 0.5,
+              repeat: Infinity,
+            }}
           />
+
+          {/* Cleaning wave effect when running */}
+          {isRunning && !isStuck && (
+            <motion.circle
+              cx={robotPosition.x}
+              cy={robotPosition.y}
+              r="4"
+              fill="none"
+              stroke="hsl(var(--primary))"
+              strokeWidth="1"
+              initial={{ scale: 1, opacity: 0.8 }}
+              animate={{ scale: 2.5, opacity: 0 }}
+              transition={{
+                duration: 1,
+                repeat: Infinity,
+              }}
+            />
+          )}
           
           {/* Need help speech bubble when stuck */}
           {isStuck && (
             <g>
               {/* Bubble background */}
               <path
-                d={`M${robotX - 18} ${robotY - 22} 
-                    L${robotX + 18} ${robotY - 22} 
-                    Q${robotX + 20} ${robotY - 22} ${robotX + 20} ${robotY - 20}
-                    L${robotX + 20} ${robotY - 12}
-                    Q${robotX + 20} ${robotY - 10} ${robotX + 18} ${robotY - 10}
-                    L${robotX + 4} ${robotY - 10}
-                    L${robotX} ${robotY - 6}
-                    L${robotX - 4} ${robotY - 10}
-                    L${robotX - 18} ${robotY - 10}
-                    Q${robotX - 20} ${robotY - 10} ${robotX - 20} ${robotY - 12}
-                    L${robotX - 20} ${robotY - 20}
-                    Q${robotX - 20} ${robotY - 22} ${robotX - 18} ${robotY - 22}
+                d={`M${robotPosition.x - 18} ${robotPosition.y - 22} 
+                    L${robotPosition.x + 18} ${robotPosition.y - 22} 
+                    Q${robotPosition.x + 20} ${robotPosition.y - 22} ${robotPosition.x + 20} ${robotPosition.y - 20}
+                    L${robotPosition.x + 20} ${robotPosition.y - 12}
+                    Q${robotPosition.x + 20} ${robotPosition.y - 10} ${robotPosition.x + 18} ${robotPosition.y - 10}
+                    L${robotPosition.x + 4} ${robotPosition.y - 10}
+                    L${robotPosition.x} ${robotPosition.y - 6}
+                    L${robotPosition.x - 4} ${robotPosition.y - 10}
+                    L${robotPosition.x - 18} ${robotPosition.y - 10}
+                    Q${robotPosition.x - 20} ${robotPosition.y - 10} ${robotPosition.x - 20} ${robotPosition.y - 12}
+                    L${robotPosition.x - 20} ${robotPosition.y - 20}
+                    Q${robotPosition.x - 20} ${robotPosition.y - 22} ${robotPosition.x - 18} ${robotPosition.y - 22}
                     Z`}
                 fill="hsl(0, 70%, 50%)"
               />
               {/* Text */}
               <text
-                x={robotX}
-                y={robotY - 14}
+                x={robotPosition.x}
+                y={robotPosition.y - 14}
                 textAnchor="middle"
                 fill="white"
                 fontSize="5"
@@ -316,20 +516,6 @@ const FloorMap = ({ isRunning, isStuck = false, isCompleted = false, selectedRoo
                 Need help
               </text>
             </g>
-          )}
-          
-          {/* Cleaning trail when running */}
-          {isRunning && !isStuck && (
-            <motion.line
-              x1={robotX}
-              y1={robotY}
-              x2={robotX}
-              y2={robotY + 6}
-              stroke="rgba(255,255,255,0.3)"
-              strokeWidth="1"
-              strokeLinecap="round"
-              strokeDasharray="1,1"
-            />
           )}
         </motion.g>
       </svg>

@@ -54,6 +54,9 @@ const DeviceControl = () => {
   const [vacuumPower, setVacuumPower] = useState(3); // 0-4 scale
   const [waterFlow, setWaterFlow] = useState(2); // 0-4 scale
   const [showSettings, setShowSettings] = useState(false);
+  const [showModeSelector, setShowModeSelector] = useState(false);
+  const [currentCleaningRoom, setCurrentCleaningRoom] = useState<string | undefined>();
+  const [cleanedRooms, setCleanedRooms] = useState<string[]>([]);
 
   // Deep mode stuck simulation - robot gets stuck after 3 seconds
   useEffect(() => {
@@ -61,6 +64,7 @@ const DeviceControl = () => {
       const timer = setTimeout(() => {
         setIsStuck(true);
         setIsRunning(false);
+        setCurrentCleaningRoom(undefined);
       }, 3000);
       return () => clearTimeout(timer);
     }
@@ -72,6 +76,8 @@ const DeviceControl = () => {
       const timer = setTimeout(() => {
         setIsCompleted(true);
         setIsRunning(false);
+        setCleanedRooms(selectedRooms.length > 0 ? selectedRooms : Object.keys(roomNames));
+        setCurrentCleaningRoom(undefined);
         // Return to dock after showing completion
         setTimeout(() => {
           setIsDocking(true);
@@ -84,16 +90,51 @@ const DeviceControl = () => {
       }, 10000);
       return () => clearTimeout(timer);
     }
-  }, [isRunning, selectedTab]);
+  }, [isRunning, selectedTab, selectedRooms]);
+
+  // Simulate room-by-room cleaning progress
+  useEffect(() => {
+    if (isRunning && !isStuck) {
+      const roomsToClean = selectedRooms.length > 0 ? selectedRooms : Object.keys(roomNames);
+      let roomIndex = 0;
+      
+      const cleanNextRoom = () => {
+        if (roomIndex < roomsToClean.length && isRunning) {
+          setCurrentCleaningRoom(roomsToClean[roomIndex]);
+          roomIndex++;
+        }
+      };
+      
+      cleanNextRoom();
+      const interval = setInterval(() => {
+        if (roomIndex < roomsToClean.length) {
+          setCleanedRooms(prev => [...prev, roomsToClean[roomIndex - 1]]);
+          cleanNextRoom();
+        }
+      }, 2000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [isRunning, isStuck, selectedRooms]);
 
   // Reset stuck/completed state when starting new cleaning session
+  const startCleaning = (mode: "safe" | "normal" | "deep") => {
+    setSelectedTab(mode);
+    setShowModeSelector(false);
+    setIsStuck(false);
+    setIsCompleted(false);
+    setCleanedRooms([]);
+    setCurrentCleaningRoom(undefined);
+    setIsRunning(true);
+  };
+
   const handleStartStop = () => {
     if (isRunning) {
       setIsRunning(false);
+      setCurrentCleaningRoom(undefined);
     } else {
-      setIsStuck(false);
-      setIsCompleted(false);
-      setIsRunning(true);
+      // Show mode selector instead of starting directly
+      setShowModeSelector(true);
     }
   };
 
@@ -320,32 +361,6 @@ const DeviceControl = () => {
             <Pencil className="w-4 h-4 text-foreground" />
           </button>
 
-          {/* Floor Selector - Compact bar */}
-          <div className="absolute bottom-3 left-3 z-20">
-            <div className="flex items-center gap-1 rounded-lg overflow-hidden bg-card/90 backdrop-blur-sm border border-border/50 shadow-lg">
-              {floors.map((floor) => (
-                <button
-                  key={floor.id}
-                  onClick={() => setSelectedFloor(floor.id)}
-                  className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium transition-colors ${
-                    selectedFloor === floor.id 
-                      ? "text-foreground" 
-                      : "text-muted-foreground"
-                  }`}
-                >
-                  <span>{floor.name}</span>
-                  <Pencil className="w-3 h-3 opacity-60" />
-                </button>
-              ))}
-              <button
-                onClick={handleAddFloor}
-                className="px-3 py-2 text-sm font-medium text-primary bg-primary/10 transition-colors"
-              >
-                +
-              </button>
-            </div>
-          </div>
-
           {/* Map */}
           <div className="absolute inset-0">
             <FloorMap 
@@ -355,53 +370,15 @@ const DeviceControl = () => {
               showLabels 
               selectedRooms={selectedRooms}
               onRoomSelect={handleRoomSelect}
+              currentCleaningRoom={currentCleaningRoom}
+              cleanedRooms={cleanedRooms}
             />
           </div>
         </div>
       </div>
 
-      {/* Bottom Control Panel - Card style */}
+      {/* Bottom Control Panel - Simplified */}
       <div className="mx-4 mb-4 rounded-2xl bg-card border border-border p-4 safe-area-bottom">
-        {/* Mode Buttons */}
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <button
-            onClick={() => setSelectedTab("safe")}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-              selectedTab === "safe"
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground hover:bg-muted/80"
-            }`}
-          >
-            Safe
-          </button>
-          <button
-            onClick={() => setSelectedTab("normal")}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-              selectedTab === "normal"
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground hover:bg-muted/80"
-            }`}
-          >
-            Regular
-          </button>
-          <button
-            onClick={() => setSelectedTab("deep")}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-              selectedTab === "deep"
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground hover:bg-muted/80"
-            }`}
-          >
-            Deep
-          </button>
-        </div>
-
-        {/* Mode Description */}
-        <p className="text-xs text-muted-foreground text-center mb-4">
-          {selectedTab === "safe" && "Avoids obstacles to prevent getting stuck"}
-          {selectedTab === "normal" && "Skips risky zones for balanced cleaning"}
-          {selectedTab === "deep" && "Cleans every corner of your home"}
-        </p>
 
         {/* Control Buttons */}
         <div className="flex items-center justify-center gap-6">
@@ -455,6 +432,77 @@ const DeviceControl = () => {
           )}
         </div>
       </div>
+
+      {/* Mode Selector Sheet */}
+      <Sheet open={showModeSelector} onOpenChange={setShowModeSelector}>
+        <SheetContent side="bottom" className="bg-card rounded-t-3xl border-border">
+          <SheetHeader className="pb-2">
+            <h2 className="text-lg font-semibold text-foreground text-center">Choose Cleaning Mode</h2>
+            <p className="text-sm text-muted-foreground text-center">Select how thoroughly you want to clean</p>
+          </SheetHeader>
+          
+          <div className="space-y-3 pb-6">
+            {/* Safe Mode */}
+            <motion.button
+              whileTap={{ scale: 0.98 }}
+              onClick={() => startCleaning("safe")}
+              className="w-full flex items-start gap-4 bg-muted rounded-2xl p-4 hover:bg-muted/80 transition-colors text-left"
+            >
+              <div className="w-14 h-14 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="hsl(142, 70%, 45%)" strokeWidth="2">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  <path d="M9 12l2 2 4-4" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-foreground font-semibold text-base mb-1">Safe Mode</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  Robot carefully avoids all obstacles and furniture to prevent getting stuck. Best for homes with lots of items on the floor.
+                </p>
+              </div>
+            </motion.button>
+
+            {/* Regular Mode */}
+            <motion.button
+              whileTap={{ scale: 0.98 }}
+              onClick={() => startCleaning("normal")}
+              className="w-full flex items-start gap-4 bg-muted rounded-2xl p-4 hover:bg-muted/80 transition-colors text-left"
+            >
+              <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--primary))" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M12 6v6l4 2" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-foreground font-semibold text-base mb-1">Regular Mode</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  Balanced cleaning that skips risky zones while covering most areas. Recommended for everyday cleaning.
+                </p>
+              </div>
+            </motion.button>
+
+            {/* Deep Mode */}
+            <motion.button
+              whileTap={{ scale: 0.98 }}
+              onClick={() => startCleaning("deep")}
+              className="w-full flex items-start gap-4 bg-muted rounded-2xl p-4 hover:bg-muted/80 transition-colors text-left"
+            >
+              <div className="w-14 h-14 rounded-full bg-orange-500/20 flex items-center justify-center flex-shrink-0">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="hsl(25, 95%, 53%)" strokeWidth="2">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-foreground font-semibold text-base mb-1">Deep Mode</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  Maximum coverage that cleans every corner including tight spaces. May occasionally get stuck in challenging areas.
+                </p>
+              </div>
+            </motion.button>
+          </div>
+        </SheetContent>
+      </Sheet>
 
       {/* Map Editor Sheet */}
       <Sheet open={showMapEditor} onOpenChange={setShowMapEditor}>
