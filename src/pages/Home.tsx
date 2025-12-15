@@ -24,8 +24,8 @@ const HomePage = () => {
     if (hasDevice === "true") {
       setDevices([
         { id: "device-1", name: "Amphibia", battery: 93 },
-        { id: "device-2", name: "RoboMax Pro", battery: 78 },
-        { id: "device-3", name: "CleanBot X1", battery: 45 },
+        { id: "device-2", name: "Amphibia Pro", battery: 78 },
+        { id: "device-3", name: "Amphibia Pro Max", battery: 45 },
       ]);
     }
   }, []);
