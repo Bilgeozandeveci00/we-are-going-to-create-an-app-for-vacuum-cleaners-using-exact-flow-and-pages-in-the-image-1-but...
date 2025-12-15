@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Bell, Home as HomeIcon, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import RobotIllustration from "@/components/RobotIllustration";
+import { Plus } from "lucide-react";
 import DeviceCarousel from "@/components/DeviceCarousel";
 
 interface Device {
@@ -43,19 +43,32 @@ const HomePage = () => {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
-            className="flex flex-col items-center justify-center flex-1 w-full px-6"
+            className="flex flex-col items-center justify-center flex-1 w-full px-6 gap-10"
           >
-            {/* Flat Teal Illustration for empty state */}
-            <div className="relative mb-8">
-              <RobotIllustration />
-            </div>
+            {/* Simple crosshair + button */}
+            <button
+              onClick={() => navigate("/add-device")}
+              className="relative w-40 h-40 flex items-center justify-center group"
+            >
+              {/* Circle outline */}
+              <div className="absolute w-full h-full rounded-full border-2 border-muted-foreground/50 group-hover:border-primary transition-colors" />
+              
+              {/* Crosshair lines */}
+              <div className="absolute w-full h-0.5 bg-muted-foreground/50 group-hover:bg-primary transition-colors" />
+              <div className="absolute h-full w-0.5 bg-muted-foreground/50 group-hover:bg-primary transition-colors" />
+              
+              {/* Plus icon in center */}
+              <div className="relative z-10 w-10 h-10 rounded-full bg-background flex items-center justify-center">
+                <Plus className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
+              </div>
+            </button>
 
             <Button
               onClick={() => navigate("/add-device")}
               variant="outline"
-              className="w-full max-w-sm h-14 rounded-2xl border-border/50 bg-card/30 text-foreground text-lg font-medium"
+              className="w-full max-w-sm h-14 rounded-full border-2 border-muted-foreground/60 bg-transparent text-foreground text-lg font-medium hover:border-primary hover:text-primary transition-colors"
             >
-              Add Device
+              Add device
             </Button>
           </motion.div>
         ) : (
