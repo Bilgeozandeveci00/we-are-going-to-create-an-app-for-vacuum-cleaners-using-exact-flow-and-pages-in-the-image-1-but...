@@ -158,8 +158,8 @@ const DeviceControl = () => {
         </div>
       </div>
 
-      {/* Map Area with Mode Tabs */}
-      <div className="flex-1 relative mx-4 mb-4 flex flex-col">
+      {/* Map Area */}
+      <div className="flex-1 relative mx-4 flex flex-col min-h-0">
         {/* Map Container */}
         <div className="flex-1 relative rounded-2xl overflow-hidden bg-muted">
           {/* Edit Map Button */}
@@ -171,7 +171,7 @@ const DeviceControl = () => {
           </button>
 
           {/* Floor Selector */}
-          <div className="absolute bottom-14 left-3 z-10">
+          <div className="absolute bottom-3 left-3 z-10">
             <button
               onClick={() => setShowFloorSelector(!showFloorSelector)}
               className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-card/80 backdrop-blur-sm text-foreground text-sm border border-border/50"
@@ -216,29 +216,29 @@ const DeviceControl = () => {
           </div>
 
           {/* Map */}
-          <div className="h-full min-h-[280px]">
+          <div className="absolute inset-0">
             <FloorMap isRunning={isRunning} showLabels />
           </div>
-
-          {/* Mode Tabs - Bottom of Map */}
-          <div className="absolute bottom-0 left-0 right-0 flex bg-muted/90 backdrop-blur-sm border-t border-border/30">
-            <ModeTab
-              label="Safe"
-              active={selectedTab === "safe"}
-              onClick={() => setSelectedTab("safe")}
-            />
-            <ModeTab
-              label="Regular"
-              active={selectedTab === "normal"}
-              onClick={() => setSelectedTab("normal")}
-            />
-            <ModeTab
-              label="Deep"
-              active={selectedTab === "deep"}
-              onClick={() => setSelectedTab("deep")}
-            />
-          </div>
         </div>
+      </div>
+
+      {/* Mode Tabs - Separate from Map */}
+      <div className="flex mx-4 mt-2 rounded-xl overflow-hidden bg-muted">
+        <ModeTab
+          label="Safe"
+          active={selectedTab === "safe"}
+          onClick={() => setSelectedTab("safe")}
+        />
+        <ModeTab
+          label="Regular"
+          active={selectedTab === "normal"}
+          onClick={() => setSelectedTab("normal")}
+        />
+        <ModeTab
+          label="Deep"
+          active={selectedTab === "deep"}
+          onClick={() => setSelectedTab("deep")}
+        />
       </div>
 
       {/* Bottom Control Panel */}
