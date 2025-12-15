@@ -78,19 +78,21 @@ const DeviceControl = () => {
         setIsRunning(false);
         setCleanedRooms(selectedRooms.length > 0 ? selectedRooms : Object.keys(roomNames));
         setCurrentCleaningRoom(undefined);
-        // Return to dock after showing completion
-        setTimeout(() => {
-          setIsDocking(true);
-          setTimeout(() => {
-            setIsDocking(false);
-            setIsCompleted(false);
-            setIsCharging(true);
-          }, 3000);
-        }, 2000);
       }, 10000);
       return () => clearTimeout(timer);
     }
   }, [isRunning, selectedTab, selectedRooms]);
+
+  // Reset to default state
+  const resetToDefault = () => {
+    setIsCompleted(false);
+    setIsCharging(false);
+    setIsDocking(false);
+    setIsStuck(false);
+    setCleanedRooms([]);
+    setSelectedRooms([]);
+    setBattery(93);
+  };
 
   // Simulate room-by-room cleaning progress
   useEffect(() => {
@@ -376,6 +378,28 @@ const DeviceControl = () => {
               cleanedRooms={cleanedRooms}
             />
           </div>
+
+          {/* Tap to dismiss overlay when completed */}
+          <AnimatePresence>
+            {isCompleted && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={resetToDefault}
+                className="absolute inset-0 z-20 flex items-end justify-center pb-4 cursor-pointer"
+              >
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                  className="bg-card/90 backdrop-blur-sm px-4 py-2 rounded-full border border-border/50 shadow-lg"
+                >
+                  <span className="text-sm text-muted-foreground">Tap anywhere to continue</span>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 
