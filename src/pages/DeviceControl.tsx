@@ -380,12 +380,19 @@ const DeviceControl = () => {
 
           {/* Play/Pause Button */}
           <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={handleStartStop}
-            className="relative"
+            whileTap={{ scale: isCharging ? 1 : 0.95 }}
+            onClick={isCharging ? undefined : handleStartStop}
+            className="relative flex flex-col items-center"
+            disabled={isCharging}
           >
-            <div className="w-16 h-16 rounded-full bg-gradient-to-b from-primary/30 to-primary/50 flex items-center justify-center border-2 border-primary/40">
-              {isRunning ? (
+            <div className={`w-16 h-16 rounded-full flex items-center justify-center border-2 ${
+              isCharging 
+                ? "bg-muted border-muted-foreground/30" 
+                : "bg-gradient-to-b from-primary/30 to-primary/50 border-primary/40"
+            }`}>
+              {isCharging ? (
+                <span className="text-xs font-medium text-muted-foreground">25 min</span>
+              ) : isRunning ? (
                 <Pause className="w-7 h-7 text-primary" />
               ) : (
                 <Play className="w-7 h-7 text-primary ml-1" />
