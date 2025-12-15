@@ -18,11 +18,15 @@ const HomePage = () => {
   const location = useLocation();
   const [devices, setDevices] = useState<Device[]>([]);
 
-  // Check if we just added a device
+  // Check if we just added a device - add 3 example devices for testing
   useEffect(() => {
     const hasDevice = localStorage.getItem("hasDevice");
     if (hasDevice === "true") {
-      setDevices([{ id: "1", name: "Amphibia", battery: 93 }]);
+      setDevices([
+        { id: "device-1", name: "Amphibia", battery: 93 },
+        { id: "device-2", name: "RoboMax Pro", battery: 78 },
+        { id: "device-3", name: "CleanBot X1", battery: 45 },
+      ]);
     }
   }, []);
 

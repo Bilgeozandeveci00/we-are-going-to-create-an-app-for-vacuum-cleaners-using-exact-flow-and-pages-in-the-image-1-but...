@@ -28,6 +28,7 @@ interface DeviceCarouselProps {
 const deviceStatsMap: Record<string, DeviceStats> = {
   'device-1': { speed: 3, power: 4, battery: 4, quiet: 3 },
   'device-2': { speed: 5, power: 3, battery: 5, quiet: 2 },
+  'device-3': { speed: 4, power: 5, battery: 3, quiet: 4 },
 };
 
 const defaultStats: DeviceStats = { speed: 4, power: 4, battery: 4, quiet: 3 };
@@ -167,15 +168,15 @@ const DeviceCarousel = ({
               >
                 {/* Device Card with Platform */}
                 <div className="relative flex flex-col items-center">
-                  {/* Trash button */}
+                  {/* Trash button - top right corner */}
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       onRemoveDevice(device.id);
                     }}
-                    className="absolute -top-2 left-4 z-10 w-9 h-9 rounded-full bg-card/80 border border-border/50 flex items-center justify-center text-red-500 active:scale-95 transition-transform"
+                    className="absolute -top-2 -right-2 z-20 w-8 h-8 rounded-full bg-card/90 border border-border/50 flex items-center justify-center text-red-500 active:scale-95 transition-transform"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-3.5 w-3.5" />
                   </button>
 
                   {/* Stats - Left Side (Racing Game Style) - positioned above model */}
