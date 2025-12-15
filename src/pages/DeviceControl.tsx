@@ -166,7 +166,7 @@ const DeviceControl = () => {
       {/* Map Area */}
       <div className="flex-1 relative mx-4 flex flex-col min-h-0">
         {/* Map Container */}
-        <div className="flex-1 relative rounded-2xl overflow-hidden bg-muted">
+        <div className="flex-1 relative rounded-2xl overflow-hidden bg-background">
           {/* Edit Map Button */}
           <button
             onClick={() => setShowMapEditor(true)}
@@ -175,43 +175,58 @@ const DeviceControl = () => {
             <Pencil className="w-4 h-4 text-foreground" />
           </button>
 
-          {/* Floor Selector */}
-          <div className="absolute bottom-3 left-3 z-10">
+          {/* Floor Selector - Right aligned, wider */}
+          <div className="absolute bottom-3 right-3 z-20">
             <button
               onClick={() => setShowFloorSelector(!showFloorSelector)}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-card/80 backdrop-blur-sm text-foreground text-sm border border-border/50"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-card backdrop-blur-sm text-foreground text-sm border border-border shadow-lg"
             >
-              <span>{floors.find(f => f.id === selectedFloor)?.name}</span>
+              <span className="font-medium">{floors.find(f => f.id === selectedFloor)?.name}</span>
               <ChevronDown className={`w-4 h-4 transition-transform ${showFloorSelector ? "rotate-180" : ""}`} />
             </button>
             
             <AnimatePresence>
               {showFloorSelector && (
                 <motion.div
-                  initial={{ opacity: 0, y: -8 }}
+                  initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  className="absolute bottom-full left-0 mb-2 rounded-xl bg-card border border-border overflow-hidden min-w-[120px] shadow-lg"
+                  exit={{ opacity: 0, y: 8 }}
+                  className="absolute bottom-full right-0 mb-2 rounded-xl bg-card border border-border overflow-hidden min-w-[180px] shadow-xl z-30"
                 >
                   {floors.map((floor) => (
-                    <button
+                    <div
                       key={floor.id}
-                      onClick={() => {
-                        setSelectedFloor(floor.id);
-                        setShowFloorSelector(false);
-                      }}
-                      className={`w-full py-2 px-3 text-left text-sm transition-colors ${
+                      className={`flex items-center justify-between py-2.5 px-4 transition-colors ${
                         selectedFloor === floor.id
-                          ? "bg-primary/20 text-primary"
-                          : "text-foreground hover:bg-muted"
+                          ? "bg-primary/20"
+                          : "hover:bg-muted"
                       }`}
                     >
-                      {floor.name}
-                    </button>
+                      <button
+                        onClick={() => {
+                          setSelectedFloor(floor.id);
+                          setShowFloorSelector(false);
+                        }}
+                        className={`flex-1 text-left text-sm ${
+                          selectedFloor === floor.id ? "text-primary font-medium" : "text-foreground"
+                        }`}
+                      >
+                        {floor.name}
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // Could add rename functionality here
+                        }}
+                        className="p-1 rounded hover:bg-muted-foreground/20 transition-colors"
+                      >
+                        <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+                      </button>
+                    </div>
                   ))}
                   <button
                     onClick={() => setShowFloorSelector(false)}
-                    className="w-full py-2 px-3 text-left text-sm text-primary border-t border-border"
+                    className="w-full py-2.5 px-4 text-left text-sm text-primary border-t border-border hover:bg-muted transition-colors"
                   >
                     + Add Floor
                   </button>
@@ -275,25 +290,30 @@ const DeviceControl = () => {
             </div>
           </motion.button>
 
-          {/* Charging Station Button */}
-          <button 
-            className="flex flex-col items-center"
-            onClick={handleDock}
-            disabled={isDocking}
-          >
-            <div className={`w-14 h-14 rounded-full border-2 border-border flex items-center justify-center ${isDocking ? "animate-pulse" : ""}`}>
-              {isDocking ? (
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                >
-                  <Zap className="w-6 h-6 text-amber-500" />
-                </motion.div>
-              ) : (
-                <Zap className="w-6 h-6 text-muted-foreground" />
-              )}
-            </div>
-          </button>
+          {/* Dock Button - Only show when running */}
+          {isRunning && (
+            <button 
+              className="flex flex-col items-center"
+              onClick={handleDock}
+              disabled={isDocking}
+            >
+              <div className={`w-14 h-14 rounded-full border-2 border-border flex items-center justify-center ${isDocking ? "animate-pulse border-primary" : ""}`}>
+                {isDocking ? (
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  >
+                    <Home className="w-6 h-6 text-primary" />
+                  </motion.div>
+                ) : (
+                  <Home className="w-6 h-6 text-muted-foreground" />
+                )}
+              </div>
+            </button>
+          )}
+          
+          {/* Empty placeholder when dock button is hidden */}
+          {!isRunning && <div className="w-14 h-14" />}
         </div>
       </div>
 
