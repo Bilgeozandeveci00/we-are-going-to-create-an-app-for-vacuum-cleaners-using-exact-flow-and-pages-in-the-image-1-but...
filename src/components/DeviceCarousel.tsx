@@ -33,20 +33,20 @@ const deviceStatsMap: Record<string, DeviceStats> = {
 
 const defaultStats: DeviceStats = { speed: 4, power: 4, battery: 4, quiet: 3 };
 
-// Horizontal stat bar with icon - racing game style
-const HorizontalStatBar = ({ filled, label, icon: Icon }: { filled: number; label: string; icon: React.ElementType }) => (
-  <div className="flex items-center gap-2">
-    <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
-      <Icon className="w-4 h-4 text-primary" />
+// Subtle horizontal stat bar - muted, professional with hint of gamification
+const HorizontalStatBar = ({ filled, icon: Icon }: { filled: number; icon: React.ElementType }) => (
+  <div className="flex items-center gap-1.5">
+    <div className="w-6 h-6 rounded-md bg-muted/50 flex items-center justify-center">
+      <Icon className="w-3 h-3 text-muted-foreground" />
     </div>
-    <div className="flex gap-0.5">
+    <div className="flex gap-[2px]">
       {[1, 2, 3, 4, 5].map((i) => (
         <div
           key={i}
-          className={`w-5 h-3 rounded-sm transition-all duration-300 ${
+          className={`w-3 h-2 rounded-[2px] transition-all duration-300 ${
             i <= filled 
-              ? 'bg-gradient-to-r from-primary to-primary/80 shadow-[0_0_8px_hsl(var(--primary)/0.4)]' 
-              : 'bg-foreground/10'
+              ? 'bg-muted-foreground/60' 
+              : 'bg-muted/30'
           }`}
         />
       ))}
@@ -208,14 +208,14 @@ const DeviceCarousel = ({
                   </div>
 
                   {/* Stats - Horizontal layout below model */}
-                  <div className="flex flex-col gap-2 mt-6 w-full max-w-[280px]">
+                  <div className="flex flex-col gap-2 mt-4 w-full max-w-[240px]">
                     <div className="flex justify-between">
-                      <HorizontalStatBar filled={stats.speed} label="Speed" icon={Gauge} />
-                      <HorizontalStatBar filled={stats.battery} label="Battery" icon={BatteryFull} />
+                      <HorizontalStatBar filled={stats.speed} icon={Gauge} />
+                      <HorizontalStatBar filled={stats.battery} icon={BatteryFull} />
                     </div>
                     <div className="flex justify-between">
-                      <HorizontalStatBar filled={stats.power} label="Power" icon={Flame} />
-                      <HorizontalStatBar filled={stats.quiet} label="Quiet" icon={Volume2} />
+                      <HorizontalStatBar filled={stats.power} icon={Flame} />
+                      <HorizontalStatBar filled={stats.quiet} icon={Volume2} />
                     </div>
                   </div>
                 </div>

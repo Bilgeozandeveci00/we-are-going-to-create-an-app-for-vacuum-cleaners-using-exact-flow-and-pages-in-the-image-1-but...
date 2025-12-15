@@ -124,11 +124,11 @@ interface RobotVacuum3DProps {
 }
 
 const RobotVacuum3D = ({ size = "default" }: RobotVacuum3DProps) => {
-  const sizeClass = size === "large" ? "w-44 h-44" : "w-36 h-36";
+  const sizeClass = size === "large" ? "w-40 h-40" : "w-32 h-32";
   
   return (
     <div className={`${sizeClass} touch-none pointer-events-none`}>
-      <Canvas camera={{ position: [0, 2, 4.5], fov: 28 }}>
+      <Canvas camera={{ position: [0, 2.5, 5], fov: 24 }}>
         <ambientLight intensity={0.6} />
         <directionalLight position={[5, 8, 5]} intensity={1.4} castShadow />
         <directionalLight position={[-3, 5, -3]} intensity={0.4} />
