@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Plus, Zap, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import RobotVacuum3D from "@/components/RobotVacuum3D";
@@ -10,12 +10,46 @@ interface Device {
   battery: number;
 }
 
+interface DeviceStats {
+  speed: number;
+  power: number;
+  battery: number;
+  quiet: number;
+}
+
 interface DeviceCarouselProps {
   devices: Device[];
   onRemoveDevice: (id: string) => void;
   onAddDevice: () => void;
   onEnterDevice: (id: string) => void;
 }
+
+// Racing game style stat bars - different stats per device
+const deviceStatsMap: Record<string, DeviceStats> = {
+  'device-1': { speed: 3, power: 4, battery: 4, quiet: 3 },
+  'device-2': { speed: 5, power: 3, battery: 5, quiet: 2 },
+};
+
+const defaultStats: DeviceStats = { speed: 4, power: 4, battery: 4, quiet: 3 };
+
+// StatBar component - renders 5 boxes like racing game stats
+const StatBar = ({ filled, label, align = 'left' }: { filled: number; label: string; align?: 'left' | 'right' }) => (
+  <div className={`flex flex-col gap-1 ${align === 'right' ? 'items-end' : 'items-start'}`}>
+    <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">{label}</span>
+    <div className={`flex gap-0.5 ${align === 'right' ? 'flex-row-reverse' : ''}`}>
+      {[1, 2, 3, 4, 5].map((i) => (
+        <div
+          key={i}
+          className={`w-3 h-5 rounded-sm transition-all duration-300 ${
+            i <= filled 
+              ? 'bg-primary shadow-[0_0_8px_hsl(var(--primary)/0.6)]' 
+              : 'bg-muted/30'
+          }`}
+        />
+      ))}
+    </div>
+  </div>
+);
 
 const DeviceCarousel = ({
   devices,
@@ -83,8 +117,9 @@ const DeviceCarousel = ({
     isDragging.current = false;
   };
 
-  const currentDevice = devices[currentIndex];
-  const isOnAddSlide = currentIndex === devices.length;
+  const getDeviceStats = (deviceId: string): DeviceStats => {
+    return deviceStatsMap[deviceId] || defaultStats;
+  };
 
   return (
     <div className="flex flex-col items-center w-full h-full relative">
@@ -123,47 +158,37 @@ const DeviceCarousel = ({
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
         >
           {/* Device Slides */}
-          {devices.map((device) => (
-            <div
-              key={device.id}
-              className="flex-shrink-0 w-full h-full flex flex-col items-center justify-center px-6"
-            >
-              {/* Device Card with Platform */}
-              <div className="relative flex flex-col items-center">
-                {/* Trash button */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onRemoveDevice(device.id);
-                  }}
-                  className="absolute -top-2 left-4 z-10 w-9 h-9 rounded-full bg-card/80 border border-border/50 flex items-center justify-center text-red-500 active:scale-95 transition-transform"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
+          {devices.map((device) => {
+            const stats = getDeviceStats(device.id);
+            return (
+              <div
+                key={device.id}
+                className="flex-shrink-0 w-full h-full flex flex-col items-center justify-center px-6"
+              >
+                {/* Device Card with Platform */}
+                <div className="relative flex flex-col items-center">
+                  {/* Trash button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onRemoveDevice(device.id);
+                    }}
+                    className="absolute -top-2 left-4 z-10 w-9 h-9 rounded-full bg-card/80 border border-border/50 flex items-center justify-center text-red-500 active:scale-95 transition-transform"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
 
-                {/* Stats - Left Side */}
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 flex flex-col gap-4 text-right pr-2">
-                  <div className="flex flex-col items-end">
-                    <span className="text-xs text-muted-foreground uppercase tracking-wider">Suction</span>
-                    <span className="text-sm font-semibold text-foreground">5000 Pa</span>
+                  {/* Stats - Left Side (Racing Game Style) */}
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 flex flex-col gap-5 pr-3">
+                    <StatBar filled={stats.speed} label="Speed" align="right" />
+                    <StatBar filled={stats.power} label="Power" align="right" />
                   </div>
-                  <div className="flex flex-col items-end">
-                    <span className="text-xs text-muted-foreground uppercase tracking-wider">Runtime</span>
-                    <span className="text-sm font-semibold text-foreground">180 min</span>
-                  </div>
-                </div>
 
-                {/* Stats - Right Side */}
-                <div className="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col gap-4 text-left pl-2">
-                  <div className="flex flex-col items-start">
-                    <span className="text-xs text-muted-foreground uppercase tracking-wider">Noise</span>
-                    <span className="text-sm font-semibold text-foreground">67 dB</span>
+                  {/* Stats - Right Side (Racing Game Style) */}
+                  <div className="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col gap-5 pl-3">
+                    <StatBar filled={stats.battery} label="Battery" align="left" />
+                    <StatBar filled={stats.quiet} label="Quiet" align="left" />
                   </div>
-                  <div className="flex flex-col items-start">
-                    <span className="text-xs text-muted-foreground uppercase tracking-wider">Tank</span>
-                    <span className="text-sm font-semibold text-foreground">300 ml</span>
-                  </div>
-                </div>
 
                 {/* 3D Robot Vacuum - larger size */}
                 <RobotVacuum3D size="large" />
@@ -196,8 +221,9 @@ const DeviceCarousel = ({
               >
                 Enter
               </Button>
-            </div>
-          ))}
+              </div>
+            );
+          })}
 
           {/* Add Device Slide */}
           <div className="flex-shrink-0 w-full h-full flex flex-col items-center justify-center px-6">
