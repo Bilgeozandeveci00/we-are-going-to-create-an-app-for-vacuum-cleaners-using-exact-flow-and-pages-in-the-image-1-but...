@@ -120,9 +120,26 @@ const DeviceControl = () => {
     duration: 50,
   };
 
-  const floors = [
-    { id: 1, name: "Floor 1" },
-  ];
+  // Load floors from localStorage
+  const [floors, setFloors] = useState<{ id: number; name: string }[]>(() => {
+    const saved = localStorage.getItem(`floors-${id}`);
+    return saved ? JSON.parse(saved) : [{ id: 1, name: "Floor 1" }];
+  });
+
+  // Sync floors from localStorage when returning from map creation
+  useEffect(() => {
+    const saved = localStorage.getItem(`floors-${id}`);
+    if (saved) {
+      setFloors(JSON.parse(saved));
+    }
+  }, [id]);
+
+  const handleAddFloor = () => {
+    const newFloorId = floors.length + 1;
+    // Store pending floor info so mapping simulation knows it's adding a new floor
+    localStorage.setItem(`pending-floor-${id}`, JSON.stringify({ id: newFloorId, name: `Floor ${newFloorId}` }));
+    navigate(`/device/${id}/create-map`);
+  };
 
   const vacuumLevels = ["Off", "Quiet", "Balanced", "Turbo", "Max"];
   const waterLevels = ["Off", "Low", "Medium", "High", "Custom"];
@@ -241,7 +258,7 @@ const DeviceControl = () => {
                 </button>
               ))}
               <button
-                onClick={() => navigate(`/device/${id}/create-map`)}
+                onClick={handleAddFloor}
                 className="px-3 py-2 text-sm font-medium text-primary hover:bg-primary/10 transition-colors"
               >
                 +
