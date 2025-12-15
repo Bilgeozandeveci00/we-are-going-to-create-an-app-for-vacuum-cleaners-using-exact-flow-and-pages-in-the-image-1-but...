@@ -11,6 +11,7 @@ import Agreement from "./pages/Agreement";
 import Home from "./pages/Home";
 import DeviceControl from "./pages/DeviceControl";
 import MapCreation from "./pages/MapCreation";
+import MappingSimulation from "./pages/MappingSimulation";
 import AddDevice from "./pages/AddDevice";
 import Notifications from "./pages/Notifications";
 import Profile from "./pages/Profile";
@@ -43,6 +44,7 @@ const App = () => (
             <Route path="/home" element={<Home />} />
             <Route path="/device/:id" element={<DeviceControl />} />
             <Route path="/device/:id/create-map" element={<MapCreation />} />
+            <Route path="/device/:id/mapping" element={<MappingSimulation />} />
             <Route path="/device/:id/no-go-zones" element={<NoGoZones />} />
             <Route path="/device/:id/room-editor" element={<RoomEditor />} />
             <Route path="/device/:id/cleaning-history" element={<CleaningHistory />} />
