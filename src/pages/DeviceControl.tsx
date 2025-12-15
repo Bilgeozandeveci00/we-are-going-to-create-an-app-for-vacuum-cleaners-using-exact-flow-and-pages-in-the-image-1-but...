@@ -84,7 +84,6 @@ const DeviceControl = () => {
 
   const floors = [
     { id: 1, name: "Floor 1" },
-    { id: 2, name: "Floor 2" },
   ];
 
   const vacuumLevels = ["Off", "Quiet", "Balanced", "Turbo", "Max"];
@@ -175,33 +174,26 @@ const DeviceControl = () => {
             <Pencil className="w-4 h-4 text-foreground" />
           </button>
 
-          {/* Floor Selector - Bar style like mode tabs */}
-          <div className="absolute bottom-3 left-3 right-3 z-20">
-            <div className="flex rounded-xl overflow-hidden bg-muted">
+          {/* Floor Selector - Compact bar */}
+          <div className="absolute bottom-3 left-3 z-20">
+            <div className="flex items-center gap-1 rounded-lg overflow-hidden bg-card/90 backdrop-blur-sm border border-border/50 shadow-lg">
               {floors.map((floor) => (
                 <button
                   key={floor.id}
                   onClick={() => setSelectedFloor(floor.id)}
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors ${
+                  className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium transition-colors ${
                     selectedFloor === floor.id 
-                      ? "text-foreground bg-muted/50" 
+                      ? "text-foreground" 
                       : "text-muted-foreground"
                   }`}
                 >
                   <span>{floor.name}</span>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      // Rename functionality
-                    }}
-                    className="p-0.5 rounded hover:bg-background/50 transition-colors"
-                  >
-                    <Pencil className="w-3 h-3" />
-                  </button>
+                  <Pencil className="w-3 h-3 opacity-60" />
                 </button>
               ))}
               <button
-                className="px-4 py-3 text-sm font-medium text-primary"
+                onClick={() => navigate(`/device/${id}/create-map`)}
+                className="px-3 py-2 text-sm font-medium text-primary hover:bg-primary/10 transition-colors"
               >
                 +
               </button>
@@ -215,37 +207,38 @@ const DeviceControl = () => {
         </div>
       </div>
 
-      {/* Mode Tabs - Separate from Map */}
-      <div className="flex mx-4 mt-2 rounded-xl overflow-hidden bg-muted">
-        <ModeTab
-          label="Safe"
-          active={selectedTab === "safe"}
-          onClick={() => setSelectedTab("safe")}
-        />
-        <ModeTab
-          label="Regular"
-          active={selectedTab === "normal"}
-          onClick={() => setSelectedTab("normal")}
-        />
-        <ModeTab
-          label="Deep"
-          active={selectedTab === "deep"}
-          onClick={() => setSelectedTab("deep")}
-        />
-      </div>
+      {/* Bottom Control Panel - Card style */}
+      <div className="mx-4 mb-4 rounded-2xl bg-card border border-border p-4 safe-area-bottom">
+        {/* Mode Tabs */}
+        <div className="flex items-center justify-center gap-6 mb-4">
+          <ModeTab
+            label="Safe"
+            active={selectedTab === "safe"}
+            onClick={() => setSelectedTab("safe")}
+          />
+          <ModeTab
+            label="Regular"
+            active={selectedTab === "normal"}
+            onClick={() => setSelectedTab("normal")}
+          />
+          <ModeTab
+            label="Deep"
+            active={selectedTab === "deep"}
+            onClick={() => setSelectedTab("deep")}
+          />
+        </div>
 
-      {/* Bottom Control Panel */}
-      <div className="px-6 pb-8 pt-4 safe-area-bottom">
         {/* Control Buttons */}
-        <div className="flex items-center justify-center gap-8">
+        <div className="flex items-center justify-center gap-6">
           {/* Settings Button */}
           <button 
-            className="flex flex-col items-center"
+            className="flex flex-col items-center gap-1"
             onClick={() => setShowPersonalize(true)}
           >
-            <div className="w-14 h-14 rounded-full border-2 border-border flex items-center justify-center">
-              <Settings2 className="w-6 h-6 text-muted-foreground" />
+            <div className="w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center">
+              <Settings2 className="w-5 h-5 text-primary" />
             </div>
+            <span className="text-xs text-muted-foreground">Customize</span>
           </button>
 
           {/* Play/Pause Button */}
@@ -254,39 +247,35 @@ const DeviceControl = () => {
             onClick={() => setIsRunning(!isRunning)}
             className="relative"
           >
-            <div className="w-16 h-16 rounded-full border-2 border-foreground flex items-center justify-center bg-background">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-b from-primary/30 to-primary/50 flex items-center justify-center border-2 border-primary/40">
               {isRunning ? (
-                <Pause className="w-7 h-7 text-foreground" />
+                <Pause className="w-7 h-7 text-primary" />
               ) : (
-                <Play className="w-7 h-7 text-foreground ml-1" />
+                <Play className="w-7 h-7 text-primary ml-1" />
               )}
             </div>
           </motion.button>
 
-          {/* Dock Button - Only show when running */}
-          {isRunning && (
-            <button 
-              className="flex flex-col items-center"
-              onClick={handleDock}
-              disabled={isDocking}
-            >
-              <div className={`w-14 h-14 rounded-full border-2 border-border flex items-center justify-center ${isDocking ? "animate-pulse border-primary" : ""}`}>
-                {isDocking ? (
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                  >
-                    <Home className="w-6 h-6 text-primary" />
-                  </motion.div>
-                ) : (
-                  <Home className="w-6 h-6 text-muted-foreground" />
-                )}
-              </div>
-            </button>
-          )}
-          
-          {/* Empty placeholder when dock button is hidden */}
-          {!isRunning && <div className="w-14 h-14" />}
+          {/* Dock Button */}
+          <button 
+            className="flex flex-col items-center gap-1"
+            onClick={handleDock}
+            disabled={isDocking || !isRunning}
+          >
+            <div className={`w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center ${isDocking ? "animate-pulse" : ""} ${!isRunning ? "opacity-40" : ""}`}>
+              {isDocking ? (
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                >
+                  <Zap className="w-5 h-5 text-primary" />
+                </motion.div>
+              ) : (
+                <Zap className="w-5 h-5 text-primary" />
+              )}
+            </div>
+            <span className="text-xs text-muted-foreground">Dock</span>
+          </button>
         </div>
       </div>
 
