@@ -44,7 +44,7 @@ const StatBar = ({ filled, label, align = 'left' }: { filled: number; label: str
           className={`w-3 h-5 rounded-sm transition-all duration-300 ${
             i <= filled 
               ? 'bg-primary shadow-[0_0_8px_hsl(var(--primary)/0.6)]' 
-              : 'bg-muted/30'
+              : 'bg-white/30'
           }`}
         />
       ))}
@@ -174,7 +174,7 @@ const DeviceCarousel = ({
                       e.stopPropagation();
                       onRemoveDevice(device.id);
                     }}
-                    className="absolute -top-2 -right-2 z-20 w-8 h-8 rounded-full bg-card/90 border border-border/50 flex items-center justify-center text-red-500 active:scale-95 transition-transform"
+                    className="absolute -top-8 right-0 z-20 w-8 h-8 rounded-full bg-card/90 border border-border/50 flex items-center justify-center text-red-500 active:scale-95 transition-transform"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
