@@ -178,14 +178,14 @@ const DeviceCarousel = ({
                     <Trash2 className="h-4 w-4" />
                   </button>
 
-                  {/* Stats - Left Side (Racing Game Style) */}
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 flex flex-col gap-5 pr-3">
+                  {/* Stats - Left Side (Racing Game Style) - positioned above model */}
+                  <div className="absolute -left-2 top-0 flex flex-col gap-4">
                     <StatBar filled={stats.speed} label="Speed" align="right" />
                     <StatBar filled={stats.power} label="Power" align="right" />
                   </div>
 
-                  {/* Stats - Right Side (Racing Game Style) */}
-                  <div className="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col gap-5 pl-3">
+                  {/* Stats - Right Side (Racing Game Style) - positioned above model */}
+                  <div className="absolute -right-2 top-0 flex flex-col gap-4">
                     <StatBar filled={stats.battery} label="Battery" align="left" />
                     <StatBar filled={stats.quiet} label="Quiet" align="left" />
                   </div>
@@ -213,13 +213,12 @@ const DeviceCarousel = ({
                 </div>
               </div>
 
-              {/* Enter Button */}
+              {/* Enter Button - Main CTA */}
               <Button
                 onClick={() => onEnterDevice(device.id)}
-                variant="outline"
-                className="w-full max-w-xs h-12 rounded-full border-border/50 bg-card/50 text-foreground font-medium"
+                className="w-full max-w-xs h-14 rounded-full bg-primary text-primary-foreground font-semibold text-lg shadow-[0_0_20px_hsl(var(--primary)/0.4)] hover:shadow-[0_0_30px_hsl(var(--primary)/0.6)] hover:scale-105 active:scale-95 transition-all duration-200"
               >
-                Enter
+                Enter Device
               </Button>
               </div>
             );
