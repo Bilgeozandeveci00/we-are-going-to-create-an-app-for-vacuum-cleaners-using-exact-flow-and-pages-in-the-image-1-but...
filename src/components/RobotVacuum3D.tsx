@@ -124,7 +124,7 @@ interface RobotVacuum3DProps {
 }
 
 const RobotVacuum3D = ({ size = "default" }: RobotVacuum3DProps) => {
-  const sizeClass = size === "large" ? "w-72 h-72 sm:w-80 sm:h-80" : "w-64 h-64";
+  const sizeClass = size === "large" ? "w-56 h-56 sm:w-64 sm:h-64" : "w-48 h-48";
   
   return (
     <div className={`${sizeClass} touch-none pointer-events-none`}>
