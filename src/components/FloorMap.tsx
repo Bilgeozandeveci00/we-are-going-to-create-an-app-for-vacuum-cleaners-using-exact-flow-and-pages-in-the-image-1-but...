@@ -39,6 +39,7 @@ interface FloorMapProps {
   cleanedRooms?: string[];
   skippedAreas?: SkippedArea[];
   showSkippedAreas?: boolean;
+  dangerZones?: {id: string; x: number; y: number}[];
 }
 
 const rooms: Room[] = [
@@ -183,6 +184,7 @@ const FloorMap = ({
   cleanedRooms = [],
   skippedAreas = [],
   showSkippedAreas = false,
+  dangerZones = [],
 }: FloorMapProps) => {
   const [showHint, setShowHint] = useState(true);
 
@@ -228,15 +230,23 @@ const FloorMap = ({
         )}
       </AnimatePresence>
 
-      {/* Skipped areas legend */}
-      {showSkippedAreas && displaySkippedAreas.length > 0 && (
-        <div className="absolute bottom-3 left-3 z-20 bg-card/90 backdrop-blur-sm rounded-lg p-2 border border-border">
-          <div className="flex items-center gap-2 text-xs">
-            <div className="w-3 h-3 bg-amber-500/60 border border-amber-500 rounded-sm" />
-            <span className="text-muted-foreground">Skipped areas</span>
-          </div>
+      {/* Legend */}
+      {(showSkippedAreas && displaySkippedAreas.length > 0) || dangerZones.length > 0 ? (
+        <div className="absolute bottom-3 left-3 z-20 bg-card/90 backdrop-blur-sm rounded-lg p-2 border border-border space-y-1">
+          {showSkippedAreas && displaySkippedAreas.length > 0 && (
+            <div className="flex items-center gap-2 text-xs">
+              <div className="w-3 h-3 bg-amber-500/60 border border-amber-500 rounded-sm" />
+              <span className="text-muted-foreground">Skipped areas</span>
+            </div>
+          )}
+          {dangerZones.length > 0 && (
+            <div className="flex items-center gap-2 text-xs">
+              <div className="w-3 h-3 bg-red-500/60 border border-red-500 rounded-full" />
+              <span className="text-muted-foreground">Danger zone</span>
+            </div>
+          )}
         </div>
-      )}
+      ) : null}
 
       <svg 
         className="w-full h-full" 
@@ -279,14 +289,7 @@ const FloorMap = ({
         {/* Background grid */}
         <rect x="0" y="0" width="175" height="210" fill="url(#gridPattern)" />
 
-        {/* Outer walls */}
-        <path
-          d="M15 15 L15 200 L160 200 L160 115 L160 15 Z"
-          fill="none"
-          stroke="hsl(210, 30%, 55%)"
-          strokeWidth="4"
-          strokeLinejoin="round"
-        />
+        {/* Outer walls - removed border, just for structure */}
 
         {/* Rooms */}
         {rooms.map((room) => (
@@ -460,6 +463,20 @@ const FloorMap = ({
           <rect x="130" y="135" width="7" height="4" fill="hsl(180, 50%, 55%)" />
         </g>
 
+        {/* Selected room borders - rendered on top of walls */}
+        {rooms.filter(room => isRoomSelected(room.id)).map((room) => (
+          <motion.path
+            key={`selection-${room.id}`}
+            d={room.path}
+            fill="none"
+            stroke="hsl(var(--primary))"
+            strokeWidth="4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            style={{ filter: 'drop-shadow(0 0 4px hsl(var(--primary)))' }}
+          />
+        ))}
+
         {/* Skipped areas - yellow boxes */}
         {displaySkippedAreas.map((area) => (
           <g key={area.id}>
@@ -491,7 +508,35 @@ const FloorMap = ({
           </g>
         ))}
 
-        {/* Charging dock */}
+        {/* Danger zones - where robot got stuck */}
+        {dangerZones.map((zone) => (
+          <g key={zone.id}>
+            <motion.circle
+              cx={zone.x}
+              cy={zone.y}
+              r="8"
+              fill="hsl(0, 70%, 50%)"
+              fillOpacity="0.3"
+              stroke="hsl(0, 70%, 55%)"
+              strokeWidth="2"
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: [0.6, 1, 0.6] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
+            <text
+              x={zone.x}
+              y={zone.y + 1.5}
+              textAnchor="middle"
+              fill="hsl(0, 70%, 90%)"
+              fontSize="6"
+              fontWeight="bold"
+              style={{ fontFamily: 'system-ui, sans-serif' }}
+            >
+              ⚠
+            </text>
+          </g>
+        ))}
+
         <g transform="translate(148, 42)">
           <rect 
             x="-6" 

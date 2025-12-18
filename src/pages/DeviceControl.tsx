@@ -77,6 +77,9 @@ const DeviceControl = () => {
   const [skippedAreas, setSkippedAreas] = useState<{id: string; name: string; x: number; y: number; width: number; height: number}[]>([]);
   const [showSkippedOnMap, setShowSkippedOnMap] = useState(false);
   const [hasBeenStuckOnce, setHasBeenStuckOnce] = useState(false);
+  const [stuckPosition, setStuckPosition] = useState<{x: number; y: number} | null>(null);
+  const [dangerZones, setDangerZones] = useState<{id: string; x: number; y: number}[]>([]);
+  const [isResumedFromStuck, setIsResumedFromStuck] = useState(false);
   const [roomCustomSettings, setRoomCustomSettings] = useState<Record<string, RoomCustomSettings>>({});
   const [carpetBoost, setCarpetBoost] = useState(true);
   const [mopWhileVacuum, setMopWhileVacuum] = useState(true);
@@ -100,10 +103,30 @@ const DeviceControl = () => {
         setIsRunning(false);
         setCurrentCleaningRoom(undefined);
         setHasBeenStuckOnce(true);
+        // Save stuck position (bathroom area for example)
+        setStuckPosition({ x: 112, y: 140 });
       }, 3000);
       return () => clearTimeout(timer);
     }
   }, [isRunning, selectedTab, hasBeenStuckOnce]);
+
+  // Deep mode completion after resuming from stuck - 6 seconds
+  useEffect(() => {
+    if (isRunning && selectedTab === "deep" && isResumedFromStuck) {
+      const timer = setTimeout(() => {
+        setIsCompleted(true);
+        setIsRunning(false);
+        setCleanedRooms(selectedRooms.length > 0 ? selectedRooms : Object.keys(roomNames));
+        setCurrentCleaningRoom(undefined);
+        setIsResumedFromStuck(false);
+        // Mark stuck position as danger zone
+        if (stuckPosition) {
+          setDangerZones(prev => [...prev, { id: `danger-${Date.now()}`, x: stuckPosition.x, y: stuckPosition.y }]);
+        }
+      }, 6000);
+      return () => clearTimeout(timer);
+    }
+  }, [isRunning, selectedTab, isResumedFromStuck, stuckPosition, selectedRooms]);
 
   // Safe mode completion simulation - cleaning completes after 10 seconds
   // Also simulates skipping risky areas
@@ -137,6 +160,9 @@ const DeviceControl = () => {
     setSkippedAreas([]);
     setShowSkippedOnMap(false);
     setHasBeenStuckOnce(false);
+    setIsResumedFromStuck(false);
+    setStuckPosition(null);
+    setDangerZones([]);
     setBattery(93);
   };
   
@@ -213,6 +239,7 @@ const DeviceControl = () => {
       // Continue from stuck state - don't show mode selector
       setIsStuck(false);
       setIsRunning(true);
+      setIsResumedFromStuck(true);
     } else {
       // Show mode selector for fresh start
       setShowModeSelector(true);
@@ -516,6 +543,7 @@ const DeviceControl = () => {
               cleanedRooms={cleanedRooms}
               skippedAreas={skippedAreas}
               showSkippedAreas={showSkippedOnMap}
+              dangerZones={dangerZones}
             />
           </div>
 
