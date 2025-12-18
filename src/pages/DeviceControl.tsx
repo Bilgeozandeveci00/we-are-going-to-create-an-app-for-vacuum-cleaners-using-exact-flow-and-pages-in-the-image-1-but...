@@ -816,7 +816,7 @@ const DeviceControl = () => {
                   <Play className="w-4 h-4 text-primary-foreground" fill="currentColor" />
                   <span className="text-primary-foreground font-semibold text-sm">Deep</span>
                 </div>
-                <span className="text-primary-foreground/70 text-xs">~{Math.round(selectedTime * 1.5)} min</span>
+                <span className="text-primary-foreground/70 text-xs">~{selectedTime} min</span>
               </motion.button>
             </div>
 
