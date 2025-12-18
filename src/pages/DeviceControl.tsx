@@ -149,7 +149,47 @@ const DeviceControl = () => {
     }
   }, [isRunning, selectedTab, selectedRooms]);
 
-  // Reset to default state
+  // Custom mode completion - 8 seconds
+  useEffect(() => {
+    if (isRunning && selectedTab === "normal") {
+      const timer = setTimeout(() => {
+        setIsCompleted(true);
+        setIsRunning(false);
+        setCleanedRooms(selectedRooms.length > 0 ? selectedRooms : Object.keys(roomNames));
+        setCurrentCleaningRoom(undefined);
+      }, 8000);
+      return () => clearTimeout(timer);
+    }
+  }, [isRunning, selectedTab, selectedRooms]);
+
+  // Post-completion: Start docking then charging sequence
+  const handleCompletionTap = () => {
+    setIsCompleted(false);
+    setIsDocking(true);
+    
+    // After 2 seconds of docking, start charging
+    setTimeout(() => {
+      setIsDocking(false);
+      setIsCharging(true);
+      // Note: charging animation handled by useEffect - will fill to 100% in 4 seconds
+    }, 2000);
+  };
+
+  // After charging completes, reset selection state
+  useEffect(() => {
+    if (!isCharging && battery >= 100) {
+      // Clean up after charging complete
+      setCleanedRooms([]);
+      setSelectedRooms([]);
+      setSkippedAreas([]);
+      setShowSkippedOnMap(false);
+      setHasBeenStuckOnce(false);
+      setIsResumedFromStuck(false);
+      setStuckPosition(null);
+    }
+  }, [isCharging, battery]);
+
+  // Reset to default state (full reset including danger zones)
   const resetToDefault = () => {
     setIsCompleted(false);
     setIsCharging(false);
@@ -304,11 +344,11 @@ const DeviceControl = () => {
     }, 5000);
   };
 
-  // Charging animation - battery fills up over 10 seconds to 100%
+  // Charging animation - battery fills up over 4 seconds to 100%
   useEffect(() => {
     if (isCharging && battery < 100) {
       const remainingPercent = 100 - Math.floor(battery);
-      const intervalMs = 10000 / remainingPercent; // 10 seconds total
+      const intervalMs = 4000 / remainingPercent; // 4 seconds total
       const timer = setInterval(() => {
         setBattery(prev => {
           const next = Math.floor(prev) + 1;
@@ -554,7 +594,7 @@ const DeviceControl = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                onClick={resetToDefault}
+                onClick={handleCompletionTap}
                 className="absolute inset-0 z-20 flex items-end justify-center pb-4 cursor-pointer"
               >
                 <motion.div
@@ -564,6 +604,59 @@ const DeviceControl = () => {
                   className="bg-card/90 backdrop-blur-sm px-4 py-2 rounded-full border border-border/50 shadow-lg"
                 >
                   <span className="text-sm text-muted-foreground">Tap anywhere to continue</span>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Docking overlay */}
+          <AnimatePresence>
+            {isDocking && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 z-20 flex items-center justify-center"
+              >
+                <motion.div
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="bg-card/95 backdrop-blur-sm px-6 py-4 rounded-xl border border-border/50 shadow-xl flex flex-col items-center gap-2"
+                >
+                  <motion.div
+                    animate={{ x: [0, 5, 0] }}
+                    transition={{ duration: 1, repeat: Infinity }}
+                  >
+                    <Home className="w-8 h-8 text-primary" />
+                  </motion.div>
+                  <span className="text-sm font-medium">Returning to dock...</span>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Charging overlay */}
+          <AnimatePresence>
+            {isCharging && !isRunning && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 z-20 flex items-center justify-center"
+              >
+                <motion.div
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="bg-card/95 backdrop-blur-sm px-6 py-4 rounded-xl border border-border/50 shadow-xl flex flex-col items-center gap-2"
+                >
+                  <motion.div
+                    animate={{ scale: [1, 1.1, 1] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  >
+                    <Battery className="w-8 h-8 text-green-500" />
+                  </motion.div>
+                  <span className="text-sm font-medium">Charging...</span>
+                  <span className="text-xs text-muted-foreground">{battery}%</span>
                 </motion.div>
               </motion.div>
             )}
