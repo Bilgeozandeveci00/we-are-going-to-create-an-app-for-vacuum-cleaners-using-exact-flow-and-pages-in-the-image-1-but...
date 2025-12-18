@@ -804,7 +804,14 @@ const DeviceControl = () => {
                   <Play className="w-4 h-4 text-white" fill="white" />
                   <span className="text-white font-semibold text-sm">Smooth</span>
                 </div>
-                <span className="text-white/70 text-xs">~{Math.round(selectedTime * 0.7)} min</span>
+                <div className="flex items-center justify-center gap-3 mt-1">
+                  <span className="text-white/70 text-xs">{Math.round(selectedTime * 0.7)} min</span>
+                  <span className="text-white/50 text-[10px]">•</span>
+                  <span className="text-white/70 text-xs flex items-center gap-1">
+                    <Battery className="w-3 h-3" />
+                    {Math.round(selectedTime * 0.7 * 0.5)}%
+                  </span>
+                </div>
               </motion.button>
 
               <motion.button
@@ -816,7 +823,14 @@ const DeviceControl = () => {
                   <Play className="w-4 h-4 text-primary-foreground" fill="currentColor" />
                   <span className="text-primary-foreground font-semibold text-sm">Deep</span>
                 </div>
-                <span className="text-primary-foreground/70 text-xs">~{selectedTime} min</span>
+                <div className="flex items-center justify-center gap-3 mt-1">
+                  <span className="text-primary-foreground/70 text-xs">{selectedTime} min</span>
+                  <span className="text-primary-foreground/50 text-[10px]">•</span>
+                  <span className="text-primary-foreground/70 text-xs flex items-center gap-1">
+                    <Battery className="w-3 h-3" />
+                    {Math.round(selectedTime * 0.8)}%
+                  </span>
+                </div>
               </motion.button>
             </div>
 
