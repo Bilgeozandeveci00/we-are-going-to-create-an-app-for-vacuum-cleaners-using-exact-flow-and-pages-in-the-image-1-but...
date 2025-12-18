@@ -102,9 +102,9 @@ const AddDevice = () => {
               </div>
             </div>
 
-            {/* Connect indicator */}
-            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-              <div className="w-2 h-2 rounded-full bg-primary" />
+            {/* Add indicator */}
+            <div className="px-4 py-1.5 rounded-full bg-primary/20">
+              <span className="text-xs font-medium text-primary">Add</span>
             </div>
           </button>
         </motion.div>

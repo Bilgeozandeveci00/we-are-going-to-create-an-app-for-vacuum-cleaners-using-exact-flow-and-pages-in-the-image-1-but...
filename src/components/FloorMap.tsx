@@ -232,8 +232,8 @@ const FloorMap = ({
             </feMerge>
           </filter>
           <linearGradient id="cleanedGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="hsl(142, 70%, 45%)" stopOpacity="0.3"/>
-            <stop offset="100%" stopColor="hsl(142, 70%, 65%)" stopOpacity="0.5"/>
+            <stop offset="0%" stopColor="hsl(158, 64%, 52%)" stopOpacity="0.3"/>
+            <stop offset="100%" stopColor="hsl(158, 64%, 62%)" stopOpacity="0.5"/>
           </linearGradient>
           <linearGradient id="cleaningGradient" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.4">
@@ -272,7 +272,7 @@ const FloorMap = ({
               <motion.path
                 d={room.path}
                 fill="none"
-                stroke="hsl(142, 70%, 60%)"
+                stroke="hsl(158, 64%, 52%)"
                 strokeWidth="2"
                 filter="url(#glow)"
                 initial={{ opacity: 0 }}
@@ -311,7 +311,7 @@ const FloorMap = ({
             {/* Cleaning path lines */}
             <path
               d={getCleaningPaths(room)}
-              stroke={isRoomCleaned(room.id) ? "rgba(74, 222, 128, 0.4)" : "rgba(255,255,255,0.2)"}
+              stroke={isRoomCleaned(room.id) ? "rgba(52, 211, 153, 0.4)" : "rgba(255,255,255,0.2)"}
               strokeWidth="0.8"
               strokeLinecap="round"
               fill="none"
@@ -345,7 +345,7 @@ const FloorMap = ({
                   cx={room.labelX}
                   cy={room.labelY + 8}
                   r="5"
-                  fill="hsl(142, 70%, 45%)"
+                  fill="hsl(158, 64%, 52%)"
                 />
                 <path
                   d={`M${room.labelX - 2.5} ${room.labelY + 8} l2 2 l3 -4`}
@@ -415,7 +415,7 @@ const FloorMap = ({
                 cx={30 + (i % 4) * 35}
                 cy={40 + Math.floor(i / 4) * 50}
                 r="1.5"
-                fill="hsl(142, 70%, 60%)"
+                fill="hsl(158, 64%, 52%)"
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ 
                   opacity: [0, 1, 0],
@@ -452,8 +452,8 @@ const FloorMap = ({
             cx={robotPosition.x}
             cy={robotPosition.y}
             r="4"
-            fill={isStuck ? "hsl(0, 70%, 50%)" : isCompleted ? "hsl(142, 70%, 45%)" : "white"}
-            stroke={isStuck ? "hsl(0, 70%, 40%)" : isCompleted ? "hsl(142, 70%, 35%)" : "hsl(220, 20%, 50%)"}
+            fill={isStuck ? "hsl(0, 70%, 50%)" : isCompleted ? "hsl(158, 64%, 52%)" : "white"}
+            stroke={isStuck ? "hsl(0, 70%, 40%)" : isCompleted ? "hsl(158, 64%, 42%)" : "hsl(220, 20%, 50%)"}
             strokeWidth="1"
             filter={isCompleted ? "url(#glow)" : undefined}
             animate={isRunning && !isStuck ? {

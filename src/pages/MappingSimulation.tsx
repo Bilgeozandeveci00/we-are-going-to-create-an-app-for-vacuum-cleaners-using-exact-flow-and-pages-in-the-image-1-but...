@@ -1,25 +1,49 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { motion } from "framer-motion";
-import { ArrowLeft, MoreHorizontal, Pause, Battery } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowLeft, MoreHorizontal, Battery } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BottomNav } from "./Home";
+
+type ScanStatus = "exploring" | "mapping_rooms" | "finalizing" | "complete";
+
+const statusMessages: Record<ScanStatus, string> = {
+  exploring: "Exploring your home...",
+  mapping_rooms: "Mapping rooms...",
+  finalizing: "Finalizing map...",
+  complete: "Mapping Complete"
+};
 
 const MappingSimulation = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [progress, setProgress] = useState(0);
   const [battery, setBattery] = useState(93);
-  const [elapsedTime, setElapsedTime] = useState(0);
+  const [scanStatus, setScanStatus] = useState<ScanStatus>("exploring");
+  const [discoveredRooms, setDiscoveredRooms] = useState<string[]>([]);
   const [isComplete, setIsComplete] = useState(false);
 
+  const allRooms = ["Living Room", "Kitchen", "Bedroom 1", "Bedroom 2", "Bathroom", "Hallway", "Dining", "Laundry"];
+
   useEffect(() => {
-    // Progress simulation
+    // Progress simulation - discover rooms at certain points
     const progressInterval = setInterval(() => {
       setProgress((prev) => {
+        // Update status based on progress
+        if (prev >= 80) setScanStatus("finalizing");
+        else if (prev >= 30) setScanStatus("mapping_rooms");
+        
+        // Discover rooms progressively
+        const roomIndex = Math.floor((prev / 100) * allRooms.length);
+        if (roomIndex > discoveredRooms.length && roomIndex <= allRooms.length) {
+          setDiscoveredRooms(allRooms.slice(0, roomIndex));
+        }
+
         if (prev >= 100) {
           clearInterval(progressInterval);
           setIsComplete(true);
+          setScanStatus("complete");
+          setDiscoveredRooms(allRooms);
           localStorage.setItem("hasMap", "true");
           
           // Check if we're adding a new floor
@@ -45,11 +69,6 @@ const MappingSimulation = () => {
       });
     }, 150);
 
-    // Time simulation
-    const timeInterval = setInterval(() => {
-      setElapsedTime((prev) => prev + 1);
-    }, 1000);
-
     // Battery drain simulation
     const batteryInterval = setInterval(() => {
       setBattery((prev) => Math.max(prev - 1, 10));
@@ -57,10 +76,9 @@ const MappingSimulation = () => {
 
     return () => {
       clearInterval(progressInterval);
-      clearInterval(timeInterval);
       clearInterval(batteryInterval);
     };
-  }, []);
+  }, [discoveredRooms.length, id]);
 
   useEffect(() => {
     if (isComplete) {
@@ -70,11 +88,6 @@ const MappingSimulation = () => {
       return () => clearTimeout(timer);
     }
   }, [isComplete, navigate, id]);
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    return `${mins}min`;
-  };
 
   return (
     <div className="h-screen bg-background flex flex-col overflow-hidden">
@@ -90,23 +103,65 @@ const MappingSimulation = () => {
         </Button>
         <div className="text-center">
           <h1 className="text-lg font-semibold text-foreground">Amphibia</h1>
-          <p className="text-xs text-primary">
-            {isComplete ? "Mapping Complete" : `${progress}% completed`}
-          </p>
         </div>
         <Button variant="ghost" size="icon" className="text-foreground">
           <MoreHorizontal className="h-5 w-5" />
         </Button>
       </header>
 
-      {/* Stats Row */}
-      <div className="flex items-center justify-center gap-8 py-2">
-        <div className="flex items-center gap-1">
-          <Battery className="w-4 h-4 text-muted-foreground" />
-          <span className="text-lg font-light text-foreground">{battery}%</span>
-        </div>
-        <div className="text-lg font-light text-foreground">
-          {formatTime(elapsedTime)}
+      {/* Status Bar - Prominent */}
+      <div className="mx-4 mb-4">
+        <motion.div 
+          className={`rounded-2xl p-4 ${isComplete ? "bg-emerald-500/20 border border-emerald-500/30" : "bg-primary/10 border border-primary/20"}`}
+          animate={{ opacity: [0.9, 1, 0.9] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <motion.div 
+                className={`w-2 h-2 rounded-full ${isComplete ? "bg-emerald-500" : "bg-primary"}`}
+                animate={{ scale: [1, 1.3, 1] }}
+                transition={{ duration: 1, repeat: Infinity }}
+              />
+              <span className={`text-sm font-medium ${isComplete ? "text-emerald-500" : "text-primary"}`}>
+                {statusMessages[scanStatus]}
+              </span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Battery className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm text-foreground">{battery}%</span>
+            </div>
+          </div>
+          
+          {/* Progress bar visual (no percentage) */}
+          <div className="h-1.5 bg-background/50 rounded-full overflow-hidden">
+            <motion.div 
+              className={`h-full rounded-full ${isComplete ? "bg-emerald-500" : "bg-primary"}`}
+              style={{ width: `${progress}%` }}
+              transition={{ duration: 0.3 }}
+            />
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Discovered Rooms List */}
+      <div className="mx-4 mb-4">
+        <p className="text-xs text-muted-foreground mb-2">Discovered Rooms ({discoveredRooms.length})</p>
+        <div className="flex flex-wrap gap-2">
+          <AnimatePresence>
+            {discoveredRooms.map((room, index) => (
+              <motion.div
+                key={room}
+                initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ delay: index * 0.05 }}
+                className="px-3 py-1.5 bg-card/80 border border-border/50 rounded-full text-xs text-foreground"
+              >
+                {room}
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
       </div>
 

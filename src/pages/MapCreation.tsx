@@ -43,12 +43,27 @@ const MapCreation = () => {
             Start Mapping
           </h2>
 
-          <p className="text-muted-foreground mb-8 max-w-sm">
+          <p className="text-muted-foreground mb-6 max-w-sm">
             Your device will scan your home to create a map. Please make sure the device is on the charging station and there are no obstacles in front of it.
           </p>
 
+          {/* Performance Info */}
+          <div className="w-full max-w-sm bg-card/50 border border-border/30 rounded-2xl p-4 mb-6">
+            <div className="flex items-center justify-around">
+              <div className="text-center">
+                <p className="text-lg font-semibold text-primary">~3 min</p>
+                <p className="text-xs text-muted-foreground">per 10m²</p>
+              </div>
+              <div className="w-px h-10 bg-border/50" />
+              <div className="text-center">
+                <p className="text-lg font-semibold text-primary">300m²</p>
+                <p className="text-xs text-muted-foreground">on full charge</p>
+              </div>
+            </div>
+          </div>
+
           {/* Instructions */}
-          <div className="w-full max-w-sm space-y-4 mb-8">
+          <div className="w-full max-w-sm space-y-3 mb-8">
             <InstructionItem number={1} text="Make sure the device is on the charging station" />
             <InstructionItem number={2} text="Keep doors open and remove obstacles" />
             <InstructionItem number={3} text="Do not touch the device during scanning" />

@@ -320,37 +320,69 @@ const DeviceControl = () => {
         </Button>
       </header>
 
-      {/* Status Text */}
-      <div className="text-center px-4 py-2">
-        <h2 className={`text-xl font-light ${isStuck ? "text-destructive" : isCompleted ? "text-green-500" : "text-foreground"}`}>
-          {isStuck
-            ? "Robot got stuck"
-            : isCompleted
-              ? "Cleaning completed"
-              : isCharging
-                ? "Amphibia will be ready in 25 min"
-                : isDocking 
-                  ? "Returning to dock" 
-                  : isRunning 
-                    ? selectedRooms.length > 0
-                      ? `Cleaning ${selectedRooms.map(id => roomNames[id]).join(", ")}`
-                      : "Cleaning will be finished in 47 min"
-                    : selectedRooms.length > 0
-                      ? `${selectedRooms.length} room${selectedRooms.length > 1 ? "s" : ""} selected`
-                      : "Amphibia is ready for cleaning"
-          }
-        </h2>
-      </div>
-
-      {/* Stats Row */}
-      <div className="flex items-center justify-center gap-8 py-2">
-        <div className="flex items-center gap-1.5">
-          <Battery className="w-5 h-5 text-primary" />
-          <span className="text-lg text-foreground">{battery}%</span>
-        </div>
-        <div className="text-center">
-          <span className="text-lg text-foreground">Total, {selectedTime}min</span>
-        </div>
+      {/* Status Bar - More Prominent */}
+      <div className="mx-4 mb-2">
+        <motion.div 
+          className={`rounded-2xl p-4 ${
+            isStuck 
+              ? "bg-destructive/20 border border-destructive/30" 
+              : isCompleted 
+                ? "bg-emerald-500/20 border border-emerald-500/30"
+                : isCharging
+                  ? "bg-amber-500/20 border border-amber-500/30"
+                  : isRunning
+                    ? "bg-primary/15 border border-primary/30"
+                    : "bg-card border border-border/50"
+          }`}
+          animate={isRunning || isCharging ? { opacity: [0.9, 1, 0.9] } : {}}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <motion.div 
+                className={`w-3 h-3 rounded-full ${
+                  isStuck ? "bg-destructive" : isCompleted ? "bg-emerald-500" : isCharging ? "bg-amber-500" : isRunning ? "bg-primary" : "bg-muted-foreground"
+                }`}
+                animate={isRunning || isCharging ? { scale: [1, 1.3, 1] } : {}}
+                transition={{ duration: 1, repeat: Infinity }}
+              />
+              <h2 className={`text-lg font-semibold ${
+                isStuck ? "text-destructive" : isCompleted ? "text-emerald-500" : isCharging ? "text-amber-500" : "text-foreground"
+              }`}>
+                {isStuck
+                  ? "Robot got stuck"
+                  : isCompleted
+                    ? "Cleaning completed"
+                    : isCharging
+                      ? "Charging - 25 min"
+                      : isDocking 
+                        ? "Returning to dock" 
+                        : isRunning 
+                          ? selectedRooms.length > 0
+                            ? `Cleaning ${selectedRooms.length} room${selectedRooms.length > 1 ? "s" : ""}`
+                            : "Cleaning in progress"
+                          : selectedRooms.length > 0
+                            ? `${selectedRooms.length} room${selectedRooms.length > 1 ? "s" : ""} selected`
+                            : "Ready for cleaning"
+                }
+              </h2>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5">
+                <Battery className="w-4 h-4 text-primary" />
+                <span className="text-sm font-medium text-foreground">{battery}%</span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Estimated time - contextual with selection */}
+          {!isCompleted && !isStuck && !isCharging && (
+            <div className="mt-2 pt-2 border-t border-border/30 flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">Estimated time for {selectedRooms.length > 0 ? "selected rooms" : "all rooms"}</span>
+              <span className="text-sm font-medium text-primary">{selectedTime} min</span>
+            </div>
+          )}
+        </motion.div>
       </div>
 
       {/* Map Area */}
@@ -448,10 +480,9 @@ const DeviceControl = () => {
               onClick={handleDock}
               disabled={isDocking}
             >
-              <div className={`w-12 h-12 rounded-full border border-border flex items-center justify-center ${isDocking ? "animate-pulse border-primary" : ""}`}>
-                <Home className="w-5 h-5 text-muted-foreground" />
+              <div className={`w-12 h-12 rounded-full border border-border flex items-center justify-center ${isDocking ? "animate-pulse border-primary bg-primary/10" : "bg-muted/50"}`}>
+                <span className="text-xs font-semibold text-muted-foreground">Return</span>
               </div>
-              <span className="text-xs text-muted-foreground">Return</span>
             </button>
           ) : (
             <div className="w-12" />
@@ -467,79 +498,82 @@ const DeviceControl = () => {
           </SheetHeader>
           
           <div className="grid grid-cols-3 gap-3 pb-6">
-            {/* Safe Mode */}
+            {/* Smooth Mode - Won't get stuck */}
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={() => startCleaning("safe")}
               className="flex flex-col items-center gap-2 bg-muted rounded-2xl p-4 hover:bg-muted/80 transition-colors"
             >
-              <div className="w-14 h-14 rounded-full bg-green-500/20 flex items-center justify-center">
-                {/* House with person away icon */}
+              <div className="w-14 h-14 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                {/* Smooth path icon */}
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                  <path d="M3 12l9-9 9 9" stroke="hsl(142, 70%, 45%)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M5 10v10a1 1 0 001 1h12a1 1 0 001-1V10" stroke="hsl(142, 70%, 45%)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <circle cx="17" cy="6" r="4" fill="hsl(142, 70%, 45%)" fillOpacity="0.3" stroke="hsl(142, 70%, 45%)" strokeWidth="1.5"/>
-                  <path d="M15.5 7.5l3-3M18.5 7.5l-3-3" stroke="hsl(142, 70%, 45%)" strokeWidth="1.5" strokeLinecap="round"/>
+                  <path d="M4 12c0-4 4-8 8-8s8 4 8 8-4 8-8 8" stroke="hsl(158, 64%, 52%)" strokeWidth="2" strokeLinecap="round"/>
+                  <path d="M12 12l4-4" stroke="hsl(158, 64%, 52%)" strokeWidth="2" strokeLinecap="round"/>
+                  <circle cx="12" cy="12" r="2" fill="hsl(158, 64%, 52%)"/>
+                  <path d="M16 16l2 2" stroke="hsl(158, 64%, 52%)" strokeWidth="2" strokeLinecap="round"/>
                 </svg>
               </div>
               <div className="text-center">
-                <h3 className="text-foreground font-semibold text-sm">Safe</h3>
-                <p className="text-muted-foreground text-xs">When away</p>
+                <h3 className="text-foreground font-semibold text-sm">Smooth</h3>
+                <p className="text-muted-foreground text-xs">Won't get stuck</p>
               </div>
-              <div className="flex items-center gap-1 text-green-500">
+              <div className="flex items-center gap-1 text-emerald-500">
                 <Clock className="w-3 h-3" />
                 <span className="text-xs font-medium">~35 min</span>
               </div>
-            </motion.button>
-
-            {/* Regular Mode */}
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={() => startCleaning("normal")}
-              className="flex flex-col items-center gap-2 bg-muted rounded-2xl p-4 hover:bg-muted/80 transition-colors ring-2 ring-primary/50"
-            >
-              <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center">
-                {/* Balanced/everyday icon */}
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="9" stroke="hsl(var(--primary))" strokeWidth="2"/>
-                  <path d="M12 7v5l3 3" stroke="hsl(var(--primary))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <circle cx="12" cy="12" r="2" fill="hsl(var(--primary))"/>
-                </svg>
-              </div>
-              <div className="text-center">
-                <h3 className="text-foreground font-semibold text-sm">Regular</h3>
-                <p className="text-muted-foreground text-xs">Everyday</p>
-              </div>
-              <div className="flex items-center gap-1 text-primary">
-                <Clock className="w-3 h-3" />
-                <span className="text-xs font-medium">~50 min</span>
-              </div>
-              
             </motion.button>
 
             {/* Deep Mode */}
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={() => startCleaning("deep")}
-              className="flex flex-col items-center gap-2 bg-muted rounded-2xl p-4 hover:bg-muted/80 transition-colors"
+              className="flex flex-col items-center gap-2 bg-muted rounded-2xl p-4 hover:bg-muted/80 transition-colors ring-2 ring-primary/50"
             >
-              <div className="w-14 h-14 rounded-full bg-orange-500/20 flex items-center justify-center">
-                {/* Person at home icon */}
+              <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center">
+                {/* Deep clean icon */}
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                  <path d="M3 12l9-9 9 9" stroke="hsl(25, 95%, 53%)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M5 10v10a1 1 0 001 1h12a1 1 0 001-1V10" stroke="hsl(25, 95%, 53%)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <circle cx="12" cy="14" r="2" fill="hsl(25, 95%, 53%)"/>
-                  <path d="M12 12v-2" stroke="hsl(25, 95%, 53%)" strokeWidth="2" strokeLinecap="round"/>
-                  <path d="M10 18h4" stroke="hsl(25, 95%, 53%)" strokeWidth="2" strokeLinecap="round"/>
+                  <rect x="4" y="4" width="16" height="16" rx="2" stroke="hsl(var(--primary))" strokeWidth="2"/>
+                  <path d="M8 8h8M8 12h8M8 16h8" stroke="hsl(var(--primary))" strokeWidth="2" strokeLinecap="round"/>
+                  <circle cx="18" cy="6" r="3" fill="hsl(var(--primary))" fillOpacity="0.3" stroke="hsl(var(--primary))" strokeWidth="1"/>
                 </svg>
               </div>
               <div className="text-center">
                 <h3 className="text-foreground font-semibold text-sm">Deep</h3>
-                <p className="text-muted-foreground text-xs">When home</p>
+                <p className="text-muted-foreground text-xs">Thorough clean</p>
               </div>
-              <div className="flex items-center gap-1 text-orange-500">
+              <div className="flex items-center gap-1 text-primary">
                 <Clock className="w-3 h-3" />
                 <span className="text-xs font-medium">~75 min</span>
+              </div>
+            </motion.button>
+
+            {/* Custom Mode */}
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                setShowModeSelector(false);
+                setShowPersonalize(true);
+              }}
+              className="flex flex-col items-center gap-2 bg-muted rounded-2xl p-4 hover:bg-muted/80 transition-colors"
+            >
+              <div className="w-14 h-14 rounded-full bg-violet-500/20 flex items-center justify-center">
+                {/* Custom/sliders icon */}
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                  <path d="M4 6h4M12 6h8" stroke="hsl(258, 90%, 66%)" strokeWidth="2" strokeLinecap="round"/>
+                  <path d="M4 12h8M16 12h4" stroke="hsl(258, 90%, 66%)" strokeWidth="2" strokeLinecap="round"/>
+                  <path d="M4 18h2M10 18h10" stroke="hsl(258, 90%, 66%)" strokeWidth="2" strokeLinecap="round"/>
+                  <circle cx="10" cy="6" r="2" fill="hsl(258, 90%, 66%)"/>
+                  <circle cx="14" cy="12" r="2" fill="hsl(258, 90%, 66%)"/>
+                  <circle cx="8" cy="18" r="2" fill="hsl(258, 90%, 66%)"/>
+                </svg>
+              </div>
+              <div className="text-center">
+                <h3 className="text-foreground font-semibold text-sm">Custom</h3>
+                <p className="text-muted-foreground text-xs">Your settings</p>
+              </div>
+              <div className="flex items-center gap-1 text-violet-500">
+                <Settings2 className="w-3 h-3" />
+                <span className="text-xs font-medium">Configure</span>
               </div>
             </motion.button>
           </div>
@@ -575,6 +609,27 @@ const DeviceControl = () => {
           <div className="space-y-4 pb-4">
             {mapEditorTab === "edit" ? (
               <>
+                {/* Room Names Section */}
+                <div>
+                  <p className="text-sm font-medium text-foreground mb-3">Room Names</p>
+                  <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto">
+                    {Object.entries(roomNames).map(([roomId, name]) => (
+                      <div key={roomId} className="flex items-center gap-2 bg-muted rounded-xl p-3">
+                        <input
+                          type="text"
+                          defaultValue={name}
+                          className="flex-1 bg-transparent text-sm text-foreground outline-none border-b border-transparent focus:border-primary transition-colors"
+                          onBlur={(e) => {
+                            // In a real app, this would update the room name
+                            console.log(`Rename ${roomId} to ${e.target.value}`);
+                          }}
+                        />
+                        <Pencil className="w-3 h-3 text-muted-foreground" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
                 {/* Action Buttons */}
                 <div className="grid grid-cols-2 gap-3">
                   <button 
