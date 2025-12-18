@@ -193,10 +193,25 @@ const DeviceControl = () => {
     if (isRunning) {
       setIsRunning(false);
       setCurrentCleaningRoom(undefined);
+    } else if (isStuck) {
+      // Continue from stuck state - don't show mode selector
+      setIsStuck(false);
+      setIsRunning(true);
     } else {
-      // Show mode selector instead of starting directly
+      // Show mode selector for fresh start
       setShowModeSelector(true);
     }
+  };
+
+  // Reset all app data for testing
+  const resetAllAppData = () => {
+    localStorage.removeItem("hasDevice");
+    localStorage.removeItem("hasMap");
+    localStorage.removeItem(`floors-${id}`);
+    localStorage.removeItem("mode-info-dismissed");
+    localStorage.removeItem(`pending-floor-${id}`);
+    // Navigate to splash screen
+    navigate("/");
   };
 
   const roomNames: Record<string, string> = {
@@ -549,109 +564,111 @@ const DeviceControl = () => {
         </div>
       </div>
 
-      {/* Mode Selector Sheet */}
+      {/* Mode Selector Sheet - Full height vertical layout */}
       <Sheet open={showModeSelector} onOpenChange={setShowModeSelector}>
-        <SheetContent side="bottom" className="bg-card rounded-t-3xl border-border">
-          <SheetHeader className="pb-2">
+        <SheetContent side="bottom" className="bg-card rounded-t-3xl border-border h-[75vh]">
+          <SheetHeader className="pb-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-foreground">Choose Cleaning Mode</h2>
-              {showModeInfo && (
-                <button 
-                  onClick={dismissModeInfo}
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              )}
+              <h2 className="text-xl font-bold text-foreground">Start Cleaning</h2>
+              <button 
+                onClick={() => setShowModeSelector(false)}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
+            <p className="text-sm text-muted-foreground text-left">Choose how Amphibia should clean</p>
           </SheetHeader>
           
           {/* Info Tooltip - shows once */}
           <AnimatePresence>
             {showModeInfo && (
               <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
                 className="mb-4 bg-primary/10 border border-primary/20 rounded-xl p-3"
               >
                 <div className="flex items-start gap-2">
                   <Info className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                  <div className="text-xs text-muted-foreground space-y-1">
-                    <p><span className="text-emerald-500 font-medium">Smooth:</span> Avoids risky areas, won&apos;t get stuck. Best when you&apos;re away.</p>
-                    <p><span className="text-primary font-medium">Deep:</span> Cleans everywhere thoroughly. May need assistance.</p>
-                    <p><span className="text-violet-500 font-medium">Custom:</span> Set different modes per room.</p>
-                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Select a mode to start cleaning immediately. Each mode has different behaviors.
+                  </p>
                 </div>
                 <button 
                   onClick={dismissModeInfo}
                   className="text-xs text-primary mt-2 font-medium"
                 >
-                  Got it, don&apos;t show again
+                  Got it
                 </button>
               </motion.div>
             )}
           </AnimatePresence>
           
-          <div className="grid grid-cols-3 gap-3 pb-6">
-            {/* Smooth Mode - Won't get stuck */}
+          <div className="space-y-3 flex-1">
+            {/* Smooth Mode */}
             <motion.button
-              whileTap={{ scale: 0.95 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => startCleaning("safe")}
-              className="flex flex-col items-center gap-2 bg-muted rounded-2xl p-4 hover:bg-muted/80 transition-colors"
+              className="w-full flex items-center gap-4 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-5 hover:bg-emerald-500/20 transition-all group"
             >
-              <div className="w-14 h-14 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+              <div className="w-16 h-16 rounded-2xl bg-emerald-500/20 flex items-center justify-center group-hover:scale-105 transition-transform">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
                   <path d="M4 12c0-4 4-8 8-8s8 4 8 8-4 8-8 8" stroke="hsl(158, 64%, 52%)" strokeWidth="2" strokeLinecap="round"/>
                   <path d="M12 12l4-4" stroke="hsl(158, 64%, 52%)" strokeWidth="2" strokeLinecap="round"/>
                   <circle cx="12" cy="12" r="2" fill="hsl(158, 64%, 52%)"/>
                   <path d="M16 16l2 2" stroke="hsl(158, 64%, 52%)" strokeWidth="2" strokeLinecap="round"/>
                 </svg>
               </div>
-              <div className="text-center">
-                <h3 className="text-foreground font-semibold text-sm">Smooth</h3>
-                <p className="text-muted-foreground text-xs">Won&apos;t get stuck</p>
+              <div className="flex-1 text-left">
+                <h3 className="text-foreground font-bold text-lg">Smooth</h3>
+                <p className="text-muted-foreground text-sm">Avoids risky areas, won&apos;t get stuck</p>
+                <p className="text-emerald-500 text-xs mt-1 font-medium">Best when you&apos;re away</p>
               </div>
-              <div className="flex items-center gap-1 text-emerald-500">
-                <Clock className="w-3 h-3" />
-                <span className="text-xs font-medium">~35 min</span>
+              <div className="text-right">
+                <div className="text-emerald-500 font-bold text-lg">~35</div>
+                <div className="text-muted-foreground text-xs">min</div>
               </div>
             </motion.button>
 
-            {/* Deep Mode */}
+            {/* Deep Mode - Highlighted */}
             <motion.button
-              whileTap={{ scale: 0.95 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => startCleaning("deep")}
-              className="flex flex-col items-center gap-2 bg-muted rounded-2xl p-4 hover:bg-muted/80 transition-colors ring-2 ring-primary/50"
+              className="w-full flex items-center gap-4 bg-primary/15 border-2 border-primary/50 rounded-2xl p-5 hover:bg-primary/25 transition-all group relative overflow-hidden"
             >
-              <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+              <div className="absolute top-2 right-2 px-2 py-0.5 bg-primary/20 rounded-full">
+                <span className="text-[10px] text-primary font-semibold">THOROUGH</span>
+              </div>
+              <div className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center group-hover:scale-105 transition-transform">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
                   <rect x="4" y="4" width="16" height="16" rx="2" stroke="hsl(var(--primary))" strokeWidth="2"/>
                   <path d="M8 8h8M8 12h8M8 16h8" stroke="hsl(var(--primary))" strokeWidth="2" strokeLinecap="round"/>
                   <circle cx="18" cy="6" r="3" fill="hsl(var(--primary))" fillOpacity="0.3" stroke="hsl(var(--primary))" strokeWidth="1"/>
                 </svg>
               </div>
-              <div className="text-center">
-                <h3 className="text-foreground font-semibold text-sm">Deep</h3>
-                <p className="text-muted-foreground text-xs">Thorough clean</p>
+              <div className="flex-1 text-left">
+                <h3 className="text-foreground font-bold text-lg">Deep</h3>
+                <p className="text-muted-foreground text-sm">Cleans every corner thoroughly</p>
+                <p className="text-primary text-xs mt-1 font-medium">May need assistance if stuck</p>
               </div>
-              <div className="flex items-center gap-1 text-primary">
-                <Clock className="w-3 h-3" />
-                <span className="text-xs font-medium">~75 min</span>
+              <div className="text-right">
+                <div className="text-primary font-bold text-lg">~75</div>
+                <div className="text-muted-foreground text-xs">min</div>
               </div>
             </motion.button>
 
             {/* Custom Mode */}
             <motion.button
-              whileTap={{ scale: 0.95 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => {
                 setShowModeSelector(false);
                 setShowCustomMode(true);
               }}
-              className="flex flex-col items-center gap-2 bg-muted rounded-2xl p-4 hover:bg-muted/80 transition-colors"
+              className="w-full flex items-center gap-4 bg-violet-500/10 border border-violet-500/30 rounded-2xl p-5 hover:bg-violet-500/20 transition-all group"
             >
-              <div className="w-14 h-14 rounded-full bg-violet-500/20 flex items-center justify-center">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+              <div className="w-16 h-16 rounded-2xl bg-violet-500/20 flex items-center justify-center group-hover:scale-105 transition-transform">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
                   <path d="M4 6h4M12 6h8" stroke="hsl(258, 90%, 66%)" strokeWidth="2" strokeLinecap="round"/>
                   <path d="M4 12h8M16 12h4" stroke="hsl(258, 90%, 66%)" strokeWidth="2" strokeLinecap="round"/>
                   <path d="M4 18h2M10 18h10" stroke="hsl(258, 90%, 66%)" strokeWidth="2" strokeLinecap="round"/>
@@ -660,13 +677,13 @@ const DeviceControl = () => {
                   <circle cx="8" cy="18" r="2" fill="hsl(258, 90%, 66%)"/>
                 </svg>
               </div>
-              <div className="text-center">
-                <h3 className="text-foreground font-semibold text-sm">Custom</h3>
-                <p className="text-muted-foreground text-xs">Per-room settings</p>
+              <div className="flex-1 text-left">
+                <h3 className="text-foreground font-bold text-lg">Custom</h3>
+                <p className="text-muted-foreground text-sm">Different settings per room</p>
+                <p className="text-violet-500 text-xs mt-1 font-medium">Configure before starting</p>
               </div>
               <div className="flex items-center gap-1 text-violet-500">
-                <Route className="w-3 h-3" />
-                <span className="text-xs font-medium">Configure</span>
+                <ChevronRight className="w-5 h-5" />
               </div>
             </motion.button>
           </div>
@@ -1224,6 +1241,21 @@ const DeviceControl = () => {
                 <span className="text-foreground font-medium flex-1 text-left">Remote Control</span>
                 <ChevronRight className="w-5 h-5 text-muted-foreground" />
               </button>
+            </div>
+
+            {/* Reset App Data - For Testing */}
+            <div className="mt-8 pt-4 border-t border-destructive/20">
+              <p className="text-xs text-destructive mb-3 text-center font-medium">FOR TESTING ONLY</p>
+              <button 
+                onClick={resetAllAppData}
+                className="w-full flex items-center justify-center gap-2 bg-destructive/10 border border-destructive/30 rounded-2xl p-4 hover:bg-destructive/20 transition-colors"
+              >
+                <Trash2 className="w-5 h-5 text-destructive" />
+                <span className="text-destructive font-medium">Reset All App Data</span>
+              </button>
+              <p className="text-xs text-muted-foreground mt-2 text-center">
+                Removes device, map, and all settings to restart from scratch
+              </p>
             </div>
           </div>
         </SheetContent>
