@@ -83,10 +83,12 @@ const DeviceControl = () => {
   const [editableRoomNames, setEditableRoomNames] = useState<Record<string, string>>({});
   const [selectedPreset, setSelectedPreset] = useState<string | null>("preset-1");
   const [editingPreset, setEditingPreset] = useState<string | null>(null);
-  const [customPresets] = useState([
-    { id: "preset-1", name: "Quick Clean", description: "Smooth mode everywhere, 1 pass" },
-    { id: "preset-2", name: "Deep Kitchen", description: "Deep clean kitchen, smooth elsewhere" },
-    { id: "preset-3", name: "Bedroom Focus", description: "Deep clean bedrooms only" },
+  const [showNewPresetModal, setShowNewPresetModal] = useState(false);
+  const [newPresetName, setNewPresetName] = useState("");
+  const [customPresets, setCustomPresets] = useState([
+    { id: "preset-1", name: "Quick Clean", description: "Smooth mode everywhere, 1 pass", settings: {} as Record<string, RoomCustomSettings> },
+    { id: "preset-2", name: "Deep Kitchen", description: "Deep clean kitchen, smooth elsewhere", settings: {} as Record<string, RoomCustomSettings> },
+    { id: "preset-3", name: "Bedroom Focus", description: "Deep clean bedrooms only", settings: {} as Record<string, RoomCustomSettings> },
   ]);
 
   // Deep mode stuck simulation - robot gets stuck after 3 seconds
@@ -267,11 +269,11 @@ const DeviceControl = () => {
     }, 5000);
   };
 
-  // Charging animation - battery fills up over 3 seconds with whole numbers
+  // Charging animation - battery fills up over 10 seconds to 100%
   useEffect(() => {
     if (isCharging && battery < 100) {
       const remainingPercent = 100 - Math.floor(battery);
-      const intervalMs = 3000 / remainingPercent; // Distribute time evenly
+      const intervalMs = 10000 / remainingPercent; // 10 seconds total
       const timer = setInterval(() => {
         setBattery(prev => {
           const next = Math.floor(prev) + 1;
@@ -287,15 +289,28 @@ const DeviceControl = () => {
     }
   }, [isCharging]);
 
-  // Battery drain when running
+  // Battery drain when running - 5% per second
   useEffect(() => {
-    if (isRunning) {
-      const timer = setTimeout(() => {
-        setBattery(15);
-      }, 10000);
-      return () => clearTimeout(timer);
+    if (isRunning && !isStuck) {
+      const timer = setInterval(() => {
+        setBattery(prev => {
+          const next = prev - 5;
+          if (next <= 10) {
+            // Low battery - stop and dock
+            setIsRunning(false);
+            setIsDocking(true);
+            setTimeout(() => {
+              setIsDocking(false);
+              setIsCharging(true);
+            }, 3000);
+            return 10;
+          }
+          return next;
+        });
+      }, 1000);
+      return () => clearInterval(timer);
     }
-  }, [isRunning]);
+  }, [isRunning, isStuck]);
 
   // Check if map exists, if not redirect to map creation
   useEffect(() => {
@@ -306,9 +321,12 @@ const DeviceControl = () => {
   }, [id, navigate]);
 
   const getDeviceStatus = () => {
+    if (isStuck) return "Need help - Robot stuck";
+    if (isCompleted) return "Cleaning completed";
     if (isDocking) return "Returning to dock...";
-    if (isRunning) return "Cleaning";
-    return "Charging";
+    if (isRunning) return "Cleaning in progress";
+    if (isCharging) return "Charging";
+    return "Ready";
   };
 
   const device = {
@@ -716,7 +734,10 @@ const DeviceControl = () => {
           <div className="space-y-4 pb-8">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-foreground">Your Presets</h3>
-              <button className="text-xs text-primary font-medium flex items-center gap-1">
+              <button 
+                onClick={() => setShowNewPresetModal(true)}
+                className="text-xs text-primary font-medium flex items-center gap-1"
+              >
                 <Sparkles className="w-3 h-3" />
                 New Preset
               </button>
@@ -750,18 +771,39 @@ const DeviceControl = () => {
                         <p className="text-xs text-muted-foreground">{preset.description}</p>
                       </div>
                     </div>
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setEditingPreset(preset.id);
-                      }}
-                      className="p-2 rounded-lg hover:bg-muted"
-                    >
-                      <Pencil className="w-4 h-4 text-muted-foreground" />
-                    </button>
+                    <div className="flex items-center gap-1">
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingPreset(preset.id);
+                        }}
+                        className="p-2 rounded-lg hover:bg-muted"
+                      >
+                        <Pencil className="w-4 h-4 text-muted-foreground" />
+                      </button>
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCustomPresets(prev => prev.filter(p => p.id !== preset.id));
+                          if (selectedPreset === preset.id) {
+                            setSelectedPreset(null);
+                          }
+                        }}
+                        className="p-2 rounded-lg hover:bg-destructive/10"
+                      >
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </button>
+                    </div>
                   </div>
                 </motion.div>
               ))}
+
+              {customPresets.length === 0 && (
+                <div className="text-center py-8 text-muted-foreground">
+                  <p className="text-sm">No presets yet</p>
+                  <p className="text-xs mt-1">Create one to get started</p>
+                </div>
+              )}
             </div>
 
             {/* Quick Settings (shown when preset selected) */}
@@ -920,7 +962,66 @@ const DeviceControl = () => {
         </SheetContent>
       </Sheet>
 
-      {/* Skipped Areas Feedback Sheet */}
+      {/* New Preset Modal */}
+      <Sheet open={showNewPresetModal} onOpenChange={setShowNewPresetModal}>
+        <SheetContent side="bottom" className="bg-card rounded-t-3xl border-border [&>button]:hidden">
+          <SheetHeader className="pb-4">
+            <h2 className="text-lg font-semibold text-foreground text-center">Create New Preset</h2>
+          </SheetHeader>
+          
+          <div className="space-y-4 pb-6">
+            <div>
+              <label className="text-sm font-medium text-foreground mb-2 block">Preset Name</label>
+              <input
+                type="text"
+                value={newPresetName}
+                onChange={(e) => setNewPresetName(e.target.value)}
+                placeholder="e.g., Weekend Deep Clean"
+                className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                maxLength={30}
+              />
+            </div>
+            
+            <p className="text-xs text-muted-foreground">
+              After creating, you can customize room settings by tapping the edit button.
+            </p>
+
+            <div className="flex gap-2">
+              <Button 
+                variant="outline"
+                onClick={() => {
+                  setShowNewPresetModal(false);
+                  setNewPresetName("");
+                }}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={() => {
+                  if (newPresetName.trim()) {
+                    const newId = `preset-${Date.now()}`;
+                    setCustomPresets(prev => [...prev, {
+                      id: newId,
+                      name: newPresetName.trim(),
+                      description: "Custom configuration",
+                      settings: { ...roomCustomSettings }
+                    }]);
+                    setSelectedPreset(newId);
+                    setShowNewPresetModal(false);
+                    setNewPresetName("");
+                  }
+                }}
+                disabled={!newPresetName.trim()}
+                className="flex-1"
+              >
+                Create Preset
+              </Button>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
+
       <Sheet open={showSkippedFeedback && skippedAreas.length > 0} onOpenChange={setShowSkippedFeedback}>
         <SheetContent side="bottom" className="bg-card rounded-t-3xl border-border">
           <SheetHeader className="pb-4">
