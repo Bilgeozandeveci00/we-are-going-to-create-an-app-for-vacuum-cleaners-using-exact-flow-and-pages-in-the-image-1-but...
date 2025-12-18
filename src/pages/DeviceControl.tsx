@@ -1283,8 +1283,65 @@ const DeviceControl = () => {
                 </div>
               </>
             ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                <p>Map details and statistics</p>
+              <div className="space-y-4">
+                {/* Map Statistics */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-muted rounded-xl p-4 text-center">
+                    <div className="text-2xl font-bold text-foreground">{Object.keys(roomNames).length}</div>
+                    <div className="text-xs text-muted-foreground mt-1">Rooms</div>
+                  </div>
+                  <div className="bg-muted rounded-xl p-4 text-center">
+                    <div className="text-2xl font-bold text-foreground">78</div>
+                    <div className="text-xs text-muted-foreground mt-1">Total m²</div>
+                  </div>
+                </div>
+
+                {/* Room List with Areas */}
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium text-muted-foreground px-1">Room Areas</h4>
+                  <div className="space-y-2">
+                    {[
+                      { id: "living", name: "Living Room", area: 18 },
+                      { id: "kitchen", name: "Kitchen", area: 12 },
+                      { id: "bedroom1", name: "Master Bed", area: 14 },
+                      { id: "bedroom2", name: "Bedroom", area: 12 },
+                      { id: "dining", name: "Dining", area: 10 },
+                      { id: "bathroom", name: "Bath", area: 6 },
+                      { id: "hallway", name: "Hall", area: 4 },
+                      { id: "laundry", name: "Laundry", area: 2 },
+                    ].map((room) => (
+                      <div key={room.id} className="flex items-center justify-between bg-muted/50 rounded-lg px-4 py-3">
+                        <span className="text-sm text-foreground">{room.name}</span>
+                        <span className="text-sm font-medium text-primary">{room.area} m²</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Map Actions */}
+                <div className="space-y-2 pt-2">
+                  <button className="flex items-center gap-3 bg-muted rounded-xl p-4 hover:bg-muted/80 transition-colors w-full">
+                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                      <CloudUpload className="w-5 h-5 text-primary" />
+                    </div>
+                    <span className="text-foreground font-medium text-sm">Backup Map</span>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto" />
+                  </button>
+                  <button className="flex items-center gap-3 bg-muted rounded-xl p-4 hover:bg-muted/80 transition-colors w-full">
+                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                      <RotateCcw className="w-5 h-5 text-primary" />
+                    </div>
+                    <span className="text-foreground font-medium text-sm">Restore Map</span>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto" />
+                  </button>
+                  <button className="flex items-center gap-3 bg-destructive/10 rounded-xl p-4 hover:bg-destructive/20 transition-colors w-full">
+                    <div className="w-10 h-10 rounded-full bg-destructive/20 flex items-center justify-center">
+                      <Trash2 className="w-5 h-5 text-destructive" />
+                    </div>
+                    <span className="text-destructive font-medium text-sm">Delete Map</span>
+                    <ChevronRight className="w-4 h-4 text-destructive/50 ml-auto" />
+                  </button>
+                </div>
               </div>
             )}
           </div>
