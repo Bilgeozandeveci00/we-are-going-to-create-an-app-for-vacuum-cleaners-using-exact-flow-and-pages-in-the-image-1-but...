@@ -914,32 +914,20 @@ const DeviceControl = () => {
           <div className="space-y-4 pb-4">
             {mapEditorTab === "edit" ? (
               <>
-                {/* Room Names Section */}
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <p className="text-sm font-medium text-foreground">Room Names</p>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => {
-                        setEditableRoomNames({...roomNames});
-                        setShowRoomNameEditor(true);
-                      }}
-                      className="text-xs h-8"
-                    >
-                      <Map className="w-3 h-3 mr-1" />
-                      Edit on Map
-                    </Button>
+                {/* Edit Names Button */}
+                <button 
+                  onClick={() => {
+                    setEditableRoomNames({...roomNames});
+                    setShowRoomNameEditor(true);
+                  }}
+                  className="flex items-center gap-3 bg-muted rounded-xl p-4 hover:bg-muted/80 transition-colors w-full"
+                >
+                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                    <Pencil className="w-5 h-5 text-primary" />
                   </div>
-                  <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto">
-                    {Object.entries(roomNames).map(([roomId, name]) => (
-                      <div key={roomId} className="flex items-center gap-2 bg-muted rounded-xl p-3">
-                        <span className="flex-1 text-sm text-foreground">{name}</span>
-                        <Pencil className="w-3 h-3 text-muted-foreground" />
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                  <span className="text-foreground font-medium text-sm">Edit Room Names</span>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto" />
+                </button>
 
                 {/* Action Buttons */}
                 <div className="grid grid-cols-2 gap-3">
@@ -1031,12 +1019,12 @@ const DeviceControl = () => {
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.1 }}
                   className="absolute pointer-events-auto"
-                  style={{ top: '30%', left: '20%' }}
+                  style={{ top: '28%', left: '12%' }}
                 >
                   <input
                     value={editableRoomNames.living || "Living Room"}
                     onChange={(e) => setEditableRoomNames(prev => ({ ...prev, living: e.target.value }))}
-                    className="bg-card/90 backdrop-blur-sm text-foreground text-sm font-medium px-3 py-2 rounded-lg border border-primary shadow-lg text-center w-28 focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="bg-card/95 backdrop-blur-md text-foreground text-base font-semibold px-4 py-3 rounded-xl border-2 border-primary shadow-xl text-center w-36 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                   />
                 </motion.div>
 
@@ -1046,12 +1034,12 @@ const DeviceControl = () => {
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.15 }}
                   className="absolute pointer-events-auto"
-                  style={{ top: '45%', left: '60%' }}
+                  style={{ top: '42%', left: '55%' }}
                 >
                   <input
                     value={editableRoomNames.kitchen || "Kitchen"}
                     onChange={(e) => setEditableRoomNames(prev => ({ ...prev, kitchen: e.target.value }))}
-                    className="bg-card/90 backdrop-blur-sm text-foreground text-sm font-medium px-3 py-2 rounded-lg border border-primary shadow-lg text-center w-24 focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="bg-card/95 backdrop-blur-md text-foreground text-base font-semibold px-4 py-3 rounded-xl border-2 border-primary shadow-xl text-center w-32 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                   />
                 </motion.div>
 
@@ -1061,12 +1049,12 @@ const DeviceControl = () => {
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.2 }}
                   className="absolute pointer-events-auto"
-                  style={{ top: '65%', left: '15%' }}
+                  style={{ top: '62%', left: '8%' }}
                 >
                   <input
                     value={editableRoomNames.bedroom1 || "Bedroom 1"}
                     onChange={(e) => setEditableRoomNames(prev => ({ ...prev, bedroom1: e.target.value }))}
-                    className="bg-card/90 backdrop-blur-sm text-foreground text-sm font-medium px-3 py-2 rounded-lg border border-primary shadow-lg text-center w-26 focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="bg-card/95 backdrop-blur-md text-foreground text-base font-semibold px-4 py-3 rounded-xl border-2 border-primary shadow-xl text-center w-32 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                   />
                 </motion.div>
 
@@ -1076,12 +1064,12 @@ const DeviceControl = () => {
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.25 }}
                   className="absolute pointer-events-auto"
-                  style={{ top: '65%', left: '55%' }}
+                  style={{ top: '62%', left: '50%' }}
                 >
                   <input
                     value={editableRoomNames.bedroom2 || "Bedroom 2"}
                     onChange={(e) => setEditableRoomNames(prev => ({ ...prev, bedroom2: e.target.value }))}
-                    className="bg-card/90 backdrop-blur-sm text-foreground text-sm font-medium px-3 py-2 rounded-lg border border-primary shadow-lg text-center w-26 focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="bg-card/95 backdrop-blur-md text-foreground text-base font-semibold px-4 py-3 rounded-xl border-2 border-primary shadow-xl text-center w-32 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                   />
                 </motion.div>
 
@@ -1091,12 +1079,12 @@ const DeviceControl = () => {
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.3 }}
                   className="absolute pointer-events-auto"
-                  style={{ top: '20%', left: '70%' }}
+                  style={{ top: '18%', left: '60%' }}
                 >
                   <input
                     value={editableRoomNames.bathroom || "Bathroom"}
                     onChange={(e) => setEditableRoomNames(prev => ({ ...prev, bathroom: e.target.value }))}
-                    className="bg-card/90 backdrop-blur-sm text-foreground text-sm font-medium px-3 py-2 rounded-lg border border-primary shadow-lg text-center w-24 focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="bg-card/95 backdrop-blur-md text-foreground text-base font-semibold px-4 py-3 rounded-xl border-2 border-primary shadow-xl text-center w-32 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                   />
                 </motion.div>
               </div>
