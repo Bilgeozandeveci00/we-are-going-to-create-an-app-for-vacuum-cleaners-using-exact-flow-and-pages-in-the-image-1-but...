@@ -40,6 +40,7 @@ interface FloorMapProps {
   skippedAreas?: SkippedArea[];
   showSkippedAreas?: boolean;
   dangerZones?: {id: string; x: number; y: number}[];
+  onDangerZoneRemove?: (zoneId: string) => void;
 }
 
 const rooms: Room[] = [
@@ -199,6 +200,7 @@ const FloorMap = ({
   skippedAreas = [],
   showSkippedAreas = false,
   dangerZones = [],
+  onDangerZoneRemove,
 }: FloorMapProps) => {
   const [showHint, setShowHint] = useState(true);
 
@@ -537,7 +539,18 @@ const FloorMap = ({
 
         {/* Danger zones - where robot got stuck */}
         {dangerZones.map((zone) => (
-          <g key={zone.id}>
+          <g 
+            key={zone.id} 
+            onClick={() => onDangerZoneRemove?.(zone.id)}
+            className="cursor-pointer"
+          >
+            <motion.circle
+              cx={zone.x}
+              cy={zone.y}
+              r="12"
+              fill="transparent"
+              className="cursor-pointer"
+            />
             <motion.circle
               cx={zone.x}
               cy={zone.y}
@@ -549,6 +562,7 @@ const FloorMap = ({
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: [0.6, 1, 0.6] }}
               transition={{ duration: 2, repeat: Infinity }}
+              whileHover={{ scale: 1.2 }}
             />
             <text
               x={zone.x}
@@ -557,7 +571,7 @@ const FloorMap = ({
               fill="white"
               fontSize="5"
               fontWeight="bold"
-              style={{ fontFamily: 'system-ui, sans-serif' }}
+              style={{ fontFamily: 'system-ui, sans-serif', pointerEvents: 'none' }}
             >
               ⚠
             </text>
@@ -568,9 +582,9 @@ const FloorMap = ({
               fill="white"
               fontSize="3"
               fontWeight="500"
-              style={{ fontFamily: 'system-ui, sans-serif' }}
+              style={{ fontFamily: 'system-ui, sans-serif', pointerEvents: 'none' }}
             >
-              Stuck
+              Tap to remove
             </text>
           </g>
         ))}
