@@ -804,7 +804,7 @@ const DeviceControl = () => {
                   <Play className="w-4 h-4 text-white" fill="white" />
                   <span className="text-white font-semibold text-sm">Smooth</span>
                 </div>
-                <span className="text-white/70 text-xs">~35 min</span>
+                <span className="text-white/70 text-xs">~{Math.round(selectedTime * 0.7)} min</span>
               </motion.button>
 
               <motion.button
@@ -816,7 +816,7 @@ const DeviceControl = () => {
                   <Play className="w-4 h-4 text-primary-foreground" fill="currentColor" />
                   <span className="text-primary-foreground font-semibold text-sm">Deep</span>
                 </div>
-                <span className="text-primary-foreground/70 text-xs">~75 min</span>
+                <span className="text-primary-foreground/70 text-xs">~{Math.round(selectedTime * 1.5)} min</span>
               </motion.button>
             </div>
 
