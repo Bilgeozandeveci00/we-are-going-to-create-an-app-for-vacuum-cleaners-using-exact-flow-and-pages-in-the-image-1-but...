@@ -1239,6 +1239,7 @@ const DeviceControl = () => {
                 {/* Edit Names Button */}
                 <button 
                   onClick={() => {
+                    setShowMapEditor(false);
                     setEditableRoomNames({...roomNames});
                     setShowRoomNameEditor(true);
                   }}
