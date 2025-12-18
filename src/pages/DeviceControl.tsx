@@ -26,6 +26,12 @@ import {
   MapPin,
   Smartphone,
   Battery,
+  Info,
+  X,
+  Check,
+  AlertTriangle,
+  Sparkles,
+  Route,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FloorMap from "@/components/FloorMap";
@@ -34,6 +40,13 @@ import {
   SheetContent,
   SheetHeader,
 } from "@/components/ui/sheet";
+
+// Room settings for custom mode
+interface RoomCustomSettings {
+  mode: "smooth" | "deep" | "skip";
+  passes: 1 | 2 | 3;
+  edgeCleaning: boolean;
+}
 
 const DeviceControl = () => {
   const navigate = useNavigate();
@@ -57,6 +70,17 @@ const DeviceControl = () => {
   const [showModeSelector, setShowModeSelector] = useState(false);
   const [currentCleaningRoom, setCurrentCleaningRoom] = useState<string | undefined>();
   const [cleanedRooms, setCleanedRooms] = useState<string[]>([]);
+  
+  // New states for enhancements
+  const [showModeInfo, setShowModeInfo] = useState(() => {
+    return !localStorage.getItem("mode-info-dismissed");
+  });
+  const [showCustomMode, setShowCustomMode] = useState(false);
+  const [skippedAreas, setSkippedAreas] = useState<string[]>([]);
+  const [showSkippedFeedback, setShowSkippedFeedback] = useState(false);
+  const [roomCustomSettings, setRoomCustomSettings] = useState<Record<string, RoomCustomSettings>>({});
+  const [carpetBoost, setCarpetBoost] = useState(true);
+  const [mopWhileVacuum, setMopWhileVacuum] = useState(true);
 
   // Deep mode stuck simulation - robot gets stuck after 3 seconds
   useEffect(() => {
@@ -71,6 +95,7 @@ const DeviceControl = () => {
   }, [isRunning, selectedTab]);
 
   // Safe mode completion simulation - cleaning completes after 10 seconds
+  // Also simulates skipping risky areas
   useEffect(() => {
     if (isRunning && selectedTab === "safe") {
       const timer = setTimeout(() => {
@@ -78,6 +103,9 @@ const DeviceControl = () => {
         setIsRunning(false);
         setCleanedRooms(selectedRooms.length > 0 ? selectedRooms : Object.keys(roomNames));
         setCurrentCleaningRoom(undefined);
+        // Simulate skipped areas in safe mode
+        setSkippedAreas(["Under sofa edge", "Behind TV stand", "Tight corner in Kitchen"]);
+        setShowSkippedFeedback(true);
       }, 10000);
       return () => clearTimeout(timer);
     }
@@ -91,7 +119,38 @@ const DeviceControl = () => {
     setIsStuck(false);
     setCleanedRooms([]);
     setSelectedRooms([]);
+    setSkippedAreas([]);
+    setShowSkippedFeedback(false);
     setBattery(93);
+  };
+  
+  // Dismiss mode info tooltip
+  const dismissModeInfo = () => {
+    setShowModeInfo(false);
+    localStorage.setItem("mode-info-dismissed", "true");
+  };
+
+  // Initialize room custom settings
+  useEffect(() => {
+    const defaultSettings: Record<string, RoomCustomSettings> = {};
+    Object.keys(roomNames).forEach(roomId => {
+      defaultSettings[roomId] = { mode: "smooth", passes: 1, edgeCleaning: true };
+    });
+    setRoomCustomSettings(defaultSettings);
+  }, []);
+
+  // Start custom cleaning
+  const startCustomCleaning = () => {
+    setShowCustomMode(false);
+    setShowModeSelector(false);
+    setIsStuck(false);
+    setIsCompleted(false);
+    setCleanedRooms([]);
+    setSkippedAreas([]);
+    setShowSkippedFeedback(false);
+    setCurrentCleaningRoom(undefined);
+    setSelectedTab("normal"); // Use normal behavior for custom
+    setIsRunning(true);
   };
 
   // Simulate room-by-room cleaning progress
@@ -493,9 +552,46 @@ const DeviceControl = () => {
       {/* Mode Selector Sheet */}
       <Sheet open={showModeSelector} onOpenChange={setShowModeSelector}>
         <SheetContent side="bottom" className="bg-card rounded-t-3xl border-border">
-          <SheetHeader className="pb-4">
-            <h2 className="text-lg font-semibold text-foreground text-center">Choose Cleaning Mode</h2>
+          <SheetHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-foreground">Choose Cleaning Mode</h2>
+              {showModeInfo && (
+                <button 
+                  onClick={dismissModeInfo}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
           </SheetHeader>
+          
+          {/* Info Tooltip - shows once */}
+          <AnimatePresence>
+            {showModeInfo && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mb-4 bg-primary/10 border border-primary/20 rounded-xl p-3"
+              >
+                <div className="flex items-start gap-2">
+                  <Info className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                  <div className="text-xs text-muted-foreground space-y-1">
+                    <p><span className="text-emerald-500 font-medium">Smooth:</span> Avoids risky areas, won&apos;t get stuck. Best when you&apos;re away.</p>
+                    <p><span className="text-primary font-medium">Deep:</span> Cleans everywhere thoroughly. May need assistance.</p>
+                    <p><span className="text-violet-500 font-medium">Custom:</span> Set different modes per room.</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={dismissModeInfo}
+                  className="text-xs text-primary mt-2 font-medium"
+                >
+                  Got it, don&apos;t show again
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
           
           <div className="grid grid-cols-3 gap-3 pb-6">
             {/* Smooth Mode - Won't get stuck */}
@@ -505,7 +601,6 @@ const DeviceControl = () => {
               className="flex flex-col items-center gap-2 bg-muted rounded-2xl p-4 hover:bg-muted/80 transition-colors"
             >
               <div className="w-14 h-14 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                {/* Smooth path icon */}
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                   <path d="M4 12c0-4 4-8 8-8s8 4 8 8-4 8-8 8" stroke="hsl(158, 64%, 52%)" strokeWidth="2" strokeLinecap="round"/>
                   <path d="M12 12l4-4" stroke="hsl(158, 64%, 52%)" strokeWidth="2" strokeLinecap="round"/>
@@ -515,7 +610,7 @@ const DeviceControl = () => {
               </div>
               <div className="text-center">
                 <h3 className="text-foreground font-semibold text-sm">Smooth</h3>
-                <p className="text-muted-foreground text-xs">Won't get stuck</p>
+                <p className="text-muted-foreground text-xs">Won&apos;t get stuck</p>
               </div>
               <div className="flex items-center gap-1 text-emerald-500">
                 <Clock className="w-3 h-3" />
@@ -530,7 +625,6 @@ const DeviceControl = () => {
               className="flex flex-col items-center gap-2 bg-muted rounded-2xl p-4 hover:bg-muted/80 transition-colors ring-2 ring-primary/50"
             >
               <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center">
-                {/* Deep clean icon */}
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                   <rect x="4" y="4" width="16" height="16" rx="2" stroke="hsl(var(--primary))" strokeWidth="2"/>
                   <path d="M8 8h8M8 12h8M8 16h8" stroke="hsl(var(--primary))" strokeWidth="2" strokeLinecap="round"/>
@@ -552,12 +646,11 @@ const DeviceControl = () => {
               whileTap={{ scale: 0.95 }}
               onClick={() => {
                 setShowModeSelector(false);
-                setShowPersonalize(true);
+                setShowCustomMode(true);
               }}
               className="flex flex-col items-center gap-2 bg-muted rounded-2xl p-4 hover:bg-muted/80 transition-colors"
             >
               <div className="w-14 h-14 rounded-full bg-violet-500/20 flex items-center justify-center">
-                {/* Custom/sliders icon */}
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                   <path d="M4 6h4M12 6h8" stroke="hsl(258, 90%, 66%)" strokeWidth="2" strokeLinecap="round"/>
                   <path d="M4 12h8M16 12h4" stroke="hsl(258, 90%, 66%)" strokeWidth="2" strokeLinecap="round"/>
@@ -569,13 +662,237 @@ const DeviceControl = () => {
               </div>
               <div className="text-center">
                 <h3 className="text-foreground font-semibold text-sm">Custom</h3>
-                <p className="text-muted-foreground text-xs">Your settings</p>
+                <p className="text-muted-foreground text-xs">Per-room settings</p>
               </div>
               <div className="flex items-center gap-1 text-violet-500">
-                <Settings2 className="w-3 h-3" />
+                <Route className="w-3 h-3" />
                 <span className="text-xs font-medium">Configure</span>
               </div>
             </motion.button>
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Custom Mode Sheet */}
+      <Sheet open={showCustomMode} onOpenChange={setShowCustomMode}>
+        <SheetContent side="bottom" className="bg-card rounded-t-3xl border-border h-[85vh] overflow-y-auto">
+          <SheetHeader className="pb-4 sticky top-0 bg-card z-10">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-foreground">Custom Cleaning</h2>
+              <button onClick={() => setShowCustomMode(false)}>
+                <X className="w-5 h-5 text-muted-foreground" />
+              </button>
+            </div>
+          </SheetHeader>
+          
+          <div className="space-y-6 pb-24">
+            {/* Global Settings */}
+            <div className="bg-muted/50 rounded-2xl p-4 space-y-4">
+              <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <Settings2 className="w-4 h-4 text-primary" />
+                Global Settings
+              </h3>
+              
+              {/* Carpet Boost */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-foreground">Carpet Boost</p>
+                  <p className="text-xs text-muted-foreground">Auto-increase suction on carpets</p>
+                </div>
+                <button 
+                  onClick={() => setCarpetBoost(!carpetBoost)}
+                  className={`w-12 h-6 rounded-full transition-colors ${carpetBoost ? "bg-primary" : "bg-muted"}`}
+                >
+                  <motion.div 
+                    className="w-5 h-5 bg-white rounded-full shadow"
+                    animate={{ x: carpetBoost ? 26 : 2 }}
+                  />
+                </button>
+              </div>
+              
+              {/* Mop While Vacuum */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-foreground">Mop While Vacuuming</p>
+                  <p className="text-xs text-muted-foreground">Clean and mop in one pass</p>
+                </div>
+                <button 
+                  onClick={() => setMopWhileVacuum(!mopWhileVacuum)}
+                  className={`w-12 h-6 rounded-full transition-colors ${mopWhileVacuum ? "bg-primary" : "bg-muted"}`}
+                >
+                  <motion.div 
+                    className="w-5 h-5 bg-white rounded-full shadow"
+                    animate={{ x: mopWhileVacuum ? 26 : 2 }}
+                  />
+                </button>
+              </div>
+            </div>
+
+            {/* Room-by-Room Settings */}
+            <div>
+              <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                <Home className="w-4 h-4 text-primary" />
+                Room Settings
+              </h3>
+              <div className="space-y-3">
+                {Object.entries(roomNames).map(([roomId, name]) => {
+                  const settings = roomCustomSettings[roomId] || { mode: "smooth", passes: 1, edgeCleaning: true };
+                  return (
+                    <div key={roomId} className="bg-muted/50 rounded-xl p-3">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-sm font-medium text-foreground">{name}</span>
+                        <div className="flex gap-1">
+                          {(["smooth", "deep", "skip"] as const).map((mode) => (
+                            <button
+                              key={mode}
+                              onClick={() => setRoomCustomSettings(prev => ({
+                                ...prev,
+                                [roomId]: { ...settings, mode }
+                              }))}
+                              className={`px-2 py-1 rounded-lg text-xs font-medium transition-colors ${
+                                settings.mode === mode 
+                                  ? mode === "smooth" ? "bg-emerald-500/20 text-emerald-500"
+                                    : mode === "deep" ? "bg-primary/20 text-primary"
+                                    : "bg-muted-foreground/20 text-muted-foreground"
+                                  : "bg-muted text-muted-foreground"
+                              }`}
+                            >
+                              {mode === "smooth" ? "Smooth" : mode === "deep" ? "Deep" : "Skip"}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      {settings.mode !== "skip" && (
+                        <div className="flex items-center gap-4 pt-2 border-t border-border/50">
+                          {/* Passes */}
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-muted-foreground">Passes:</span>
+                            <div className="flex gap-1">
+                              {([1, 2, 3] as const).map((pass) => (
+                                <button
+                                  key={pass}
+                                  onClick={() => setRoomCustomSettings(prev => ({
+                                    ...prev,
+                                    [roomId]: { ...settings, passes: pass }
+                                  }))}
+                                  className={`w-6 h-6 rounded text-xs font-medium transition-colors ${
+                                    settings.passes === pass 
+                                      ? "bg-primary text-primary-foreground" 
+                                      : "bg-muted text-muted-foreground"
+                                  }`}
+                                >
+                                  {pass}x
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                          
+                          {/* Edge Cleaning */}
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-muted-foreground">Edges:</span>
+                            <button
+                              onClick={() => setRoomCustomSettings(prev => ({
+                                ...prev,
+                                [roomId]: { ...settings, edgeCleaning: !settings.edgeCleaning }
+                              }))}
+                              className={`w-6 h-6 rounded flex items-center justify-center transition-colors ${
+                                settings.edgeCleaning 
+                                  ? "bg-primary text-primary-foreground" 
+                                  : "bg-muted text-muted-foreground"
+                              }`}
+                            >
+                              {settings.edgeCleaning ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* No-Go Zones Quick Access */}
+            <button 
+              onClick={() => {
+                setShowCustomMode(false);
+                navigate(`/device/${id}/no-go-zones`);
+              }}
+              className="w-full flex items-center gap-3 bg-destructive/10 border border-destructive/20 rounded-xl p-4"
+            >
+              <Ban className="w-5 h-5 text-destructive" />
+              <div className="flex-1 text-left">
+                <p className="text-sm font-medium text-foreground">No-Go Zones</p>
+                <p className="text-xs text-muted-foreground">Set areas to avoid</p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            </button>
+          </div>
+
+          {/* Start Button */}
+          <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-card via-card to-transparent">
+            <Button 
+              onClick={startCustomCleaning}
+              className="w-full h-12 rounded-2xl bg-violet-500 hover:bg-violet-600 text-white font-semibold"
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              Start Custom Cleaning
+            </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Skipped Areas Feedback Sheet */}
+      <Sheet open={showSkippedFeedback && skippedAreas.length > 0} onOpenChange={setShowSkippedFeedback}>
+        <SheetContent side="bottom" className="bg-card rounded-t-3xl border-border">
+          <SheetHeader className="pb-4">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-amber-500" />
+              <h2 className="text-lg font-semibold text-foreground">Cleaning Report</h2>
+            </div>
+          </SheetHeader>
+          
+          <div className="space-y-4 pb-6">
+            <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Check className="w-4 h-4 text-emerald-500" />
+                <span className="text-sm font-medium text-emerald-500">Cleaned Successfully</span>
+              </div>
+              <p className="text-xs text-muted-foreground">{cleanedRooms.length} rooms cleaned thoroughly</p>
+            </div>
+
+            <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <AlertTriangle className="w-4 h-4 text-amber-500" />
+                <span className="text-sm font-medium text-amber-500">Areas Skipped (Risky)</span>
+              </div>
+              <p className="text-xs text-muted-foreground mb-3">
+                In Smooth mode, the robot avoided these areas to prevent getting stuck:
+              </p>
+              <div className="space-y-2">
+                {skippedAreas.map((area, index) => (
+                  <div key={index} className="flex items-center gap-2 text-sm text-foreground">
+                    <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                    {area}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-muted/50 rounded-xl p-4">
+              <p className="text-xs text-muted-foreground mb-2">
+                <strong className="text-foreground">Tip:</strong> To clean these areas, use Deep mode when you&apos;re home to help if the robot gets stuck.
+              </p>
+            </div>
+            
+            <Button 
+              onClick={() => setShowSkippedFeedback(false)}
+              variant="outline"
+              className="w-full"
+            >
+              Got it
+            </Button>
           </div>
         </SheetContent>
       </Sheet>
