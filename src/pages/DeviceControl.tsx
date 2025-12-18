@@ -81,6 +81,13 @@ const DeviceControl = () => {
   const [mopWhileVacuum, setMopWhileVacuum] = useState(true);
   const [showRoomNameEditor, setShowRoomNameEditor] = useState(false);
   const [editableRoomNames, setEditableRoomNames] = useState<Record<string, string>>({});
+  const [selectedPreset, setSelectedPreset] = useState<string | null>("preset-1");
+  const [editingPreset, setEditingPreset] = useState<string | null>(null);
+  const [customPresets] = useState([
+    { id: "preset-1", name: "Quick Clean", description: "Smooth mode everywhere, 1 pass" },
+    { id: "preset-2", name: "Deep Kitchen", description: "Deep clean kitchen, smooth elsewhere" },
+    { id: "preset-3", name: "Bedroom Focus", description: "Deep clean bedrooms only" },
+  ]);
 
   // Deep mode stuck simulation - robot gets stuck after 3 seconds
   useEffect(() => {
@@ -579,20 +586,27 @@ const DeviceControl = () => {
                 exit={{ opacity: 0, height: 0 }}
                 className="overflow-hidden"
               >
-                <div className="bg-muted/30 border border-border rounded-xl p-3 mb-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-medium text-muted-foreground">Mode Guide</span>
+                <div className="bg-muted/30 border border-border rounded-xl p-4 mb-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-sm font-semibold text-foreground">Mode Guide</span>
                     <button 
                       onClick={dismissModeInfo}
-                      className="w-5 h-5 rounded-full bg-muted flex items-center justify-center"
+                      className="flex items-center gap-1 px-2 py-1 rounded-lg bg-muted text-xs text-muted-foreground hover:bg-muted/80"
                     >
-                      <X className="w-3 h-3 text-muted-foreground" />
+                      <X className="w-3 h-3" />
+                      Close
                     </button>
                   </div>
-                  <div className="space-y-2 text-xs text-muted-foreground">
-                    <p><span className="text-emerald-500 font-medium">Smooth</span> - Avoids tight spaces, won&apos;t get stuck. Best when away.</p>
-                    <p><span className="text-primary font-medium">Deep</span> - Thorough cleaning everywhere. May need help if stuck.</p>
-                    <p><span className="text-foreground font-medium">Custom</span> - Configure different settings per room.</p>
+                  <div className="space-y-3">
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      <span className="text-emerald-500 font-semibold">Smooth</span> — Avoids tight spaces, won&apos;t get stuck. Best when you&apos;re away.
+                    </p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      <span className="text-primary font-semibold">Deep</span> — Thorough cleaning of every corner. May need help if stuck.
+                    </p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      <span className="text-foreground font-semibold">Custom</span> — Create presets with different settings per room.
+                    </p>
                   </div>
                 </div>
               </motion.div>
@@ -666,53 +680,160 @@ const DeviceControl = () => {
       {/* Custom Mode Sheet */}
       <Sheet open={showCustomMode} onOpenChange={setShowCustomMode}>
         <SheetContent side="bottom" className="bg-card rounded-t-3xl border-border h-[85vh] overflow-y-auto [&>button]:hidden">
-          <SheetHeader className="pb-4 sticky top-0 bg-card z-10">
+          <SheetHeader className="pb-2">
             <h2 className="text-lg font-semibold text-foreground text-center">Custom Cleaning</h2>
           </SheetHeader>
           
-          <div className="space-y-6 pb-24">
-            {/* Global Settings */}
-            <div className="bg-muted/50 rounded-2xl p-4 space-y-4">
-              <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                <Settings2 className="w-4 h-4 text-primary" />
-                Global Settings
-              </h3>
-              
-              {/* Carpet Boost */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-foreground">Carpet Boost</p>
-                  <p className="text-xs text-muted-foreground">Auto-increase suction on carpets</p>
-                </div>
-                <button 
-                  onClick={() => setCarpetBoost(!carpetBoost)}
-                  className={`w-12 h-6 rounded-full transition-colors ${carpetBoost ? "bg-primary" : "bg-muted"}`}
-                >
-                  <motion.div 
-                    className="w-5 h-5 bg-white rounded-full shadow"
-                    animate={{ x: carpetBoost ? 26 : 2 }}
-                  />
-                </button>
+          {/* Big Play Button at Top */}
+          <div className="py-6">
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={startCustomCleaning}
+              disabled={!selectedPreset}
+              className={`w-full flex flex-col items-center justify-center py-6 rounded-2xl transition-all ${
+                selectedPreset 
+                  ? "bg-primary shadow-lg shadow-primary/30" 
+                  : "bg-muted cursor-not-allowed"
+              }`}
+            >
+              <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-3 ${
+                selectedPreset ? "bg-white/20" : "bg-muted-foreground/20"
+              }`}>
+                <Play className={`w-8 h-8 ml-1 ${selectedPreset ? "text-white" : "text-muted-foreground"}`} fill="currentColor" />
               </div>
-              
-              {/* Mop While Vacuum */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-foreground">Mop While Vacuuming</p>
-                  <p className="text-xs text-muted-foreground">Clean and mop in one pass</p>
-                </div>
-                <button 
-                  onClick={() => setMopWhileVacuum(!mopWhileVacuum)}
-                  className={`w-12 h-6 rounded-full transition-colors ${mopWhileVacuum ? "bg-primary" : "bg-muted"}`}
-                >
-                  <motion.div 
-                    className="w-5 h-5 bg-white rounded-full shadow"
-                    animate={{ x: mopWhileVacuum ? 26 : 2 }}
-                  />
-                </button>
-              </div>
+              <span className={`font-bold text-lg ${selectedPreset ? "text-white" : "text-muted-foreground"}`}>
+                {selectedPreset ? "Start Custom Clean" : "Select a Preset"}
+              </span>
+              {selectedPreset && (
+                <span className="text-white/70 text-sm mt-1">
+                  {customPresets.find(p => p.id === selectedPreset)?.name}
+                </span>
+              )}
+            </motion.button>
+          </div>
+
+          {/* Presets Section */}
+          <div className="space-y-4 pb-8">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-foreground">Your Presets</h3>
+              <button className="text-xs text-primary font-medium flex items-center gap-1">
+                <Sparkles className="w-3 h-3" />
+                New Preset
+              </button>
             </div>
 
+            <div className="space-y-2">
+              {customPresets.map((preset) => (
+                <motion.div
+                  key={preset.id}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setSelectedPreset(preset.id)}
+                  className={`p-4 rounded-xl border-2 transition-all cursor-pointer ${
+                    selectedPreset === preset.id 
+                      ? "bg-primary/10 border-primary" 
+                      : "bg-muted/50 border-transparent hover:border-border"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                        selectedPreset === preset.id 
+                          ? "border-primary bg-primary" 
+                          : "border-muted-foreground"
+                      }`}>
+                        {selectedPreset === preset.id && (
+                          <Check className="w-3 h-3 text-white" />
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{preset.name}</p>
+                        <p className="text-xs text-muted-foreground">{preset.description}</p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEditingPreset(preset.id);
+                      }}
+                      className="p-2 rounded-lg hover:bg-muted"
+                    >
+                      <Pencil className="w-4 h-4 text-muted-foreground" />
+                    </button>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Quick Settings (shown when preset selected) */}
+            {selectedPreset && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-muted/30 rounded-xl p-4 space-y-3"
+              >
+                <p className="text-xs font-medium text-muted-foreground">Quick toggles for this clean:</p>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => setCarpetBoost(!carpetBoost)}
+                    className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-colors ${
+                      carpetBoost ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    Carpet Boost {carpetBoost ? "ON" : "OFF"}
+                  </button>
+                  <button 
+                    onClick={() => setMopWhileVacuum(!mopWhileVacuum)}
+                    className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-colors ${
+                      mopWhileVacuum ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    Mop {mopWhileVacuum ? "ON" : "OFF"}
+                  </button>
+                </div>
+              </motion.div>
+            )}
+
+            {/* No-Go Zones */}
+            <button 
+              onClick={() => {
+                setShowCustomMode(false);
+                navigate(`/device/${id}/no-go-zones`);
+              }}
+              className="w-full flex items-center gap-3 bg-muted/50 border border-border rounded-xl p-3"
+            >
+              <Ban className="w-4 h-4 text-destructive" />
+              <span className="text-sm text-foreground">Manage No-Go Zones</span>
+              <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto" />
+            </button>
+          </div>
+
+          {/* Cancel */}
+          <Button 
+            variant="ghost" 
+            onClick={() => setShowCustomMode(false)}
+            className="w-full text-muted-foreground"
+          >
+            Cancel
+          </Button>
+        </SheetContent>
+      </Sheet>
+
+      {/* Preset Editor Sheet */}
+      <Sheet open={!!editingPreset} onOpenChange={() => setEditingPreset(null)}>
+        <SheetContent side="bottom" className="bg-card rounded-t-3xl border-border h-[80vh] overflow-y-auto [&>button]:hidden">
+          <SheetHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <button onClick={() => setEditingPreset(null)} className="text-muted-foreground">
+                <X className="w-5 h-5" />
+              </button>
+              <h2 className="text-lg font-semibold text-foreground">Edit Preset</h2>
+              <button onClick={() => setEditingPreset(null)} className="text-primary font-medium text-sm">
+                Save
+              </button>
+            </div>
+          </SheetHeader>
+          
+          <div className="space-y-6 pb-8">
             {/* Room-by-Room Settings */}
             <div>
               <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
@@ -750,7 +871,6 @@ const DeviceControl = () => {
                       
                       {settings.mode !== "skip" && (
                         <div className="flex items-center gap-4 pt-2 border-t border-border/50">
-                          {/* Passes */}
                           <div className="flex items-center gap-2">
                             <span className="text-xs text-muted-foreground">Passes:</span>
                             <div className="flex gap-1">
@@ -773,7 +893,6 @@ const DeviceControl = () => {
                             </div>
                           </div>
                           
-                          {/* Edge Cleaning */}
                           <div className="flex items-center gap-2">
                             <span className="text-xs text-muted-foreground">Edges:</span>
                             <button
@@ -797,33 +916,6 @@ const DeviceControl = () => {
                 })}
               </div>
             </div>
-
-            {/* No-Go Zones Quick Access */}
-            <button 
-              onClick={() => {
-                setShowCustomMode(false);
-                navigate(`/device/${id}/no-go-zones`);
-              }}
-              className="w-full flex items-center gap-3 bg-destructive/10 border border-destructive/20 rounded-xl p-4"
-            >
-              <Ban className="w-5 h-5 text-destructive" />
-              <div className="flex-1 text-left">
-                <p className="text-sm font-medium text-foreground">No-Go Zones</p>
-                <p className="text-xs text-muted-foreground">Set areas to avoid</p>
-              </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
-            </button>
-          </div>
-
-          {/* Start Button */}
-          <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-card via-card to-transparent">
-            <Button 
-              onClick={startCustomCleaning}
-              className="w-full h-12 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
-            >
-              <Sparkles className="w-4 h-4 mr-2" />
-              Start Custom Cleaning
-            </Button>
           </div>
         </SheetContent>
       </Sheet>
