@@ -80,6 +80,7 @@ const DeviceControl = () => {
   const [stuckPosition, setStuckPosition] = useState<{x: number; y: number} | null>(null);
   const [dangerZones, setDangerZones] = useState<{id: string; x: number; y: number}[]>([]);
   const [isResumedFromStuck, setIsResumedFromStuck] = useState(false);
+  const [remainingTime, setRemainingTime] = useState(0);
   const [roomCustomSettings, setRoomCustomSettings] = useState<Record<string, RoomCustomSettings>>({});
   const [carpetBoost, setCarpetBoost] = useState(true);
   const [mopWhileVacuum, setMopWhileVacuum] = useState(true);
@@ -220,8 +221,41 @@ const DeviceControl = () => {
     setRoomCustomSettings(defaultSettings);
   }, []);
 
+  // Room data definitions
+  const roomNames: Record<string, string> = {
+    living: "Living Room",
+    dining: "Dining",
+    hallway: "Hallway",
+    bedroom1: "Bedroom 1",
+    bedroom2: "Bedroom 2",
+    bathroom: "Bathroom",
+    kitchen: "Kitchen",
+    laundry: "Laundry",
+  };
+
+  // Estimated cleaning time per room (in minutes)
+  const roomTimes: Record<string, number> = {
+    living: 12,
+    dining: 8,
+    hallway: 5,
+    bedroom1: 10,
+    bedroom2: 9,
+    bathroom: 6,
+    kitchen: 8,
+    laundry: 4,
+  };
+
+  const totalRoomTime = 50; // Total time for all rooms
+  const selectedTime = selectedRooms.length > 0 
+    ? selectedRooms.reduce((acc, roomId) => acc + (roomTimes[roomId] || 0), 0)
+    : totalRoomTime;
+
   // Start custom cleaning
   const startCustomCleaning = () => {
+    const cleaningTime = selectedRooms.length > 0 
+      ? selectedRooms.reduce((acc, roomId) => acc + (roomTimes[roomId] || 0), 0)
+      : totalRoomTime;
+    
     setShowCustomMode(false);
     setShowModeSelector(false);
     setIsStuck(false);
@@ -232,6 +266,7 @@ const DeviceControl = () => {
     setHasBeenStuckOnce(false);
     setCurrentCleaningRoom(undefined);
     setSelectedTab("normal");
+    setRemainingTime(cleaningTime * 60); // Convert to seconds
     setIsRunning(true);
   };
 
@@ -260,14 +295,29 @@ const DeviceControl = () => {
     }
   }, [isRunning, isStuck, selectedRooms]);
 
+  // Countdown remaining time while cleaning
+  useEffect(() => {
+    if (isRunning && !isStuck && remainingTime > 0) {
+      const timer = setInterval(() => {
+        setRemainingTime(prev => Math.max(0, prev - 1));
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [isRunning, isStuck, remainingTime]);
+
   // Reset stuck/completed state when starting new cleaning session
   const startCleaning = (mode: "safe" | "normal" | "deep") => {
+    const cleaningTime = selectedRooms.length > 0 
+      ? selectedRooms.reduce((acc, roomId) => acc + (roomTimes[roomId] || 0), 0)
+      : totalRoomTime;
+    
     setSelectedTab(mode);
     setShowModeSelector(false);
     setIsStuck(false);
     setIsCompleted(false);
     setCleanedRooms([]);
     setCurrentCleaningRoom(undefined);
+    setRemainingTime(cleaningTime * 60); // Convert to seconds
     setIsRunning(true);
   };
 
@@ -296,34 +346,6 @@ const DeviceControl = () => {
     // Navigate to splash screen
     navigate("/");
   };
-
-  const roomNames: Record<string, string> = {
-    living: "Living Room",
-    dining: "Dining",
-    hallway: "Hallway",
-    bedroom1: "Bedroom 1",
-    bedroom2: "Bedroom 2",
-    bathroom: "Bathroom",
-    kitchen: "Kitchen",
-    laundry: "Laundry",
-  };
-
-  // Estimated cleaning time per room (in minutes)
-  const roomTimes: Record<string, number> = {
-    living: 12,
-    dining: 8,
-    hallway: 5,
-    bedroom1: 10,
-    bedroom2: 9,
-    bathroom: 6,
-    kitchen: 8,
-    laundry: 4,
-  };
-
-  const totalRoomTime = 50; // Total time for all rooms
-  const selectedTime = selectedRooms.length > 0 
-    ? selectedRooms.reduce((acc, roomId) => acc + (roomTimes[roomId] || 0), 0)
-    : totalRoomTime;
 
   const handleRoomSelect = (roomId: string) => {
     if (isRunning) return; // Can't select while running
@@ -548,11 +570,18 @@ const DeviceControl = () => {
             </div>
           </div>
           
-          {/* Estimated time - contextual with selection */}
+          {/* Estimated/Remaining time - contextual */}
           {!isCompleted && !isStuck && !isCharging && (
             <div className="mt-2 pt-2 border-t border-border/30 flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">Estimated time for {selectedRooms.length > 0 ? "selected rooms" : "all rooms"}</span>
-              <span className="text-sm font-medium text-primary">{selectedTime} min</span>
+              <span className="text-xs text-muted-foreground">
+                {isRunning ? "Time remaining" : `Estimated time for ${selectedRooms.length > 0 ? "selected rooms" : "all rooms"}`}
+              </span>
+              <span className="text-sm font-medium text-primary">
+                {isRunning 
+                  ? `${Math.floor(remainingTime / 60)}:${String(remainingTime % 60).padStart(2, '0')}`
+                  : `${selectedTime} min`
+                }
+              </span>
             </div>
           )}
         </motion.div>
