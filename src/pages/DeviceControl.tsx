@@ -494,7 +494,7 @@ const DeviceControl = () => {
       {/* Map Area */}
       <div className="flex-1 relative mx-4 flex flex-col min-h-0">
         {/* Map Container */}
-        <div className="flex-1 relative rounded-2xl overflow-hidden bg-background">
+        <div className="flex-1 relative overflow-hidden">
           {/* Edit Map Button */}
           <button
             onClick={() => setShowMapEditor(true)}
