@@ -74,8 +74,9 @@ const DeviceControl = () => {
   // New states for enhancements
   const [showModeInfo, setShowModeInfo] = useState(true);
   const [showCustomMode, setShowCustomMode] = useState(false);
-  const [skippedAreas, setSkippedAreas] = useState<string[]>([]);
-  const [showSkippedFeedback, setShowSkippedFeedback] = useState(false);
+  const [skippedAreas, setSkippedAreas] = useState<{id: string; name: string; x: number; y: number; width: number; height: number}[]>([]);
+  const [showSkippedOnMap, setShowSkippedOnMap] = useState(false);
+  const [hasBeenStuckOnce, setHasBeenStuckOnce] = useState(false);
   const [roomCustomSettings, setRoomCustomSettings] = useState<Record<string, RoomCustomSettings>>({});
   const [carpetBoost, setCarpetBoost] = useState(true);
   const [mopWhileVacuum, setMopWhileVacuum] = useState(true);
@@ -91,17 +92,18 @@ const DeviceControl = () => {
     { id: "preset-3", name: "Bedroom Focus", description: "Deep clean bedrooms only", settings: {} as Record<string, RoomCustomSettings> },
   ]);
 
-  // Deep mode stuck simulation - robot gets stuck after 3 seconds
+  // Deep mode stuck simulation - robot gets stuck after 3 seconds, but only once
   useEffect(() => {
-    if (isRunning && selectedTab === "deep") {
+    if (isRunning && selectedTab === "deep" && !hasBeenStuckOnce) {
       const timer = setTimeout(() => {
         setIsStuck(true);
         setIsRunning(false);
         setCurrentCleaningRoom(undefined);
+        setHasBeenStuckOnce(true);
       }, 3000);
       return () => clearTimeout(timer);
     }
-  }, [isRunning, selectedTab]);
+  }, [isRunning, selectedTab, hasBeenStuckOnce]);
 
   // Safe mode completion simulation - cleaning completes after 10 seconds
   // Also simulates skipping risky areas
@@ -112,9 +114,13 @@ const DeviceControl = () => {
         setIsRunning(false);
         setCleanedRooms(selectedRooms.length > 0 ? selectedRooms : Object.keys(roomNames));
         setCurrentCleaningRoom(undefined);
-        // Simulate skipped areas in safe mode
-        setSkippedAreas(["Under sofa edge", "Behind TV stand", "Tight corner in Kitchen"]);
-        setShowSkippedFeedback(true);
+        // Simulate skipped areas in safe mode - shown on map
+        setSkippedAreas([
+          { id: "skip1", name: "Under sofa", x: 28, y: 42, width: 25, height: 5 },
+          { id: "skip2", name: "Behind TV", x: 28, y: 68, width: 20, height: 4 },
+          { id: "skip3", name: "Kitchen corner", x: 22, y: 178, width: 10, height: 10 },
+        ]);
+        setShowSkippedOnMap(true);
       }, 10000);
       return () => clearTimeout(timer);
     }
@@ -129,7 +135,8 @@ const DeviceControl = () => {
     setCleanedRooms([]);
     setSelectedRooms([]);
     setSkippedAreas([]);
-    setShowSkippedFeedback(false);
+    setShowSkippedOnMap(false);
+    setHasBeenStuckOnce(false);
     setBattery(93);
   };
   
@@ -155,9 +162,10 @@ const DeviceControl = () => {
     setIsCompleted(false);
     setCleanedRooms([]);
     setSkippedAreas([]);
-    setShowSkippedFeedback(false);
+    setShowSkippedOnMap(false);
+    setHasBeenStuckOnce(false);
     setCurrentCleaningRoom(undefined);
-    setSelectedTab("normal"); // Use normal behavior for custom
+    setSelectedTab("normal");
     setIsRunning(true);
   };
 
@@ -506,6 +514,8 @@ const DeviceControl = () => {
               onRoomSelect={handleRoomSelect}
               currentCleaningRoom={currentCleaningRoom}
               cleanedRooms={cleanedRooms}
+              skippedAreas={skippedAreas}
+              showSkippedAreas={showSkippedOnMap}
             />
           </div>
 
@@ -1022,58 +1032,30 @@ const DeviceControl = () => {
         </SheetContent>
       </Sheet>
 
-      <Sheet open={showSkippedFeedback && skippedAreas.length > 0} onOpenChange={setShowSkippedFeedback}>
-        <SheetContent side="bottom" className="bg-card rounded-t-3xl border-border">
-          <SheetHeader className="pb-4">
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-amber-500" />
-              <h2 className="text-lg font-semibold text-foreground">Cleaning Report</h2>
-            </div>
-          </SheetHeader>
-          
-          <div className="space-y-4 pb-6">
-            <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Check className="w-4 h-4 text-emerald-500" />
-                <span className="text-sm font-medium text-emerald-500">Cleaned Successfully</span>
-              </div>
-              <p className="text-xs text-muted-foreground">{cleanedRooms.length} rooms cleaned thoroughly</p>
-            </div>
-
-            <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <AlertTriangle className="w-4 h-4 text-amber-500" />
-                <span className="text-sm font-medium text-amber-500">Areas Skipped (Risky)</span>
-              </div>
-              <p className="text-xs text-muted-foreground mb-3">
-                In Smooth mode, the robot avoided these areas to prevent getting stuck:
-              </p>
-              <div className="space-y-2">
-                {skippedAreas.map((area, index) => (
-                  <div key={index} className="flex items-center gap-2 text-sm text-foreground">
-                    <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                    {area}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-muted/50 rounded-xl p-4">
-              <p className="text-xs text-muted-foreground mb-2">
-                <strong className="text-foreground">Tip:</strong> To clean these areas, use Deep mode when you&apos;re home to help if the robot gets stuck.
+      {/* Skipped Areas Info Banner - shown when smooth mode completes */}
+      {showSkippedOnMap && skippedAreas.length > 0 && isCompleted && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="fixed bottom-24 left-4 right-4 z-30 bg-amber-500/90 backdrop-blur-sm rounded-xl p-4 shadow-lg"
+        >
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-white font-medium text-sm mb-1">Areas Skipped</p>
+              <p className="text-white/80 text-xs">
+                {skippedAreas.length} areas marked yellow on map were avoided to prevent getting stuck.
               </p>
             </div>
-            
-            <Button 
-              onClick={() => setShowSkippedFeedback(false)}
-              variant="outline"
-              className="w-full"
+            <button 
+              onClick={() => setShowSkippedOnMap(false)}
+              className="text-white/80 hover:text-white"
             >
-              Got it
-            </Button>
+              <X className="w-4 h-4" />
+            </button>
           </div>
-        </SheetContent>
-      </Sheet>
+        </motion.div>
+      )}
 
       {/* Map Editor Sheet */}
       <Sheet open={showMapEditor} onOpenChange={setShowMapEditor}>
