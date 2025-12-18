@@ -81,6 +81,8 @@ const DeviceControl = () => {
   const [roomCustomSettings, setRoomCustomSettings] = useState<Record<string, RoomCustomSettings>>({});
   const [carpetBoost, setCarpetBoost] = useState(true);
   const [mopWhileVacuum, setMopWhileVacuum] = useState(true);
+  const [showRoomNameEditor, setShowRoomNameEditor] = useState(false);
+  const [editableRoomNames, setEditableRoomNames] = useState<Record<string, string>>({});
 
   // Deep mode stuck simulation - robot gets stuck after 3 seconds
   useEffect(() => {
@@ -334,8 +336,8 @@ const DeviceControl = () => {
     navigate(`/device/${id}/create-map`);
   };
 
-  const vacuumLevels = ["Off", "Quiet", "Balanced", "Turbo", "Max"];
-  const waterLevels = ["Off", "Low", "Medium", "High", "Custom"];
+  const vacuumLevels = ["Low", "Quiet", "Balanced", "Turbo", "Max"];
+  const waterLevels = ["Off", "Low", "Medium", "High", "Max"];
 
   // SVG icons for vacuum power levels
   const VacuumIcon = ({ level, active }: { level: number; active: boolean }) => {
@@ -566,18 +568,10 @@ const DeviceControl = () => {
 
       {/* Mode Selector Sheet - Full height vertical layout */}
       <Sheet open={showModeSelector} onOpenChange={setShowModeSelector}>
-        <SheetContent side="bottom" className="bg-card rounded-t-3xl border-border h-[75vh]">
-          <SheetHeader className="pb-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-foreground">Start Cleaning</h2>
-              <button 
-                onClick={() => setShowModeSelector(false)}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <p className="text-sm text-muted-foreground text-left">Choose how Amphibia should clean</p>
+        <SheetContent side="bottom" className="bg-card rounded-t-3xl border-border h-[85vh] [&>button]:hidden">
+          <SheetHeader className="pb-6">
+            <h2 className="text-2xl font-bold text-foreground text-center">Choose Cleaning Mode</h2>
+            <p className="text-sm text-muted-foreground text-center">Select how Amphibia should clean your home</p>
           </SheetHeader>
           
           {/* Info Tooltip - shows once */}
@@ -587,12 +581,12 @@ const DeviceControl = () => {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="mb-4 bg-primary/10 border border-primary/20 rounded-xl p-3"
+                className="mb-6 bg-primary/10 border border-primary/20 rounded-xl p-3"
               >
                 <div className="flex items-start gap-2">
                   <Info className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
                   <p className="text-xs text-muted-foreground">
-                    Select a mode to start cleaning immediately. Each mode has different behaviors.
+                    Tap a mode to start cleaning immediately.
                   </p>
                 </div>
                 <button 
@@ -605,101 +599,78 @@ const DeviceControl = () => {
             )}
           </AnimatePresence>
           
-          <div className="space-y-3 flex-1">
+          <div className="space-y-4 flex-1">
             {/* Smooth Mode */}
             <motion.button
               whileTap={{ scale: 0.98 }}
               onClick={() => startCleaning("safe")}
-              className="w-full flex items-center gap-4 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-5 hover:bg-emerald-500/20 transition-all group"
+              className="w-full bg-emerald-500/10 border-2 border-emerald-500/30 rounded-2xl p-6 hover:bg-emerald-500/20 transition-all text-left"
             >
-              <div className="w-16 h-16 rounded-2xl bg-emerald-500/20 flex items-center justify-center group-hover:scale-105 transition-transform">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                  <path d="M4 12c0-4 4-8 8-8s8 4 8 8-4 8-8 8" stroke="hsl(158, 64%, 52%)" strokeWidth="2" strokeLinecap="round"/>
-                  <path d="M12 12l4-4" stroke="hsl(158, 64%, 52%)" strokeWidth="2" strokeLinecap="round"/>
-                  <circle cx="12" cy="12" r="2" fill="hsl(158, 64%, 52%)"/>
-                  <path d="M16 16l2 2" stroke="hsl(158, 64%, 52%)" strokeWidth="2" strokeLinecap="round"/>
-                </svg>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-foreground font-bold text-xl">Smooth</h3>
+                <div className="flex items-center gap-2">
+                  <span className="text-emerald-500 font-bold text-lg">~35 min</span>
+                </div>
               </div>
-              <div className="flex-1 text-left">
-                <h3 className="text-foreground font-bold text-lg">Smooth</h3>
-                <p className="text-muted-foreground text-sm">Avoids risky areas, won&apos;t get stuck</p>
-                <p className="text-emerald-500 text-xs mt-1 font-medium">Best when you&apos;re away</p>
-              </div>
-              <div className="text-right">
-                <div className="text-emerald-500 font-bold text-lg">~35</div>
-                <div className="text-muted-foreground text-xs">min</div>
-              </div>
+              <p className="text-muted-foreground text-sm mb-2">Avoids risky areas, won&apos;t get stuck</p>
+              <p className="text-emerald-500 text-xs font-medium">Best when you&apos;re away</p>
             </motion.button>
 
             {/* Deep Mode - Highlighted */}
             <motion.button
               whileTap={{ scale: 0.98 }}
               onClick={() => startCleaning("deep")}
-              className="w-full flex items-center gap-4 bg-primary/15 border-2 border-primary/50 rounded-2xl p-5 hover:bg-primary/25 transition-all group relative overflow-hidden"
+              className="w-full bg-primary/15 border-2 border-primary/50 rounded-2xl p-6 hover:bg-primary/25 transition-all text-left relative overflow-hidden"
             >
-              <div className="absolute top-2 right-2 px-2 py-0.5 bg-primary/20 rounded-full">
-                <span className="text-[10px] text-primary font-semibold">THOROUGH</span>
+              <div className="absolute top-3 right-3 px-2 py-0.5 bg-primary/30 rounded-full">
+                <span className="text-[10px] text-primary font-bold">THOROUGH</span>
               </div>
-              <div className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center group-hover:scale-105 transition-transform">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                  <rect x="4" y="4" width="16" height="16" rx="2" stroke="hsl(var(--primary))" strokeWidth="2"/>
-                  <path d="M8 8h8M8 12h8M8 16h8" stroke="hsl(var(--primary))" strokeWidth="2" strokeLinecap="round"/>
-                  <circle cx="18" cy="6" r="3" fill="hsl(var(--primary))" fillOpacity="0.3" stroke="hsl(var(--primary))" strokeWidth="1"/>
-                </svg>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-foreground font-bold text-xl">Deep</h3>
+                <div className="flex items-center gap-2">
+                  <span className="text-primary font-bold text-lg">~75 min</span>
+                </div>
               </div>
-              <div className="flex-1 text-left">
-                <h3 className="text-foreground font-bold text-lg">Deep</h3>
-                <p className="text-muted-foreground text-sm">Cleans every corner thoroughly</p>
-                <p className="text-primary text-xs mt-1 font-medium">May need assistance if stuck</p>
-              </div>
-              <div className="text-right">
-                <div className="text-primary font-bold text-lg">~75</div>
-                <div className="text-muted-foreground text-xs">min</div>
-              </div>
+              <p className="text-muted-foreground text-sm mb-2">Cleans every corner thoroughly</p>
+              <p className="text-primary text-xs font-medium">May need assistance if stuck</p>
             </motion.button>
 
-            {/* Custom Mode */}
+            {/* Custom Mode - White/Neutral */}
             <motion.button
               whileTap={{ scale: 0.98 }}
               onClick={() => {
                 setShowModeSelector(false);
                 setShowCustomMode(true);
               }}
-              className="w-full flex items-center gap-4 bg-violet-500/10 border border-violet-500/30 rounded-2xl p-5 hover:bg-violet-500/20 transition-all group"
+              className="w-full bg-muted/50 border-2 border-border rounded-2xl p-6 hover:bg-muted transition-all text-left"
             >
-              <div className="w-16 h-16 rounded-2xl bg-violet-500/20 flex items-center justify-center group-hover:scale-105 transition-transform">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                  <path d="M4 6h4M12 6h8" stroke="hsl(258, 90%, 66%)" strokeWidth="2" strokeLinecap="round"/>
-                  <path d="M4 12h8M16 12h4" stroke="hsl(258, 90%, 66%)" strokeWidth="2" strokeLinecap="round"/>
-                  <path d="M4 18h2M10 18h10" stroke="hsl(258, 90%, 66%)" strokeWidth="2" strokeLinecap="round"/>
-                  <circle cx="10" cy="6" r="2" fill="hsl(258, 90%, 66%)"/>
-                  <circle cx="14" cy="12" r="2" fill="hsl(258, 90%, 66%)"/>
-                  <circle cx="8" cy="18" r="2" fill="hsl(258, 90%, 66%)"/>
-                </svg>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-foreground font-bold text-xl">Custom</h3>
+                <ChevronRight className="w-5 h-5 text-muted-foreground" />
               </div>
-              <div className="flex-1 text-left">
-                <h3 className="text-foreground font-bold text-lg">Custom</h3>
-                <p className="text-muted-foreground text-sm">Different settings per room</p>
-                <p className="text-violet-500 text-xs mt-1 font-medium">Configure before starting</p>
-              </div>
-              <div className="flex items-center gap-1 text-violet-500">
-                <ChevronRight className="w-5 h-5" />
-              </div>
+              <p className="text-muted-foreground text-sm mb-2">Different settings per room</p>
+              <p className="text-foreground/70 text-xs font-medium">Configure before starting</p>
             </motion.button>
+          </div>
+          
+          {/* Cancel Button */}
+          <div className="pt-6">
+            <Button 
+              variant="ghost" 
+              onClick={() => setShowModeSelector(false)}
+              className="w-full text-muted-foreground"
+            >
+              Cancel
+            </Button>
           </div>
         </SheetContent>
       </Sheet>
 
       {/* Custom Mode Sheet */}
       <Sheet open={showCustomMode} onOpenChange={setShowCustomMode}>
-        <SheetContent side="bottom" className="bg-card rounded-t-3xl border-border h-[85vh] overflow-y-auto">
+        <SheetContent side="bottom" className="bg-card rounded-t-3xl border-border h-[85vh] overflow-y-auto [&>button]:hidden">
           <SheetHeader className="pb-4 sticky top-0 bg-card z-10">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-foreground">Custom Cleaning</h2>
-              <button onClick={() => setShowCustomMode(false)}>
-                <X className="w-5 h-5 text-muted-foreground" />
-              </button>
-            </div>
+            <h2 className="text-lg font-semibold text-foreground text-center">Custom Cleaning</h2>
           </SheetHeader>
           
           <div className="space-y-6 pb-24">
@@ -851,7 +822,7 @@ const DeviceControl = () => {
           <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-card via-card to-transparent">
             <Button 
               onClick={startCustomCleaning}
-              className="w-full h-12 rounded-2xl bg-violet-500 hover:bg-violet-600 text-white font-semibold"
+              className="w-full h-12 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
             >
               <Sparkles className="w-4 h-4 mr-2" />
               Start Custom Cleaning
@@ -945,19 +916,25 @@ const DeviceControl = () => {
               <>
                 {/* Room Names Section */}
                 <div>
-                  <p className="text-sm font-medium text-foreground mb-3">Room Names</p>
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-sm font-medium text-foreground">Room Names</p>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        setEditableRoomNames({...roomNames});
+                        setShowRoomNameEditor(true);
+                      }}
+                      className="text-xs h-8"
+                    >
+                      <Map className="w-3 h-3 mr-1" />
+                      Edit on Map
+                    </Button>
+                  </div>
                   <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto">
                     {Object.entries(roomNames).map(([roomId, name]) => (
                       <div key={roomId} className="flex items-center gap-2 bg-muted rounded-xl p-3">
-                        <input
-                          type="text"
-                          defaultValue={name}
-                          className="flex-1 bg-transparent text-sm text-foreground outline-none border-b border-transparent focus:border-primary transition-colors"
-                          onBlur={(e) => {
-                            // In a real app, this would update the room name
-                            console.log(`Rename ${roomId} to ${e.target.value}`);
-                          }}
-                        />
+                        <span className="flex-1 text-sm text-foreground">{name}</span>
                         <Pencil className="w-3 h-3 text-muted-foreground" />
                       </div>
                     ))}
@@ -1002,6 +979,138 @@ const DeviceControl = () => {
           </div>
         </SheetContent>
       </Sheet>
+
+      {/* Room Name Editor - Full Screen with Map */}
+      <AnimatePresence>
+        {showRoomNameEditor && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-background"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+              <button 
+                onClick={() => setShowRoomNameEditor(false)}
+                className="text-muted-foreground"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              <h2 className="text-base font-semibold text-foreground">Edit Room Names</h2>
+              <button 
+                onClick={() => {
+                  // Save changes
+                  console.log("Saved room names:", editableRoomNames);
+                  setShowRoomNameEditor(false);
+                }}
+                className="text-primary font-medium text-sm"
+              >
+                Save
+              </button>
+            </div>
+            
+            {/* Map with Room Name Labels */}
+            <div className="flex-1 relative h-[60vh]">
+              <FloorMap 
+                isRunning={false} 
+                isStuck={false}
+                isCompleted={false}
+                showLabels={false}
+                selectedRooms={[]}
+                onRoomSelect={() => {}}
+                currentCleaningRoom={undefined}
+                cleanedRooms={[]}
+              />
+              
+              {/* Editable Room Name Overlays */}
+              <div className="absolute inset-0 pointer-events-none">
+                {/* Living Room */}
+                <motion.div 
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.1 }}
+                  className="absolute pointer-events-auto"
+                  style={{ top: '30%', left: '20%' }}
+                >
+                  <input
+                    value={editableRoomNames.living || "Living Room"}
+                    onChange={(e) => setEditableRoomNames(prev => ({ ...prev, living: e.target.value }))}
+                    className="bg-card/90 backdrop-blur-sm text-foreground text-sm font-medium px-3 py-2 rounded-lg border border-primary shadow-lg text-center w-28 focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </motion.div>
+
+                {/* Kitchen */}
+                <motion.div 
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.15 }}
+                  className="absolute pointer-events-auto"
+                  style={{ top: '45%', left: '60%' }}
+                >
+                  <input
+                    value={editableRoomNames.kitchen || "Kitchen"}
+                    onChange={(e) => setEditableRoomNames(prev => ({ ...prev, kitchen: e.target.value }))}
+                    className="bg-card/90 backdrop-blur-sm text-foreground text-sm font-medium px-3 py-2 rounded-lg border border-primary shadow-lg text-center w-24 focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </motion.div>
+
+                {/* Bedroom 1 */}
+                <motion.div 
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="absolute pointer-events-auto"
+                  style={{ top: '65%', left: '15%' }}
+                >
+                  <input
+                    value={editableRoomNames.bedroom1 || "Bedroom 1"}
+                    onChange={(e) => setEditableRoomNames(prev => ({ ...prev, bedroom1: e.target.value }))}
+                    className="bg-card/90 backdrop-blur-sm text-foreground text-sm font-medium px-3 py-2 rounded-lg border border-primary shadow-lg text-center w-26 focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </motion.div>
+
+                {/* Bedroom 2 */}
+                <motion.div 
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.25 }}
+                  className="absolute pointer-events-auto"
+                  style={{ top: '65%', left: '55%' }}
+                >
+                  <input
+                    value={editableRoomNames.bedroom2 || "Bedroom 2"}
+                    onChange={(e) => setEditableRoomNames(prev => ({ ...prev, bedroom2: e.target.value }))}
+                    className="bg-card/90 backdrop-blur-sm text-foreground text-sm font-medium px-3 py-2 rounded-lg border border-primary shadow-lg text-center w-26 focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </motion.div>
+
+                {/* Bathroom */}
+                <motion.div 
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                  className="absolute pointer-events-auto"
+                  style={{ top: '20%', left: '70%' }}
+                >
+                  <input
+                    value={editableRoomNames.bathroom || "Bathroom"}
+                    onChange={(e) => setEditableRoomNames(prev => ({ ...prev, bathroom: e.target.value }))}
+                    className="bg-card/90 backdrop-blur-sm text-foreground text-sm font-medium px-3 py-2 rounded-lg border border-primary shadow-lg text-center w-24 focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </motion.div>
+              </div>
+            </div>
+            
+            {/* Instructions */}
+            <div className="p-4">
+              <p className="text-sm text-muted-foreground text-center">
+                Tap on a room name to edit it
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Personalize Sheet */}
       <Sheet open={showPersonalize} onOpenChange={setShowPersonalize}>
