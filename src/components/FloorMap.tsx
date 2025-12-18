@@ -109,6 +109,20 @@ const rooms: Room[] = [
   },
 ];
 
+// Get bounding box from path for easier click detection
+const getRoomBoundingBox = (path: string) => {
+  const matches = path.match(/\d+/g);
+  if (!matches) return { x: 0, y: 0, width: 0, height: 0 };
+  const nums = matches.map(Number);
+  const xs = nums.filter((_, i) => i % 2 === 0);
+  const ys = nums.filter((_, i) => i % 2 === 1);
+  const minX = Math.min(...xs);
+  const maxX = Math.max(...xs);
+  const minY = Math.min(...ys);
+  const maxY = Math.max(...ys);
+  return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
+};
+
 const furniture: Furniture[] = [
   // Living Room
   { type: "sofa", x: 28, y: 35, width: 25, height: 10 },
@@ -292,8 +306,19 @@ const FloorMap = ({
         {/* Outer walls - removed border, just for structure */}
 
         {/* Rooms */}
-        {rooms.map((room) => (
+        {rooms.map((room) => {
+          const bbox = getRoomBoundingBox(room.path);
+          return (
           <g key={room.id} onClick={() => onRoomSelect?.(room.id)} className="cursor-pointer">
+            {/* Invisible hitbox for easier clicking */}
+            <rect
+              x={bbox.x}
+              y={bbox.y}
+              width={bbox.width}
+              height={bbox.height}
+              fill="transparent"
+              className="cursor-pointer"
+            />
             <motion.path
               d={room.path}
               fill={
@@ -307,6 +332,7 @@ const FloorMap = ({
               strokeWidth={isRoomSelected(room.id) ? "3" : "1"}
               whileHover={{ opacity: 1 }}
               opacity={1}
+              pointerEvents="none"
             />
 
             {/* Cleaned room glow */}
@@ -400,7 +426,8 @@ const FloorMap = ({
               </motion.g>
             )}
           </g>
-        ))}
+        );
+        })}
 
         {/* Furniture outlines */}
         {furniture.map((item, i) => (
@@ -514,9 +541,9 @@ const FloorMap = ({
             <motion.circle
               cx={zone.x}
               cy={zone.y}
-              r="8"
+              r="10"
               fill="hsl(0, 70%, 50%)"
-              fillOpacity="0.3"
+              fillOpacity="0.35"
               stroke="hsl(0, 70%, 55%)"
               strokeWidth="2"
               initial={{ scale: 0, opacity: 0 }}
@@ -525,14 +552,25 @@ const FloorMap = ({
             />
             <text
               x={zone.x}
-              y={zone.y + 1.5}
+              y={zone.y - 1}
               textAnchor="middle"
-              fill="hsl(0, 70%, 90%)"
-              fontSize="6"
+              fill="white"
+              fontSize="5"
               fontWeight="bold"
               style={{ fontFamily: 'system-ui, sans-serif' }}
             >
               ⚠
+            </text>
+            <text
+              x={zone.x}
+              y={zone.y + 5}
+              textAnchor="middle"
+              fill="white"
+              fontSize="3"
+              fontWeight="500"
+              style={{ fontFamily: 'system-ui, sans-serif' }}
+            >
+              Stuck
             </text>
           </g>
         ))}
