@@ -46,7 +46,7 @@ const rooms: Room[] = [
     id: "living",
     name: "Living Room",
     path: "M20 20 L20 85 L70 85 L70 60 L100 60 L100 20 Z",
-    color: "hsl(210, 50%, 50%)",
+    color: "hsl(210, 55%, 58%)",
     labelX: 55,
     labelY: 50,
   },
@@ -54,7 +54,7 @@ const rooms: Room[] = [
     id: "dining",
     name: "Dining",
     path: "M20 90 L20 140 L65 140 L65 90 Z",
-    color: "hsl(210, 50%, 48%)",
+    color: "hsl(210, 55%, 55%)",
     labelX: 42,
     labelY: 115,
   },
@@ -62,7 +62,7 @@ const rooms: Room[] = [
     id: "hallway",
     name: "Hall",
     path: "M70 65 L70 140 L90 140 L90 65 Z",
-    color: "hsl(210, 45%, 42%)",
+    color: "hsl(210, 50%, 50%)",
     labelX: 80,
     labelY: 100,
   },
@@ -70,7 +70,7 @@ const rooms: Room[] = [
     id: "bedroom1",
     name: "Master Bed",
     path: "M105 20 L105 65 L155 65 L155 20 Z",
-    color: "hsl(45, 55%, 55%)",
+    color: "hsl(45, 60%, 62%)",
     labelX: 130,
     labelY: 42,
   },
@@ -78,7 +78,7 @@ const rooms: Room[] = [
     id: "bedroom2",
     name: "Bedroom",
     path: "M95 70 L95 115 L155 115 L155 70 Z",
-    color: "hsl(45, 50%, 52%)",
+    color: "hsl(45, 55%, 58%)",
     labelX: 125,
     labelY: 92,
   },
@@ -86,7 +86,7 @@ const rooms: Room[] = [
     id: "bathroom",
     name: "Bath",
     path: "M95 120 L95 160 L130 160 L130 120 Z",
-    color: "hsl(180, 45%, 48%)",
+    color: "hsl(180, 50%, 55%)",
     labelX: 112,
     labelY: 140,
   },
@@ -94,7 +94,7 @@ const rooms: Room[] = [
     id: "kitchen",
     name: "Kitchen",
     path: "M20 145 L20 195 L85 195 L85 165 L65 165 L65 145 Z",
-    color: "hsl(15, 50%, 52%)",
+    color: "hsl(15, 55%, 58%)",
     labelX: 50,
     labelY: 175,
   },
@@ -102,7 +102,7 @@ const rooms: Room[] = [
     id: "laundry",
     name: "Laundry",
     path: "M135 120 L135 160 L155 160 L155 120 Z",
-    color: "hsl(270, 40%, 50%)",
+    color: "hsl(270, 45%, 58%)",
     labelX: 145,
     labelY: 140,
   },
@@ -283,7 +283,7 @@ const FloorMap = ({
         <path
           d="M15 15 L15 200 L160 200 L160 115 L160 15 Z"
           fill="none"
-          stroke="hsl(210, 25%, 45%)"
+          stroke="hsl(210, 30%, 55%)"
           strokeWidth="4"
           strokeLinejoin="round"
         />
@@ -298,33 +298,13 @@ const FloorMap = ({
                   ? "url(#cleanedGradient)" 
                   : isRoomBeingCleaned(room.id) 
                     ? "url(#cleaningGradient)" 
-                    : isRoomSelected(room.id)
-                      ? `${room.color.replace(/\)$/, '')}, 1.15)`.replace('hsl', 'hsla').replace(/,\s*[\d.]+%\)/, (m) => {
-                          const val = parseFloat(m.match(/[\d.]+/)?.[0] || '50');
-                          return `, ${Math.min(val + 12, 70)}%)`;
-                        })
-                      : room.color
+                    : room.color
               }
-              stroke={isRoomSelected(room.id) ? "hsl(var(--primary))" : "hsl(210, 25%, 35%)"}
-              strokeWidth={isRoomSelected(room.id) ? "2.5" : "1"}
+              stroke={isRoomSelected(room.id) ? "hsl(var(--primary))" : "hsl(210, 30%, 45%)"}
+              strokeWidth={isRoomSelected(room.id) ? "3" : "1"}
               whileHover={{ opacity: 1 }}
-              opacity={isRoomSelected(room.id) ? 1 : 0.92}
-              animate={{
-                opacity: isRoomSelected(room.id) || isRoomBeingCleaned(room.id) ? 1 : 0.92,
-              }}
+              opacity={1}
             />
-
-            {/* Selection highlight - teal glow */}
-            {isRoomSelected(room.id) && (
-              <motion.path
-                d={room.path}
-                fill="hsla(var(--primary), 0.15)"
-                stroke="hsl(var(--primary))"
-                strokeWidth="3"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-              />
-            )}
 
             {/* Cleaned room glow */}
             {isRoomCleaned(room.id) && (
@@ -436,7 +416,7 @@ const FloorMap = ({
         ))}
 
         {/* Interior walls */}
-        <g stroke="hsl(210, 25%, 40%)" strokeWidth="2" strokeLinecap="round">
+        <g stroke="hsl(210, 30%, 50%)" strokeWidth="2" strokeLinecap="round">
           {/* Living/Dining divider */}
           <line x1="20" y1="85" x2="60" y2="85" />
           <line x1="70" y1="85" x2="70" y2="60" />
@@ -465,19 +445,19 @@ const FloorMap = ({
         {/* Doorways */}
         <g>
           {/* Living to Hallway */}
-          <rect x="68" y="72" width="4" height="10" fill="hsl(210, 45%, 42%)" />
+          <rect x="68" y="72" width="4" height="10" fill="hsl(210, 50%, 50%)" />
           {/* Dining to Hallway */}
-          <rect x="65" y="100" width="7" height="4" fill="hsl(210, 45%, 42%)" />
+          <rect x="65" y="100" width="7" height="4" fill="hsl(210, 50%, 50%)" />
           {/* Living to Bedroom 1 */}
-          <rect x="100" y="35" width="5" height="8" fill="hsl(210, 50%, 50%)" />
+          <rect x="100" y="35" width="5" height="8" fill="hsl(210, 55%, 58%)" />
           {/* Hallway to Bedroom 2 */}
-          <rect x="90" y="85" width="7" height="4" fill="hsl(210, 45%, 42%)" />
+          <rect x="90" y="85" width="7" height="4" fill="hsl(210, 50%, 50%)" />
           {/* Hallway to Bathroom */}
-          <rect x="90" y="130" width="7" height="4" fill="hsl(210, 45%, 42%)" />
+          <rect x="90" y="130" width="7" height="4" fill="hsl(210, 50%, 50%)" />
           {/* Dining to Kitchen */}
-          <rect x="35" y="140" width="8" height="7" fill="hsl(210, 50%, 48%)" />
+          <rect x="35" y="140" width="8" height="7" fill="hsl(210, 55%, 55%)" />
           {/* Bathroom to Laundry */}
-          <rect x="130" y="135" width="7" height="4" fill="hsl(180, 45%, 48%)" />
+          <rect x="130" y="135" width="7" height="4" fill="hsl(180, 50%, 55%)" />
         </g>
 
         {/* Skipped areas - yellow boxes */}
