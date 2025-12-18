@@ -572,16 +572,29 @@ const DeviceControl = () => {
           
           {/* Estimated/Remaining time - contextual */}
           {!isCompleted && !isStuck && !isCharging && (
-            <div className="mt-2 pt-2 border-t border-border/30 flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">
-                {isRunning ? "Time remaining" : `Estimated time for ${selectedRooms.length > 0 ? "selected rooms" : "all rooms"}`}
-              </span>
-              <span className="text-sm font-medium text-primary">
-                {isRunning 
-                  ? `${Math.floor(remainingTime / 60)}:${String(remainingTime % 60).padStart(2, '0')}`
-                  : `${selectedTime} min`
-                }
-              </span>
+            <div className="mt-2 pt-2 border-t border-border/30">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">
+                  {isRunning ? "Time remaining" : `Estimated time for ${selectedRooms.length > 0 ? "selected rooms" : "all rooms"}`}
+                </span>
+                <span className="text-sm font-medium text-primary">
+                  {isRunning 
+                    ? `${Math.floor(remainingTime / 60)}:${String(remainingTime % 60).padStart(2, '0')}`
+                    : `${selectedTime} min`
+                  }
+                </span>
+              </div>
+              {!isRunning && (
+                <div className="flex items-center justify-between mt-1">
+                  <span className="text-xs text-muted-foreground flex items-center gap-1">
+                    <Battery className="w-3 h-3" />
+                    Est. battery usage
+                  </span>
+                  <span className="text-xs font-medium text-muted-foreground">
+                    {Math.round(selectedTime * 0.65)}%
+                  </span>
+                </div>
+              )}
             </div>
           )}
         </motion.div>
