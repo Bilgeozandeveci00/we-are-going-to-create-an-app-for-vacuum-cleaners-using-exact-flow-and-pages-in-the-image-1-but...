@@ -72,9 +72,7 @@ const DeviceControl = () => {
   const [cleanedRooms, setCleanedRooms] = useState<string[]>([]);
   
   // New states for enhancements
-  const [showModeInfo, setShowModeInfo] = useState(() => {
-    return !localStorage.getItem("mode-info-dismissed");
-  });
+  const [showModeInfo, setShowModeInfo] = useState(true);
   const [showCustomMode, setShowCustomMode] = useState(false);
   const [skippedAreas, setSkippedAreas] = useState<string[]>([]);
   const [showSkippedFeedback, setShowSkippedFeedback] = useState(false);
@@ -126,10 +124,9 @@ const DeviceControl = () => {
     setBattery(93);
   };
   
-  // Dismiss mode info tooltip
+  // Dismiss mode info tooltip (can be reopened via ? button)
   const dismissModeInfo = () => {
     setShowModeInfo(false);
-    localStorage.setItem("mode-info-dismissed", "true");
   };
 
   // Initialize room custom settings
@@ -569,92 +566,130 @@ const DeviceControl = () => {
       {/* Mode Selector Sheet - Full height vertical layout */}
       <Sheet open={showModeSelector} onOpenChange={setShowModeSelector}>
         <SheetContent side="bottom" className="bg-card rounded-t-3xl border-border h-[85vh] [&>button]:hidden">
-          <SheetHeader className="pb-6">
-            <h2 className="text-2xl font-bold text-foreground text-center">Choose Cleaning Mode</h2>
+          <SheetHeader className="pb-4">
+            <div className="flex items-center justify-center gap-2">
+              <h2 className="text-2xl font-bold text-foreground text-center">Choose Cleaning Mode</h2>
+              {!showModeInfo && (
+                <button 
+                  onClick={() => setShowModeInfo(true)}
+                  className="w-6 h-6 rounded-full bg-muted flex items-center justify-center"
+                >
+                  <Info className="w-3.5 h-3.5 text-muted-foreground" />
+                </button>
+              )}
+            </div>
             <p className="text-sm text-muted-foreground text-center">Select how Amphibia should clean your home</p>
           </SheetHeader>
           
-          {/* Info Tooltip - shows once */}
+          {/* Info Panel - Dismissible */}
           <AnimatePresence>
             {showModeInfo && (
               <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="mb-6 bg-primary/10 border border-primary/20 rounded-xl p-3"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mb-4 overflow-hidden"
               >
-                <div className="flex items-start gap-2">
-                  <Info className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                  <p className="text-xs text-muted-foreground">
-                    Tap a mode to start cleaning immediately.
-                  </p>
+                <div className="bg-muted/50 border border-border rounded-xl p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Info className="w-4 h-4 text-primary" />
+                      <span className="text-sm font-medium text-foreground">Mode Guide</span>
+                    </div>
+                    <button 
+                      onClick={dismissModeInfo}
+                      className="w-6 h-6 rounded-full bg-muted flex items-center justify-center"
+                    >
+                      <X className="w-3.5 h-3.5 text-muted-foreground" />
+                    </button>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex gap-2">
+                      <div className="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 flex-shrink-0" />
+                      <p className="text-xs text-muted-foreground">
+                        <span className="text-emerald-500 font-medium">Smooth</span> - Robot avoids tight spaces and obstacles. Perfect for when you&apos;re away - it won&apos;t get stuck.
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <div className="w-2 h-2 rounded-full bg-primary mt-1.5 flex-shrink-0" />
+                      <p className="text-xs text-muted-foreground">
+                        <span className="text-primary font-medium">Deep</span> - Thorough cleaning of every corner. May need help if stuck in tight areas.
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <button 
-                  onClick={dismissModeInfo}
-                  className="text-xs text-primary mt-2 font-medium"
-                >
-                  Got it
-                </button>
               </motion.div>
             )}
           </AnimatePresence>
           
-          <div className="space-y-4 flex-1">
+          <div className="space-y-3 flex-1">
             {/* Smooth Mode */}
             <motion.button
               whileTap={{ scale: 0.98 }}
               onClick={() => startCleaning("safe")}
-              className="w-full bg-emerald-500/10 border-2 border-emerald-500/30 rounded-2xl p-6 hover:bg-emerald-500/20 transition-all text-left"
+              className="w-full bg-emerald-500/10 border-2 border-emerald-500/30 rounded-2xl p-5 hover:bg-emerald-500/20 transition-all text-left"
             >
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-foreground font-bold text-xl">Smooth</h3>
-                <div className="flex items-center gap-2">
-                  <span className="text-emerald-500 font-bold text-lg">~35 min</span>
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h3 className="text-foreground font-bold text-lg mb-1">Smooth</h3>
+                  <p className="text-muted-foreground text-sm mb-1">Avoids risky areas, won&apos;t get stuck</p>
+                  <p className="text-emerald-500 text-xs font-medium">Best when you&apos;re away</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-emerald-500 font-bold">~35 min</span>
+                  <div className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/30">
+                    <Play className="w-5 h-5 text-white ml-0.5" fill="white" />
+                  </div>
                 </div>
               </div>
-              <p className="text-muted-foreground text-sm mb-2">Avoids risky areas, won&apos;t get stuck</p>
-              <p className="text-emerald-500 text-xs font-medium">Best when you&apos;re away</p>
             </motion.button>
 
-            {/* Deep Mode - Highlighted */}
+            {/* Deep Mode */}
             <motion.button
               whileTap={{ scale: 0.98 }}
               onClick={() => startCleaning("deep")}
-              className="w-full bg-primary/15 border-2 border-primary/50 rounded-2xl p-6 hover:bg-primary/25 transition-all text-left relative overflow-hidden"
+              className="w-full bg-primary/15 border-2 border-primary/50 rounded-2xl p-5 hover:bg-primary/25 transition-all text-left relative overflow-hidden"
             >
               <div className="absolute top-3 right-3 px-2 py-0.5 bg-primary/30 rounded-full">
                 <span className="text-[10px] text-primary font-bold">THOROUGH</span>
               </div>
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-foreground font-bold text-xl">Deep</h3>
-                <div className="flex items-center gap-2">
-                  <span className="text-primary font-bold text-lg">~75 min</span>
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h3 className="text-foreground font-bold text-lg mb-1">Deep</h3>
+                  <p className="text-muted-foreground text-sm mb-1">Cleans every corner thoroughly</p>
+                  <p className="text-primary text-xs font-medium">May need assistance if stuck</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-primary font-bold">~75 min</span>
+                  <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
+                    <Play className="w-5 h-5 text-primary-foreground ml-0.5" fill="currentColor" />
+                  </div>
                 </div>
               </div>
-              <p className="text-muted-foreground text-sm mb-2">Cleans every corner thoroughly</p>
-              <p className="text-primary text-xs font-medium">May need assistance if stuck</p>
             </motion.button>
 
-            {/* Custom Mode - White/Neutral */}
+            {/* Custom Mode */}
             <motion.button
               whileTap={{ scale: 0.98 }}
               onClick={() => {
                 setShowModeSelector(false);
                 setShowCustomMode(true);
               }}
-              className="w-full bg-muted/50 border-2 border-border rounded-2xl p-6 hover:bg-muted transition-all text-left"
+              className="w-full bg-muted/50 border-2 border-border rounded-2xl p-5 hover:bg-muted transition-all text-left"
             >
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-foreground font-bold text-xl">Custom</h3>
-                <ChevronRight className="w-5 h-5 text-muted-foreground" />
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h3 className="text-foreground font-bold text-lg mb-1">Custom</h3>
+                  <p className="text-muted-foreground text-sm mb-1">Different settings per room</p>
+                  <p className="text-foreground/70 text-xs font-medium">Configure before starting</p>
+                </div>
+                <ChevronRight className="w-6 h-6 text-muted-foreground mt-2" />
               </div>
-              <p className="text-muted-foreground text-sm mb-2">Different settings per room</p>
-              <p className="text-foreground/70 text-xs font-medium">Configure before starting</p>
             </motion.button>
           </div>
           
           {/* Cancel Button */}
-          <div className="pt-6">
+          <div className="pt-4">
             <Button 
               variant="ghost" 
               onClick={() => setShowModeSelector(false)}
