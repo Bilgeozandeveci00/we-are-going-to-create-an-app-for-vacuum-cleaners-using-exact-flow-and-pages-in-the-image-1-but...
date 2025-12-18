@@ -986,16 +986,7 @@ const DeviceControl = () => {
                 <X className="w-5 h-5" />
               </button>
               <h2 className="text-base font-semibold text-foreground">Edit Room Names</h2>
-              <button 
-                onClick={() => {
-                  // Save changes
-                  console.log("Saved room names:", editableRoomNames);
-                  setShowRoomNameEditor(false);
-                }}
-                className="text-primary font-medium text-sm"
-              >
-                Save
-              </button>
+              <div className="w-5" /> {/* Spacer for alignment */}
             </div>
             
             {/* Map with Room Name Labels */}
@@ -1090,11 +1081,21 @@ const DeviceControl = () => {
               </div>
             </div>
             
-            {/* Instructions */}
-            <div className="p-4">
-              <p className="text-sm text-muted-foreground text-center">
+            {/* Save Button CTA */}
+            <div className="p-4 pb-8">
+              <p className="text-sm text-muted-foreground text-center mb-4">
                 Tap on a room name to edit it
               </p>
+              <Button 
+                onClick={() => {
+                  console.log("Saved room names:", editableRoomNames);
+                  setShowRoomNameEditor(false);
+                }}
+                className="w-full h-14 text-lg font-semibold rounded-2xl"
+              >
+                <Check className="w-5 h-5 mr-2" />
+                Save Changes
+              </Button>
             </div>
           </motion.div>
         )}
