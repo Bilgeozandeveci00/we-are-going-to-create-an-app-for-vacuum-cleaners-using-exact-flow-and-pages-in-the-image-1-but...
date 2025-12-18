@@ -613,6 +613,7 @@ const DeviceControl = () => {
               skippedAreas={skippedAreas}
               showSkippedAreas={showSkippedOnMap}
               dangerZones={dangerZones}
+              onDangerZoneRemove={(zoneId) => setDangerZones(prev => prev.filter(z => z.id !== zoneId))}
             />
           </div>
 
