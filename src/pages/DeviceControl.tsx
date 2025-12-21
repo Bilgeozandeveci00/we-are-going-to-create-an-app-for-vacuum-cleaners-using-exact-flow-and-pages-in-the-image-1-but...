@@ -1709,7 +1709,7 @@ const DeviceControl = () => {
 
       {/* Settings Sheet */}
       <Sheet open={showSettings} onOpenChange={setShowSettings}>
-        <SheetContent side="bottom" className="bg-card rounded-t-3xl border-border h-[85vh] overflow-y-auto">
+        <SheetContent side="bottom" className="bg-card rounded-t-3xl border-border h-auto max-h-[85vh] overflow-y-auto">
           <SheetHeader className="pb-4">
             <h2 className="text-lg font-semibold text-foreground text-center">Settings</h2>
           </SheetHeader>
