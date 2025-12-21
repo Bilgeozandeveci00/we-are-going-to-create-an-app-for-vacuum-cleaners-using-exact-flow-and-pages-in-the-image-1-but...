@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import FloatingPresetShelf from "@/components/FloatingPresetShelf";
 import {
   MoreHorizontal,
   Play,
@@ -708,70 +709,78 @@ const DeviceControl = () => {
         </div>
       </div>
 
-      {/* Bottom Control Panel - Simplified */}
-      <div className="mx-4 mb-4 rounded-2xl bg-card border border-border p-4 safe-area-bottom">
-
-        {/* Control Buttons */}
-        <div className="flex items-center justify-center gap-6">
-          {/* Settings Button - Shows current vacuum/water settings preview */}
-          <button 
-            className="flex flex-col items-center gap-1.5"
-            onClick={() => setShowPersonalize(true)}
-          >
-            <div className="w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center">
-              <Settings2 className="w-5 h-5 text-primary" />
-            </div>
-            <span className="text-xs text-muted-foreground">Customize</span>
-            {/* Compact settings preview */}
-            <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-muted/60 border border-border/40">
-              <div className="flex items-center gap-1">
-                <VacuumIcon level={vacuumPower} active={true} size={14} />
-                <span className="text-[9px] font-medium text-primary">{vacuumLevels[vacuumPower]}</span>
-              </div>
-              <div className="w-px h-2.5 bg-border/60" />
-              <div className="flex items-center gap-1">
-                <WaterIcon level={waterFlow} active={true} size={14} />
-                <span className="text-[9px] font-medium text-primary">{waterLevels[waterFlow]}</span>
-              </div>
-            </div>
-          </button>
-
-          {/* Play/Pause Button */}
-          <motion.button
-            whileTap={{ scale: (isCharging && battery < 50) ? 1 : 0.95 }}
-            onClick={(isCharging && battery < 50) ? undefined : handleStartStop}
-            className="relative flex flex-col items-center"
-            disabled={isCharging && battery < 50}
-          >
-            <div className={`w-16 h-16 rounded-full flex items-center justify-center border-2 ${
-              (isCharging && battery < 50)
-                ? "bg-muted border-muted-foreground/30" 
-                : "bg-gradient-to-b from-primary/30 to-primary/50 border-primary/40"
-            }`}>
-              {(isCharging && battery < 50) ? (
-                <span className="text-xs font-medium text-muted-foreground">{Math.ceil((100 - battery) / 10)} min</span>
-              ) : isRunning ? (
-                <Pause className="w-7 h-7 text-primary" />
-              ) : (
-                <Play className="w-7 h-7 text-primary ml-1" />
-              )}
-            </div>
-          </motion.button>
-
-          {/* Return Button - Only visible when running */}
-          {isRunning ? (
-            <button 
-              className="flex flex-col items-center gap-1"
-              onClick={handleDock}
-              disabled={isDocking}
-            >
-              <div className={`w-12 h-12 rounded-full border border-border flex items-center justify-center ${isDocking ? "animate-pulse border-primary bg-primary/10" : "bg-muted/50"}`}>
-                <span className="text-xs font-semibold text-muted-foreground">Return</span>
-              </div>
-            </button>
-          ) : (
-            <div className="w-12" />
+      {/* Bottom Control Panel - With Floating Preset Shelf */}
+      <div className="relative mx-4 mb-4">
+        {/* Floating Preset Shelf - Above the control panel */}
+        <AnimatePresence>
+          {!isRunning && (
+            <FloatingPresetShelf
+              presets={customPresets}
+              selectedPreset={selectedPreset}
+              onSelectPreset={setSelectedPreset}
+              onCreateNew={() => setShowNewPresetModal(true)}
+              vacuumPower={vacuumPower}
+              waterFlow={waterFlow}
+              vacuumLevels={vacuumLevels}
+              waterLevels={waterLevels}
+            />
           )}
+        </AnimatePresence>
+
+        {/* Main Control Panel */}
+        <div className="rounded-2xl bg-card border border-border p-4 safe-area-bottom">
+          {/* Control Buttons */}
+          <div className="flex items-center justify-center gap-6">
+            {/* Settings Button - Simplified, connected to shelf */}
+            <button 
+              className="flex flex-col items-center gap-1.5"
+              onClick={() => setShowPersonalize(true)}
+            >
+              <div className="w-12 h-12 rounded-full bg-primary/10 border-2 border-primary/30 flex items-center justify-center relative">
+                <Settings2 className="w-5 h-5 text-primary" />
+                {/* Connection dot */}
+                <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-primary/40" />
+              </div>
+              <span className="text-xs font-medium text-primary">Customize</span>
+            </button>
+
+            {/* Play/Pause Button */}
+            <motion.button
+              whileTap={{ scale: (isCharging && battery < 50) ? 1 : 0.95 }}
+              onClick={(isCharging && battery < 50) ? undefined : handleStartStop}
+              className="relative flex flex-col items-center"
+              disabled={isCharging && battery < 50}
+            >
+              <div className={`w-16 h-16 rounded-full flex items-center justify-center border-2 ${
+                (isCharging && battery < 50)
+                  ? "bg-muted border-muted-foreground/30" 
+                  : "bg-gradient-to-b from-primary/30 to-primary/50 border-primary/40"
+              }`}>
+                {(isCharging && battery < 50) ? (
+                  <span className="text-xs font-medium text-muted-foreground">{Math.ceil((100 - battery) / 10)} min</span>
+                ) : isRunning ? (
+                  <Pause className="w-7 h-7 text-primary" />
+                ) : (
+                  <Play className="w-7 h-7 text-primary ml-1" />
+                )}
+              </div>
+            </motion.button>
+
+            {/* Return Button - Only visible when running */}
+            {isRunning ? (
+              <button 
+                className="flex flex-col items-center gap-1"
+                onClick={handleDock}
+                disabled={isDocking}
+              >
+                <div className={`w-12 h-12 rounded-full border border-border flex items-center justify-center ${isDocking ? "animate-pulse border-primary bg-primary/10" : "bg-muted/50"}`}>
+                  <span className="text-xs font-semibold text-muted-foreground">Return</span>
+                </div>
+              </button>
+            ) : (
+              <div className="w-12" />
+            )}
+          </div>
         </div>
       </div>
 
