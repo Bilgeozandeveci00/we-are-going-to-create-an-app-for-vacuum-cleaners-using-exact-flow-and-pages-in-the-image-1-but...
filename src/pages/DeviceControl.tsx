@@ -723,26 +723,26 @@ const DeviceControl = () => {
           )}
         </AnimatePresence>
 
-      {/* Main Control Panel */}
-        <div className="rounded-2xl bg-card border border-border p-3 safe-area-bottom">
+      {/* Main Control */}
+        <div className="flex items-center justify-center pb-2 safe-area-bottom">
           {isRunning ? (
             /* Running state - Pause button with status */
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={handleStartStop}
-                className="w-16 h-16 rounded-full bg-primary glow-primary flex items-center justify-center flex-shrink-0"
+                className="w-16 h-16 rounded-full bg-primary glow-primary flex items-center justify-center"
               >
                 <Pause className="w-7 h-7 text-primary-foreground" />
               </motion.button>
               
-              <div className="flex-1 flex flex-col gap-1">
+              <div className="flex flex-col gap-0.5">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                  <span className="text-sm font-medium">Cleaning in progress</span>
+                  <span className="text-sm font-medium">Cleaning</span>
                 </div>
                 <span className="text-xs text-muted-foreground">
-                  {Math.floor(remainingTime / 60)}:{(remainingTime % 60).toString().padStart(2, '0')} remaining
+                  {Math.floor(remainingTime / 60)}:{(remainingTime % 60).toString().padStart(2, '0')} left
                 </span>
               </div>
               
@@ -751,30 +751,27 @@ const DeviceControl = () => {
                 animate={{ opacity: 1, x: 0 }}
                 onClick={handleDock}
                 disabled={isDocking}
-                className="flex items-center gap-2 px-4 py-3 rounded-xl bg-muted/50 border border-border/50"
+                className="w-12 h-12 rounded-full bg-muted/80 border border-border/50 flex items-center justify-center"
               >
                 <Home className="w-5 h-5 text-muted-foreground" />
               </motion.button>
             </div>
           ) : (isCharging && battery < 50) ? (
             /* Charging state - disabled */
-            <div className="flex items-center justify-center gap-3 py-2">
+            <div className="flex items-center gap-3">
               <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
                 <span className="text-sm font-medium text-muted-foreground">{Math.ceil((100 - battery) / 10)}m</span>
               </div>
-              <span className="text-sm text-muted-foreground">Charging before clean</span>
             </div>
           ) : (
             /* Idle state - Simple centered start button */
-            <div className="flex items-center justify-center py-2">
-              <motion.button
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setShowModeSelector(true)}
-                className="w-16 h-16 rounded-full bg-primary glow-primary flex items-center justify-center"
-              >
-                <Play className="w-7 h-7 text-primary-foreground ml-0.5" fill="currentColor" />
-              </motion.button>
-            </div>
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowModeSelector(true)}
+              className="w-16 h-16 rounded-full bg-primary glow-primary flex items-center justify-center"
+            >
+              <Play className="w-7 h-7 text-primary-foreground ml-0.5" fill="currentColor" />
+            </motion.button>
           )}
         </div>
       </div>
