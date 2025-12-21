@@ -745,7 +745,7 @@ const DeviceControl = () => {
             </div>
           </motion.button>
 
-          {/* Return Button - Only visible when running */}
+          {/* Return Button - Only visible when running, Fast Start when idle */}
           {isRunning ? (
             <button 
               className="flex flex-col items-center gap-1"
@@ -757,7 +757,18 @@ const DeviceControl = () => {
               </div>
             </button>
           ) : (
-            <div className="w-12" />
+            <button 
+              className="flex flex-col items-center gap-1"
+              onClick={() => startCleaning("normal")}
+              disabled={isCharging && battery < 50}
+            >
+              <div className={`w-12 h-12 rounded-full border border-border flex items-center justify-center ${
+                (isCharging && battery < 50) ? "bg-muted/30" : "bg-muted/50 hover:bg-muted"
+              } transition-colors`}>
+                <Zap className={`w-5 h-5 ${(isCharging && battery < 50) ? "text-muted-foreground/50" : "text-primary"}`} />
+              </div>
+              <span className="text-xs text-muted-foreground">Fast</span>
+            </button>
           )}
         </div>
       </div>
