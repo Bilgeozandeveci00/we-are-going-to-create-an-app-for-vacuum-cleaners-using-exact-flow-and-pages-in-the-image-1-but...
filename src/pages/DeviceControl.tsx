@@ -1540,8 +1540,8 @@ const DeviceControl = () => {
       {/* Personalize Sheet */}
       <Sheet open={showPersonalize} onOpenChange={setShowPersonalize}>
         <SheetContent side="bottom" className="bg-card rounded-t-3xl border-border">
-          <SheetHeader className="pb-4">
-            <h2 className="text-lg font-semibold text-foreground text-left">General</h2>
+          <SheetHeader className="pb-5">
+            <h2 className="text-lg font-semibold text-foreground text-left">Customize</h2>
           </SheetHeader>
           
           <div className="space-y-6">
@@ -1549,15 +1549,17 @@ const DeviceControl = () => {
             <div>
               <div className="flex items-center justify-between mb-3">
                 <span className="text-foreground font-medium">Vacuum Power</span>
-                <span className="text-primary text-sm">{vacuumLevels[vacuumPower]}</span>
+                <span className="text-primary text-sm font-medium">{vacuumLevels[vacuumPower]}</span>
               </div>
-              <div className="flex items-center bg-muted rounded-full p-1">
+              <div className="grid grid-cols-5 gap-2">
                 {[0, 1, 2, 3, 4].map((level) => (
                   <button
                     key={level}
                     onClick={() => setVacuumPower(level)}
-                    className={`flex-1 py-2.5 rounded-full flex items-center justify-center transition-colors ${
-                      vacuumPower === level ? "bg-card shadow" : ""
+                    className={`py-3 rounded-xl flex items-center justify-center transition-all ${
+                      vacuumPower === level 
+                        ? "bg-primary/15 border-2 border-primary shadow-sm" 
+                        : "bg-muted border-2 border-transparent hover:bg-muted/80"
                     }`}
                   >
                     <VacuumIcon level={level} active={vacuumPower === level} />
@@ -1570,15 +1572,17 @@ const DeviceControl = () => {
             <div>
               <div className="flex items-center justify-between mb-3">
                 <span className="text-foreground font-medium">Water Flow</span>
-                <span className="text-primary text-sm">{waterLevels[waterFlow]}</span>
+                <span className="text-sky-400 text-sm font-medium">{waterLevels[waterFlow]}</span>
               </div>
-              <div className="flex items-center bg-muted rounded-full p-1">
+              <div className="grid grid-cols-5 gap-2">
                 {[0, 1, 2, 3, 4].map((level) => (
                   <button
                     key={level}
                     onClick={() => setWaterFlow(level)}
-                    className={`flex-1 py-2.5 rounded-full flex items-center justify-center transition-colors ${
-                      waterFlow === level ? "bg-card shadow" : ""
+                    className={`py-3 rounded-xl flex items-center justify-center transition-all ${
+                      waterFlow === level 
+                        ? "bg-sky-400/15 border-2 border-sky-400 shadow-sm" 
+                        : "bg-muted border-2 border-transparent hover:bg-muted/80"
                     }`}
                   >
                     <WaterIcon level={level} active={waterFlow === level} />
@@ -1588,15 +1592,9 @@ const DeviceControl = () => {
             </div>
 
             {/* Floor Management */}
-            <div className="border-t border-border pt-4">
+            <div className="border-t border-border/50 pt-5">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-foreground font-medium">Floors</span>
-                <button 
-                  onClick={handleAddFloor}
-                  className="text-primary text-sm font-medium"
-                >
-                  + Add Floor
-                </button>
               </div>
               <div className="space-y-2">
                 {floors.map((floor) => (
@@ -1606,17 +1604,28 @@ const DeviceControl = () => {
                       setSelectedFloor(floor.id);
                       setShowPersonalize(false);
                     }}
-                    className={`w-full flex items-center gap-3 p-3 rounded-xl transition-colors ${
-                      selectedFloor === floor.id ? "bg-primary/20 border border-primary/30" : "bg-muted"
+                    className={`w-full flex items-center gap-3 p-3.5 rounded-xl transition-all ${
+                      selectedFloor === floor.id 
+                        ? "bg-primary/15 border-2 border-primary" 
+                        : "bg-muted border-2 border-transparent hover:bg-muted/80"
                     }`}
                   >
-                    <Layers className="w-4 h-4 text-primary" />
-                    <span className="text-foreground text-sm flex-1 text-left">{floor.name}</span>
+                    <Layers className={`w-5 h-5 ${selectedFloor === floor.id ? "text-primary" : "text-muted-foreground"}`} />
+                    <span className="text-foreground text-sm font-medium flex-1 text-left">{floor.name}</span>
                     {selectedFloor === floor.id && (
-                      <span className="text-xs text-primary">Active</span>
+                      <span className="text-xs text-primary font-medium px-2 py-0.5 bg-primary/10 rounded-md">Active</span>
                     )}
                   </button>
                 ))}
+                
+                {/* Add Floor Button */}
+                <button 
+                  onClick={handleAddFloor}
+                  className="w-full flex items-center justify-center gap-2 p-3.5 rounded-xl border-2 border-dashed border-border hover:border-primary hover:bg-primary/5 transition-all group"
+                >
+                  <span className="text-muted-foreground group-hover:text-primary transition-colors text-lg font-light">+</span>
+                  <span className="text-muted-foreground group-hover:text-primary transition-colors text-sm font-medium">Add Floor</span>
+                </button>
               </div>
             </div>
 
