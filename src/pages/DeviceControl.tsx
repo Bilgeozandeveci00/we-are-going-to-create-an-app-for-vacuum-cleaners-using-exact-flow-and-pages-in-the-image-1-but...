@@ -520,28 +520,29 @@ const DeviceControl = () => {
         <motion.div 
           className={`rounded-2xl p-4 ${
             isStuck 
-              ? "bg-destructive/20 border border-destructive/30" 
+              ? "bg-destructive/10 border border-destructive/20" 
               : isCompleted 
-                ? "bg-emerald-500/20 border border-emerald-500/30"
+                ? "bg-emerald-500/10 border border-emerald-500/20"
                 : isCharging
-                  ? "bg-amber-500/20 border border-amber-500/30"
+                  ? "bg-amber-500/10 border border-amber-500/20"
                   : isRunning
-                    ? "bg-primary/15 border border-primary/30"
-                    : "bg-card border border-border/50"
+                    ? "bg-primary/10 border border-primary/20"
+                    : "bg-card/80 border border-border/30"
           }`}
-          animate={isRunning || isCharging ? { opacity: [0.9, 1, 0.9] } : {}}
+          animate={isRunning || isCharging ? { opacity: [0.95, 1, 0.95] } : {}}
           transition={{ duration: 2, repeat: Infinity }}
         >
+          {/* Main Status Row */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <motion.div 
-                className={`w-3 h-3 rounded-full ${
-                  isStuck ? "bg-destructive" : isCompleted ? "bg-emerald-500" : isCharging ? "bg-amber-500" : isRunning ? "bg-primary" : "bg-muted-foreground"
+                className={`w-2.5 h-2.5 rounded-full ${
+                  isStuck ? "bg-destructive" : isCompleted ? "bg-emerald-500" : isCharging ? "bg-amber-500" : isRunning ? "bg-primary" : "bg-muted-foreground/60"
                 }`}
-                animate={isRunning || isCharging ? { scale: [1, 1.3, 1] } : {}}
-                transition={{ duration: 1, repeat: Infinity }}
+                animate={isRunning || isCharging ? { scale: [1, 1.4, 1], opacity: [1, 0.7, 1] } : {}}
+                transition={{ duration: 1.2, repeat: Infinity }}
               />
-              <h2 className={`text-lg font-semibold ${
+              <span className={`text-base font-medium ${
                 isStuck ? "text-destructive" : isCompleted ? "text-emerald-500" : isCharging ? "text-amber-500" : "text-foreground"
               }`}>
                 {isStuck
@@ -560,41 +561,41 @@ const DeviceControl = () => {
                             ? `${selectedRooms.length} room${selectedRooms.length > 1 ? "s" : ""} selected`
                             : "Ready for cleaning"
                 }
-              </h2>
+              </span>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1.5">
-                <Battery className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium text-foreground">{battery}%</span>
-              </div>
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary/10">
+              <Battery className="w-4 h-4 text-primary" />
+              <span className="text-sm font-semibold text-primary">{battery}%</span>
             </div>
           </div>
           
-          {/* Estimated/Remaining time - contextual */}
+          {/* Stats Row - Only when not stuck/completed/charging */}
           {!isCompleted && !isStuck && !isCharging && (
-            <div className="mt-2 pt-2 border-t border-border/30">
-              <div className="flex items-center justify-between">
+            <div className="mt-3 pt-3 border-t border-border/20 flex items-center justify-between">
+              <div className="flex items-center gap-2">
                 <span className="text-xs text-muted-foreground">
                   {isRunning ? "Time remaining" : `Estimated time for ${selectedRooms.length > 0 ? "selected rooms" : "all rooms"}`}
                 </span>
-                <span className="text-sm font-medium text-primary">
-                  {isRunning 
-                    ? `${Math.floor(remainingTime / 60)}:${String(remainingTime % 60).padStart(2, '0')}`
-                    : `${selectedTime} min`
-                  }
-                </span>
               </div>
-              {!isRunning && (
-                <div className="flex items-center justify-between mt-1">
-                  <span className="text-xs text-muted-foreground flex items-center gap-1">
-                    <Battery className="w-3 h-3" />
-                    Est. battery usage
-                  </span>
-                  <span className="text-xs font-medium text-muted-foreground">
-                    {Math.round(selectedTime * 0.65)}%
-                  </span>
-                </div>
-              )}
+              <span className="text-sm font-semibold text-primary">
+                {isRunning 
+                  ? `${Math.floor(remainingTime / 60)}:${String(remainingTime % 60).padStart(2, '0')}`
+                  : `${selectedTime} min`
+                }
+              </span>
+            </div>
+          )}
+          
+          {/* Battery Usage Estimate - Only when idle */}
+          {!isRunning && !isCompleted && !isStuck && !isCharging && (
+            <div className="flex items-center justify-between mt-1.5">
+              <div className="flex items-center gap-1.5">
+                <Battery className="w-3.5 h-3.5 text-muted-foreground" />
+                <span className="text-xs text-muted-foreground">Est. battery usage</span>
+              </div>
+              <span className="text-xs font-medium text-muted-foreground">
+                {Math.round(selectedTime * 0.65)}%
+              </span>
             </div>
           )}
         </motion.div>
