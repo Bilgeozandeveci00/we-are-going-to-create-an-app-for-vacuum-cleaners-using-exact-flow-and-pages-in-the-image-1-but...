@@ -55,10 +55,12 @@ const DeviceControl = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [isRunning, setIsRunning] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const [isDocking, setIsDocking] = useState(false);
   const [isCharging, setIsCharging] = useState(false);
   const [isStuck, setIsStuck] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [showSkippedPopup, setShowSkippedPopup] = useState(false);
   const [battery, setBattery] = useState(93);
   const [selectedTab, setSelectedTab] = useState<"safe" | "normal" | "deep">("normal");
   const [selectedFloor, setSelectedFloor] = useState(1);
@@ -139,6 +141,7 @@ const DeviceControl = () => {
       const timer = setTimeout(() => {
         setIsCompleted(true);
         setIsRunning(false);
+        setIsPaused(false);
         setCleanedRooms(selectedRooms.length > 0 ? selectedRooms : Object.keys(roomNames));
         setCurrentCleaningRoom(undefined);
         // Simulate skipped areas in safe mode - shown on map
@@ -148,6 +151,9 @@ const DeviceControl = () => {
           { id: "skip3", name: "Kitchen corner", x: 22, y: 178, width: 10, height: 10 },
         ]);
         setShowSkippedOnMap(true);
+        // Show popup for 4 seconds
+        setShowSkippedPopup(true);
+        setTimeout(() => setShowSkippedPopup(false), 4000);
       }, 10000);
       return () => clearTimeout(timer);
     }
@@ -263,6 +269,7 @@ const DeviceControl = () => {
     setShowModeSelector(false);
     setIsStuck(false);
     setIsCompleted(false);
+    setIsPaused(false);
     setCleanedRooms([]);
     setSkippedAreas([]);
     setShowSkippedOnMap(false);
@@ -318,6 +325,7 @@ const DeviceControl = () => {
     setShowModeSelector(false);
     setIsStuck(false);
     setIsCompleted(false);
+    setIsPaused(false);
     setCleanedRooms([]);
     setCurrentCleaningRoom(undefined);
     setRemainingTime(cleaningTime * 60); // Convert to seconds
@@ -326,8 +334,14 @@ const DeviceControl = () => {
 
   const handleStartStop = () => {
     if (isRunning) {
+      // Pause cleaning
       setIsRunning(false);
+      setIsPaused(true);
       setCurrentCleaningRoom(undefined);
+    } else if (isPaused) {
+      // Resume from paused state
+      setIsPaused(false);
+      setIsRunning(true);
     } else if (isStuck) {
       // Continue from stuck state - don't show mode selector
       setIsStuck(false);
@@ -361,6 +375,7 @@ const DeviceControl = () => {
 
   const handleDock = () => {
     setIsRunning(false);
+    setIsPaused(false);
     setIsDocking(true);
     // Simulate docking process
     setTimeout(() => {
@@ -527,9 +542,11 @@ const DeviceControl = () => {
                 ? "bg-emerald-500/10 border border-emerald-500/20"
                 : isCharging
                   ? "bg-emerald-500/5 border border-emerald-500/20"
-                  : isRunning
-                    ? "bg-primary/10 border border-primary/20"
-                    : "bg-card/80 border border-border/30"
+                  : isPaused
+                    ? "bg-amber-500/10 border border-amber-500/20"
+                    : isRunning
+                      ? "bg-primary/10 border border-primary/20"
+                      : "bg-card/80 border border-border/30"
           }`}
           animate={isRunning || isCharging ? { opacity: [0.95, 1, 0.95] } : {}}
           transition={{ duration: 2, repeat: Infinity }}
@@ -542,13 +559,13 @@ const DeviceControl = () => {
               <div className="flex items-center gap-2.5 mb-1">
                 <motion.div 
                   className={`w-2.5 h-2.5 rounded-full ${
-                    isStuck ? "bg-destructive" : isCompleted ? "bg-emerald-500" : isCharging ? "bg-emerald-500" : isRunning ? "bg-primary" : "bg-primary"
+                    isStuck ? "bg-destructive" : isCompleted ? "bg-emerald-500" : isCharging ? "bg-emerald-500" : isPaused ? "bg-amber-500" : isRunning ? "bg-primary" : "bg-primary"
                   }`}
                   animate={isRunning || isCharging ? { scale: [1, 1.4, 1], opacity: [1, 0.7, 1] } : {}}
                   transition={{ duration: 1.2, repeat: Infinity }}
                 />
                 <h2 className={`text-lg font-semibold ${
-                  isStuck ? "text-destructive" : isCompleted ? "text-emerald-500" : isCharging ? "text-emerald-500" : "text-foreground"
+                  isStuck ? "text-destructive" : isCompleted ? "text-emerald-500" : isCharging ? "text-emerald-500" : isPaused ? "text-amber-500" : "text-foreground"
                 }`}>
                   {isStuck
                     ? "Amphibia needs help"
@@ -557,12 +574,14 @@ const DeviceControl = () => {
                       : isCharging
                         ? "Charging"
                         : isDocking 
-                          ? "Returning to dock" 
-                          : isRunning 
-                            ? "Cleaning in progress"
-                            : selectedRooms.length > 0
-                              ? `${selectedRooms.length} room${selectedRooms.length !== 1 ? 's' : ''} selected`
-                              : "Amphibia is ready"
+                          ? "Returning to dock"
+                          : isPaused
+                            ? "Paused"
+                            : isRunning 
+                              ? "Cleaning in progress"
+                              : selectedRooms.length > 0
+                                ? `${selectedRooms.length} room${selectedRooms.length !== 1 ? 's' : ''} selected`
+                                : "Amphibia is ready"
                   }
                 </h2>
               </div>
@@ -576,12 +595,14 @@ const DeviceControl = () => {
                     : isCharging
                       ? `Full in ~25 min`
                       : isDocking 
-                        ? "Heading home" 
-                        : isRunning 
-                          ? `${currentCleaningRoom ? roomNames[currentCleaningRoom] || currentCleaningRoom : 'Working'} • ${Math.floor(remainingTime / 60)}:${String(remainingTime % 60).padStart(2, '0')} left`
-                          : selectedRooms.length > 0
-                            ? `Ready to clean • ${selectedTime} min`
-                            : `All ${Object.keys(roomNames).length} rooms • ${selectedTime} min`
+                        ? "Heading home"
+                        : isPaused
+                          ? "Press Start to continue"
+                          : isRunning 
+                            ? `${currentCleaningRoom ? roomNames[currentCleaningRoom] || currentCleaningRoom : 'Working'} • ${Math.floor(remainingTime / 60)}:${String(remainingTime % 60).padStart(2, '0')} left`
+                            : selectedRooms.length > 0
+                              ? `Ready to clean • ${selectedTime} min`
+                              : `All ${Object.keys(roomNames).length} rooms • ${selectedTime} min`
                 }
               </p>
             </div>
@@ -726,6 +747,30 @@ const DeviceControl = () => {
               </motion.div>
             )}
           </AnimatePresence>
+
+          {/* Skipped Areas Popup - Shows after smooth mode completion */}
+          <AnimatePresence>
+            {showSkippedPopup && skippedAreas.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="absolute top-4 left-4 right-4 z-30"
+              >
+                <div className="bg-amber-500/95 backdrop-blur-sm px-4 py-3 rounded-xl border border-amber-400/50 shadow-lg">
+                  <div className="flex items-center gap-2 mb-1">
+                    <AlertTriangle className="w-4 h-4 text-white" />
+                    <span className="text-sm font-semibold text-white">
+                      {skippedAreas.length} area{skippedAreas.length > 1 ? 's' : ''} skipped
+                    </span>
+                  </div>
+                  <p className="text-xs text-white/90">
+                    {skippedAreas.map(a => a.name).join(', ')}
+                  </p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 
@@ -744,6 +789,32 @@ const DeviceControl = () => {
               >
                 <Pause className="w-5 h-5 text-destructive-foreground" />
                 <span className="text-sm font-medium text-destructive-foreground">Stop</span>
+              </motion.button>
+              
+              <motion.button
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                whileTap={{ scale: 0.97 }}
+                whileHover={{ scale: 1.02 }}
+                onClick={handleDock}
+                disabled={isDocking}
+                className="flex-1 flex items-center justify-center gap-3 py-3.5 rounded-2xl bg-gradient-to-b from-muted to-muted/80 border border-border/40 shadow-[0_2px_8px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.05)]"
+              >
+                <Home className="w-5 h-5 text-foreground" />
+                <span className="text-sm font-medium text-foreground">Return</span>
+              </motion.button>
+            </div>
+          ) : isPaused ? (
+            /* Paused state - Start and Return buttons side by side */
+            <div className="flex items-center gap-3 w-full">
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                whileHover={{ scale: 1.02 }}
+                onClick={handleStartStop}
+                className="flex-1 flex items-center justify-center gap-3 py-3.5 rounded-2xl bg-gradient-to-b from-primary to-primary/80 border border-primary/40 shadow-[0_2px_8px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.1)]"
+              >
+                <Play className="w-5 h-5 text-primary-foreground" fill="currentColor" />
+                <span className="text-sm font-medium text-primary-foreground">Start</span>
               </motion.button>
               
               <motion.button
