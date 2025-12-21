@@ -764,15 +764,15 @@ const DeviceControl = () => {
               </div>
             </div>
           ) : (
-            /* Idle state - Start button matching preset shelf design */
+            /* Idle state - Liquid glass start button */
             <motion.button
-              whileTap={{ scale: 0.97 }}
-              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.96 }}
+              whileHover={{ scale: 1.03 }}
               onClick={() => setShowModeSelector(true)}
-              className="flex items-center gap-3 px-6 py-3.5 rounded-2xl bg-gradient-to-b from-primary to-primary/80 border border-primary/40 shadow-[0_2px_8px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.1)] active:shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] transition-shadow"
+              className="flex items-center gap-3 px-7 py-4 rounded-[20px] backdrop-blur-xl bg-primary/80 dark:bg-primary/70 border border-white/30 shadow-[0_8px_32px_rgba(var(--primary),0.25),0_2px_8px_rgba(0,0,0,0.1),inset_0_1px_1px_rgba(255,255,255,0.4),inset_0_-1px_1px_rgba(0,0,0,0.1)] active:shadow-[0_4px_16px_rgba(var(--primary),0.2),inset_0_2px_4px_rgba(0,0,0,0.15)] transition-all"
             >
               <Play className="w-5 h-5 text-primary-foreground" fill="currentColor" />
-              <span className="text-sm font-medium text-primary-foreground">Start Clean</span>
+              <span className="text-sm font-semibold text-primary-foreground">Start Clean</span>
             </motion.button>
           )}
         </div>
