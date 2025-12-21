@@ -35,6 +35,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FloorMap from "@/components/FloorMap";
+import RadialCleaningMenu from "@/components/RadialCleaningMenu";
 import {
   Sheet,
   SheetContent,
@@ -723,27 +724,19 @@ const DeviceControl = () => {
             <span className="text-xs text-muted-foreground">Customize</span>
           </button>
 
-          {/* Play/Pause Button */}
-          <motion.button
-            whileTap={{ scale: (isCharging && battery < 50) ? 1 : 0.95 }}
-            onClick={(isCharging && battery < 50) ? undefined : handleStartStop}
-            className="relative flex flex-col items-center"
-            disabled={isCharging && battery < 50}
-          >
-            <div className={`w-16 h-16 rounded-full flex items-center justify-center border-2 ${
-              (isCharging && battery < 50)
-                ? "bg-muted border-muted-foreground/30" 
-                : "bg-gradient-to-b from-primary/30 to-primary/50 border-primary/40"
-            }`}>
-              {(isCharging && battery < 50) ? (
-                <span className="text-xs font-medium text-muted-foreground">{Math.ceil((100 - battery) / 10)} min</span>
-              ) : isRunning ? (
-                <Pause className="w-7 h-7 text-primary" />
-              ) : (
-                <Play className="w-7 h-7 text-primary ml-1" />
-              )}
-            </div>
-          </motion.button>
+          {/* Play/Pause Button with Radial Menu */}
+          <RadialCleaningMenu
+            isRunning={isRunning}
+            isCharging={isCharging}
+            battery={battery}
+            selectedTime={selectedTime}
+            onStart={(mode) => startCleaning(mode)}
+            onStop={() => {
+              setIsRunning(false);
+              setCurrentCleaningRoom(undefined);
+            }}
+            onCustom={() => setShowCustomMode(true)}
+          />
 
           {/* Return Button - Only visible when running */}
           {isRunning ? (
