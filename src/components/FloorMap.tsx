@@ -589,19 +589,47 @@ const FloorMap = ({
           </g>
         ))}
 
+        {/* Dock - Cat bed style for vacuum */}
         <g transform="translate(148, 42)">
-          <rect 
-            x="-6" 
-            y="-3" 
-            width="12" 
-            height="8" 
-            rx="2" 
-            fill="hsl(160, 70%, 35%)" 
-            stroke="hsl(160, 50%, 25%)"
+          {/* Outer cushion rim */}
+          <ellipse
+            cx="0"
+            cy="0"
+            rx="9"
+            ry="7"
+            fill="hsl(30, 35%, 45%)"
+            stroke="hsl(30, 30%, 35%)"
             strokeWidth="0.8"
           />
+          {/* Inner cushion */}
+          <ellipse
+            cx="0"
+            cy="0"
+            rx="6.5"
+            ry="5"
+            fill="hsl(30, 25%, 55%)"
+          />
+          {/* Soft texture lines */}
+          <ellipse
+            cx="0"
+            cy="0"
+            rx="5"
+            ry="3.5"
+            fill="none"
+            stroke="hsl(30, 20%, 50%)"
+            strokeWidth="0.4"
+            strokeDasharray="2 1.5"
+          />
+          {/* Charging indicator */}
+          <circle
+            cx="0"
+            cy="5"
+            r="1.5"
+            fill="hsl(160, 70%, 45%)"
+          />
+          {/* Small charging bolt */}
           <path
-            d="M0 -1.5 L2.5 -1.5 L0.5 1.5 L3 1.5 L-1.5 5 L0 2 L-2.5 2 Z"
+            d="M0 3.8 L0.8 4.8 L0 4.6 L0 6.2 L-0.8 5.2 L0 5.4 Z"
             fill="white"
             opacity="0.9"
           />
