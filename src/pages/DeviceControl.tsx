@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -32,7 +32,6 @@ import {
   AlertTriangle,
   Sparkles,
   Route,
-  Leaf,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FloorMap from "@/components/FloorMap";
@@ -41,11 +40,6 @@ import {
   SheetContent,
   SheetHeader,
 } from "@/components/ui/sheet";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 
 // Room settings for custom mode
 interface RoomCustomSettings {
@@ -64,18 +58,6 @@ const DeviceControl = () => {
   const [isCompleted, setIsCompleted] = useState(false);
   const [battery, setBattery] = useState(93);
   const [selectedTab, setSelectedTab] = useState<"safe" | "normal" | "deep">("normal");
-  const [lastUsedMode, setLastUsedMode] = useState<"safe" | "normal" | "deep">("normal");
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(`last-mode-${id}`);
-      if (saved === "safe" || saved === "normal" || saved === "deep") {
-        setLastUsedMode(saved);
-      }
-    } catch {
-      // Ignore storage errors (privacy mode, blocked storage, etc.)
-    }
-  }, [id]);
   const [selectedFloor, setSelectedFloor] = useState(1);
   const [selectedRooms, setSelectedRooms] = useState<string[]>([]);
   const [showFloorSelector, setShowFloorSelector] = useState(false);
@@ -106,11 +88,6 @@ const DeviceControl = () => {
   const [editableRoomNames, setEditableRoomNames] = useState<Record<string, string>>({});
   const [selectedPreset, setSelectedPreset] = useState<string | null>("preset-1");
   const [editingPreset, setEditingPreset] = useState<string | null>(null);
-  
-  // Fast button long-press states
-  const [isLongPressing, setIsLongPressing] = useState(false);
-  const [showModePicker, setShowModePicker] = useState(false);
-  const longPressTimer = useRef<NodeJS.Timeout | null>(null);
   const [showNewPresetModal, setShowNewPresetModal] = useState(false);
   const [newPresetName, setNewPresetName] = useState("");
   const [customPresets, setCustomPresets] = useState([
@@ -329,25 +306,12 @@ const DeviceControl = () => {
   }, [isRunning, isStuck, remainingTime]);
 
   // Reset stuck/completed state when starting new cleaning session
-  // Mode display names
-  const modeDisplayNames: Record<"safe" | "normal" | "deep", string> = {
-    safe: "Smooth",
-    normal: "Normal", 
-    deep: "Deep",
-  };
-
   const startCleaning = (mode: "safe" | "normal" | "deep") => {
     const cleaningTime = selectedRooms.length > 0 
       ? selectedRooms.reduce((acc, roomId) => acc + (roomTimes[roomId] || 0), 0)
       : totalRoomTime;
     
     setSelectedTab(mode);
-    setLastUsedMode(mode);
-    try {
-      localStorage.setItem(`last-mode-${id}`, mode);
-    } catch {
-      // Ignore storage errors
-    }
     setShowModeSelector(false);
     setIsStuck(false);
     setIsCompleted(false);
@@ -781,8 +745,8 @@ const DeviceControl = () => {
             </div>
           </motion.button>
 
-          {/* Return Button - Only visible when running, Fast Start when idle */}
-          {isRunning && (
+          {/* Return Button - Only visible when running */}
+          {isRunning ? (
             <button 
               className="flex flex-col items-center gap-1"
               onClick={handleDock}
@@ -792,6 +756,8 @@ const DeviceControl = () => {
                 <span className="text-xs font-semibold text-muted-foreground">Return</span>
               </div>
             </button>
+          ) : (
+            <div className="w-12" />
           )}
         </div>
       </div>
