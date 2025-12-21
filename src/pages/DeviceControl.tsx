@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import FloatingPresetShelf from "@/components/FloatingPresetShelf";
+import BatteryIndicator from "@/components/BatteryIndicator";
+import BatteryUsageBar from "@/components/BatteryUsageBar";
 import {
   MoreHorizontal,
   Play,
@@ -515,7 +517,7 @@ const DeviceControl = () => {
         </button>
       </header>
 
-      {/* Status Bar - More Prominent */}
+      {/* Status Bar - Redesigned with Visual Indicators */}
       <div className="mx-4 mb-2">
         <motion.div 
           className={`rounded-2xl p-4 ${
@@ -524,7 +526,7 @@ const DeviceControl = () => {
               : isCompleted 
                 ? "bg-emerald-500/10 border border-emerald-500/20"
                 : isCharging
-                  ? "bg-amber-500/10 border border-amber-500/20"
+                  ? "bg-emerald-500/5 border border-emerald-500/20"
                   : isRunning
                     ? "bg-primary/10 border border-primary/20"
                     : "bg-card/80 border border-border/30"
@@ -532,70 +534,103 @@ const DeviceControl = () => {
           animate={isRunning || isCharging ? { opacity: [0.95, 1, 0.95] } : {}}
           transition={{ duration: 2, repeat: Infinity }}
         >
-          {/* Main Status Row */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <motion.div 
-                className={`w-2.5 h-2.5 rounded-full ${
-                  isStuck ? "bg-destructive" : isCompleted ? "bg-emerald-500" : isCharging ? "bg-amber-500" : isRunning ? "bg-primary" : "bg-muted-foreground/60"
-                }`}
-                animate={isRunning || isCharging ? { scale: [1, 1.4, 1], opacity: [1, 0.7, 1] } : {}}
-                transition={{ duration: 1.2, repeat: Infinity }}
-              />
-              <span className={`text-base font-medium ${
-                isStuck ? "text-destructive" : isCompleted ? "text-emerald-500" : isCharging ? "text-amber-500" : "text-foreground"
-              }`}>
-                {isStuck
-                  ? "Robot got stuck"
-                  : isCompleted
-                    ? "Cleaning completed"
-                    : isCharging
-                      ? "Charging - 25 min"
-                      : isDocking 
-                        ? "Returning to dock" 
-                        : isRunning 
-                          ? selectedRooms.length > 0
-                            ? `Cleaning ${selectedRooms.length} room${selectedRooms.length > 1 ? "s" : ""}`
-                            : "Cleaning in progress"
-                          : selectedRooms.length > 0
-                            ? `${selectedRooms.length} room${selectedRooms.length > 1 ? "s" : ""} selected`
-                            : "Ready for cleaning"
-                }
-              </span>
-            </div>
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary/10">
-              <Battery className="w-4 h-4 text-primary" />
-              <span className="text-sm font-semibold text-primary">{battery}%</span>
-            </div>
-          </div>
-          
-          {/* Stats Row - Only when not stuck/completed/charging */}
-          {!isCompleted && !isStuck && !isCharging && (
-            <div className="mt-3 pt-3 border-t border-border/20 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">
-                  {isRunning ? "Time remaining" : `Estimated time for ${selectedRooms.length > 0 ? "selected rooms" : "all rooms"}`}
+          {/* Top Row - Status Text + Battery Visual */}
+          <div className="flex items-start justify-between gap-4">
+            {/* Left - Status Info */}
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <motion.div 
+                  className={`w-2 h-2 rounded-full ${
+                    isStuck ? "bg-destructive" : isCompleted ? "bg-emerald-500" : isCharging ? "bg-emerald-500" : isRunning ? "bg-primary" : "bg-muted-foreground/60"
+                  }`}
+                  animate={isRunning || isCharging ? { scale: [1, 1.4, 1], opacity: [1, 0.7, 1] } : {}}
+                  transition={{ duration: 1.2, repeat: Infinity }}
+                />
+                <span className={`text-sm font-medium ${
+                  isStuck ? "text-destructive" : isCompleted ? "text-emerald-500" : isCharging ? "text-emerald-500" : "text-foreground"
+                }`}>
+                  {isStuck
+                    ? "Robot got stuck"
+                    : isCompleted
+                      ? "Cleaning completed"
+                      : isCharging
+                        ? "Charging"
+                        : isDocking 
+                          ? "Returning to dock" 
+                          : isRunning 
+                            ? selectedRooms.length > 0
+                              ? `Cleaning ${selectedRooms.length} room${selectedRooms.length > 1 ? "s" : ""}`
+                              : "Cleaning"
+                            : selectedRooms.length > 0
+                              ? `${selectedRooms.length} room${selectedRooms.length > 1 ? "s" : ""} selected`
+                              : "Ready"
+                  }
                 </span>
               </div>
-              <span className="text-sm font-semibold text-primary">
-                {isRunning 
-                  ? `${Math.floor(remainingTime / 60)}:${String(remainingTime % 60).padStart(2, '0')}`
-                  : `${selectedTime} min`
-                }
-              </span>
+              
+              {/* Time Display - Visual */}
+              {!isCompleted && !isStuck && (
+                <div className="flex items-center gap-3 mt-2">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted/50">
+                    <Clock className="w-3.5 h-3.5 text-primary" />
+                    <span className="text-sm font-semibold text-foreground">
+                      {isRunning 
+                        ? `${Math.floor(remainingTime / 60)}:${String(remainingTime % 60).padStart(2, '0')}`
+                        : isCharging
+                          ? "~25 min"
+                          : `${selectedTime}m`
+                      }
+                    </span>
+                  </div>
+                  {isRunning && (
+                    <span className="text-xs text-muted-foreground">remaining</span>
+                  )}
+                  {!isRunning && !isCharging && (
+                    <span className="text-xs text-muted-foreground">
+                      {selectedRooms.length > 0 ? "selected" : "all rooms"}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+            
+            {/* Right - Battery Visual Indicator */}
+            <BatteryIndicator 
+              percentage={battery} 
+              isCharging={isCharging}
+              size="md"
+            />
+          </div>
+          
+          {/* Battery Usage Bar - Only when idle */}
+          {!isRunning && !isCompleted && !isStuck && !isCharging && (
+            <div className="mt-3 pt-3 border-t border-border/20">
+              <BatteryUsageBar 
+                currentBattery={battery}
+                estimatedUsage={Math.round(selectedTime * 0.65)}
+              />
             </div>
           )}
           
-          {/* Battery Usage Estimate - Only when idle */}
-          {!isRunning && !isCompleted && !isStuck && !isCharging && (
-            <div className="flex items-center justify-between mt-1.5">
-              <div className="flex items-center gap-1.5">
-                <Battery className="w-3.5 h-3.5 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground">Est. battery usage</span>
+          {/* Progress bar when running */}
+          {isRunning && (
+            <div className="mt-3 pt-3 border-t border-border/20">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs text-muted-foreground">Progress</span>
+                <span className="text-xs font-medium text-primary">
+                  {cleanedRooms.length}/{selectedRooms.length > 0 ? selectedRooms.length : Object.keys(roomNames).length} rooms
+                </span>
               </div>
-              <span className="text-xs font-medium text-muted-foreground">
-                {Math.round(selectedTime * 0.65)}%
-              </span>
+              <div className="h-1.5 bg-muted-foreground/10 rounded-full overflow-hidden">
+                <motion.div
+                  className="h-full bg-primary rounded-full"
+                  initial={{ width: 0 }}
+                  animate={{ 
+                    width: `${(cleanedRooms.length / (selectedRooms.length > 0 ? selectedRooms.length : Object.keys(roomNames).length)) * 100}%` 
+                  }}
+                  transition={{ duration: 0.5 }}
+                />
+              </div>
             </div>
           )}
         </motion.div>
