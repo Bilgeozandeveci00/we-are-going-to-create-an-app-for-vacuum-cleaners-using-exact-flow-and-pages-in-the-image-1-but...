@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Droplets, Wind, Layers } from "lucide-react";
+import { Layers, Ban } from "lucide-react";
 
 interface FloatingPresetShelfProps {
   vacuumPower: number;
@@ -7,6 +7,39 @@ interface FloatingPresetShelfProps {
   currentFloor: string;
   onCustomizeClick: () => void;
 }
+
+// SVG icon for vacuum power - matches the one inside the sheet
+const VacuumIcon = ({ level, size = 16 }: { level: number; size?: number }) => {
+  const iconSize = size === 16 ? "w-4 h-4" : "w-3.5 h-3.5";
+  
+  if (level === 0) return <Ban className={iconSize + " text-muted-foreground"} />;
+  
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-primary">
+      <circle cx="12" cy="12" r="3" />
+      {level >= 1 && <path d="M12 5v-2" />}
+      {level >= 2 && <><path d="M17 7l1.5-1.5" /><path d="M7 7L5.5 5.5" /></>}
+      {level >= 3 && <><path d="M19 12h2" /><path d="M5 12H3" /></>}
+      {level >= 4 && <><path d="M17 17l1.5 1.5" /><path d="M7 17l-1.5 1.5" /><path d="M12 19v2" /></>}
+    </svg>
+  );
+};
+
+// SVG icon for water flow - matches the one inside the sheet
+const WaterIcon = ({ level, size = 16 }: { level: number; size?: number }) => {
+  const iconSize = size === 16 ? "w-4 h-4" : "w-3.5 h-3.5";
+  
+  if (level === 0) return <Ban className={iconSize + " text-muted-foreground"} />;
+  
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-sky-400">
+      <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+      {level >= 2 && <path d="M12 8v4" strokeLinecap="round" />}
+      {level >= 3 && <path d="M10 11h4" strokeLinecap="round" />}
+      {level === 4 && <circle cx="12" cy="14" r="2" fill="currentColor" />}
+    </svg>
+  );
+};
 
 const FloatingPresetShelf = ({
   vacuumPower,
@@ -27,7 +60,7 @@ const FloatingPresetShelf = ({
     >
       {/* Fan/Vacuum Power */}
       <div className="flex items-center gap-2">
-        <Wind className="w-4 h-4 text-muted-foreground" />
+        <VacuumIcon level={vacuumPower} />
         <div className="flex items-end gap-0.5">
           {[1, 2, 3, 4].map((level) => (
             <div
@@ -46,7 +79,7 @@ const FloatingPresetShelf = ({
 
       {/* Water Flow */}
       <div className="flex items-center gap-2">
-        <Droplets className="w-4 h-4 text-muted-foreground" />
+        <WaterIcon level={waterFlow} />
         <div className="flex gap-1">
           {[1, 2, 3, 4].map((level) => (
             <div
