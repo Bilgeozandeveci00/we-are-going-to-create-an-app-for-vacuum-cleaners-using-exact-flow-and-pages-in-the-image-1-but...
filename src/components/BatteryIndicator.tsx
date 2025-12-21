@@ -5,12 +5,14 @@ interface BatteryIndicatorProps {
   percentage: number;
   isCharging?: boolean;
   size?: "sm" | "md" | "lg";
+  estimatedUsage?: number;
 }
 
 const BatteryIndicator = ({
   percentage,
   isCharging = false,
   size = "md",
+  estimatedUsage,
 }: BatteryIndicatorProps) => {
   // Determine battery color based on percentage
   const getBatteryColor = () => {
@@ -18,6 +20,14 @@ const BatteryIndicator = ({
     if (percentage <= 20) return "hsl(0, 84%, 60%)";
     if (percentage <= 50) return "hsl(45, 93%, 47%)";
     return "hsl(142, 76%, 45%)";
+  };
+
+  const getUsageColor = () => {
+    if (!estimatedUsage) return "transparent";
+    const remaining = percentage - estimatedUsage;
+    if (remaining < 10) return "hsl(0, 84%, 60%)"; // Red - not enough
+    if (remaining < 25) return "hsl(45, 93%, 47%)"; // Yellow - tight
+    return "hsl(var(--muted-foreground) / 0.3)"; // Normal
   };
 
   // Size configurations - made wider to fit text
@@ -29,82 +39,132 @@ const BatteryIndicator = ({
 
   const s = sizes[size];
   const fillWidth = Math.max(0, ((percentage / 100) * (s.width - s.padding * 2)));
+  const usageWidth = estimatedUsage ? Math.max(0, ((estimatedUsage / 100) * (s.width - s.padding * 2))) : 0;
   const batteryColor = getBatteryColor();
+  const usageColor = getUsageColor();
+
+  const isEnough = !estimatedUsage || percentage >= estimatedUsage;
 
   return (
-    <div className="relative flex items-center">
-      <svg width={s.width + s.tipWidth} height={s.height} viewBox={`0 0 ${s.width + s.tipWidth} ${s.height}`}>
-        {/* Battery outline */}
-        <rect
-          x={0.5}
-          y={0.5}
-          width={s.width - 1}
-          height={s.height - 1}
-          rx={s.radius}
-          ry={s.radius}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={1.5}
-          className="text-muted-foreground/40"
-        />
-        
-        {/* Battery tip */}
-        <rect
-          x={s.width}
-          y={(s.height - s.tipHeight) / 2}
-          width={s.tipWidth - 1}
-          height={s.tipHeight}
-          rx={1}
-          ry={1}
-          fill="currentColor"
-          className="text-muted-foreground/40"
-        />
-        
-        {/* Battery fill */}
-        <motion.rect
-          x={s.padding}
-          y={s.padding}
-          height={s.height - s.padding * 2}
-          rx={s.radius - 1}
-          ry={s.radius - 1}
-          fill={batteryColor}
-          initial={{ width: 0 }}
-          animate={{ width: fillWidth }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-        />
-        
-        {/* Percentage text inside battery */}
-        {isCharging ? (
-          <motion.g
-            animate={{ opacity: [1, 0.6, 1] }}
-            transition={{ duration: 1.2, repeat: Infinity }}
-          >
-            <Zap
-              x={s.width / 2 - 6}
-              y={s.height / 2 - 6}
-              width={12}
-              height={12}
-              fill="white"
-              stroke="white"
-              strokeWidth={0.5}
-            />
-          </motion.g>
-        ) : (
-          <text
-            x={s.width / 2}
-            y={s.height / 2 + 1}
-            textAnchor="middle"
-            dominantBaseline="middle"
-            fontSize={s.fontSize}
-            fontWeight="700"
-            fill={percentage > 50 ? "white" : "currentColor"}
-            className={percentage > 50 ? "" : "text-foreground"}
-            style={{ fontFamily: 'system-ui, sans-serif' }}
-          >
-            {Math.round(percentage)}
-          </text>
-        )}
-      </svg>
+    <div className="flex flex-col items-end gap-1">
+      <div className="relative flex items-center">
+        <svg width={s.width + s.tipWidth} height={s.height} viewBox={`0 0 ${s.width + s.tipWidth} ${s.height}`}>
+          {/* Battery outline */}
+          <rect
+            x={0.5}
+            y={0.5}
+            width={s.width - 1}
+            height={s.height - 1}
+            rx={s.radius}
+            ry={s.radius}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.5}
+            className="text-muted-foreground/40"
+          />
+          
+          {/* Battery tip */}
+          <rect
+            x={s.width}
+            y={(s.height - s.tipHeight) / 2}
+            width={s.tipWidth - 1}
+            height={s.tipHeight}
+            rx={1}
+            ry={1}
+            fill="currentColor"
+            className="text-muted-foreground/40"
+          />
+          
+          {/* Battery fill - current level */}
+          <motion.rect
+            x={s.padding}
+            y={s.padding}
+            height={s.height - s.padding * 2}
+            rx={s.radius - 1}
+            ry={s.radius - 1}
+            fill={batteryColor}
+            initial={{ width: 0 }}
+            animate={{ width: fillWidth }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+          />
+          
+          {/* Estimated usage overlay - striped pattern showing what will be used */}
+          {estimatedUsage && !isCharging && (
+            <>
+              <defs>
+                <pattern id="usageStripes" patternUnits="userSpaceOnUse" width="4" height="4" patternTransform="rotate(45)">
+                  <line x1="0" y1="0" x2="0" y2="4" stroke={usageColor} strokeWidth="2" />
+                </pattern>
+                <clipPath id="usageClip">
+                  <rect
+                    x={s.padding}
+                    y={s.padding}
+                    width={usageWidth}
+                    height={s.height - s.padding * 2}
+                    rx={s.radius - 1}
+                    ry={s.radius - 1}
+                  />
+                </clipPath>
+              </defs>
+              <motion.rect
+                x={s.padding}
+                y={s.padding}
+                height={s.height - s.padding * 2}
+                rx={s.radius - 1}
+                ry={s.radius - 1}
+                fill="url(#usageStripes)"
+                clipPath="url(#usageClip)"
+                initial={{ width: 0 }}
+                animate={{ width: usageWidth }}
+                transition={{ duration: 0.5, ease: "easeOut", delay: 0.2 }}
+              />
+            </>
+          )}
+          
+          {/* Percentage text inside battery */}
+          {isCharging ? (
+            <motion.g
+              animate={{ opacity: [1, 0.6, 1] }}
+              transition={{ duration: 1.2, repeat: Infinity }}
+            >
+              <Zap
+                x={s.width / 2 - 6}
+                y={s.height / 2 - 6}
+                width={12}
+                height={12}
+                fill="white"
+                stroke="white"
+                strokeWidth={0.5}
+              />
+            </motion.g>
+          ) : (
+            <text
+              x={s.width / 2}
+              y={s.height / 2 + 1}
+              textAnchor="middle"
+              dominantBaseline="middle"
+              fontSize={s.fontSize}
+              fontWeight="700"
+              fill={percentage > 50 ? "white" : "currentColor"}
+              className={percentage > 50 ? "" : "text-foreground"}
+              style={{ fontFamily: 'system-ui, sans-serif' }}
+            >
+              {Math.round(percentage)}
+            </text>
+          )}
+        </svg>
+      </div>
+      
+      {/* Usage label below battery */}
+      {estimatedUsage && !isCharging && (
+        <motion.span 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className={`text-[10px] ${isEnough ? 'text-muted-foreground' : 'text-amber-500'}`}
+        >
+          Uses {estimatedUsage}%
+        </motion.span>
+      )}
     </div>
   );
 };

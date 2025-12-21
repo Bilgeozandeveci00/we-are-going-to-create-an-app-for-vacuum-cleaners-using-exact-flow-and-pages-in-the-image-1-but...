@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import FloatingPresetShelf from "@/components/FloatingPresetShelf";
 import BatteryIndicator from "@/components/BatteryIndicator";
-import BatteryUsageBar from "@/components/BatteryUsageBar";
+// BatteryUsageBar removed - integrated into BatteryIndicator
 import {
   MoreHorizontal,
   Play,
@@ -604,23 +604,14 @@ const DeviceControl = () => {
               </p>
             </div>
             
-            {/* Right - Battery Visual */}
+            {/* Right - Battery Visual with integrated usage */}
             <BatteryIndicator 
               percentage={battery} 
               isCharging={isCharging}
               size="md"
+              estimatedUsage={!isRunning && !isCompleted && !isStuck && !isCharging && !isDocking ? Math.round(selectedTime * 0.65) : undefined}
             />
           </div>
-          
-          {/* Battery Usage - Simple drain indicator when idle */}
-          {!isRunning && !isCompleted && !isStuck && !isCharging && !isDocking && (
-            <div className="mt-3 pt-3 border-t border-border/20">
-              <BatteryUsageBar 
-                currentBattery={battery}
-                estimatedUsage={Math.round(selectedTime * 0.65)}
-              />
-            </div>
-          )}
           
           {/* Progress when running */}
           {isRunning && (
