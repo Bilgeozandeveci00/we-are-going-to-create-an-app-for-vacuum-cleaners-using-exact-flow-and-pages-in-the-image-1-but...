@@ -1070,12 +1070,32 @@ const DeviceControl = () => {
                 </motion.div>
               ))}
 
-              {customPresets.length === 0 && (
+            {customPresets.length === 0 && (
                 <div className="text-center py-8 text-muted-foreground">
                   <p className="text-sm">No presets yet</p>
                   <p className="text-xs mt-1">Create one to get started</p>
                 </div>
               )}
+
+              {/* Add Floor Option */}
+              <motion.div
+                whileTap={{ scale: 0.98 }}
+                onClick={() => {
+                  setShowCustomMode(false);
+                  handleAddFloor();
+                }}
+                className="p-4 rounded-xl border-2 border-dashed border-primary/40 bg-primary/5 hover:bg-primary/10 transition-all cursor-pointer"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                    <Layers className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Add New Floor</p>
+                    <p className="text-xs text-muted-foreground">Map another floor of your home</p>
+                  </div>
+                </div>
+              </motion.div>
             </div>
 
             {/* Quick Settings (shown when preset selected) */}
