@@ -560,7 +560,9 @@ const DeviceControl = () => {
                           ? "Returning to dock" 
                           : isRunning 
                             ? "Cleaning in progress"
-                            : "Amphibia is ready"
+                            : selectedRooms.length > 0
+                              ? `${selectedRooms.length} room${selectedRooms.length !== 1 ? 's' : ''} selected`
+                              : "Amphibia is ready"
                   }
                 </h2>
               </div>
@@ -572,13 +574,13 @@ const DeviceControl = () => {
                   : isCompleted
                     ? `${cleanedRooms.length} room${cleanedRooms.length !== 1 ? 's' : ''} cleaned`
                     : isCharging
-                      ? `${battery}% • Full in ~25 min`
+                      ? `Full in ~25 min`
                       : isDocking 
                         ? "Heading home" 
                         : isRunning 
-                          ? `${Math.floor(remainingTime / 60)}:${String(remainingTime % 60).padStart(2, '0')} left`
+                          ? `${currentCleaningRoom ? roomNames[currentCleaningRoom] || currentCleaningRoom : 'Working'} • ${Math.floor(remainingTime / 60)}:${String(remainingTime % 60).padStart(2, '0')} left`
                           : selectedRooms.length > 0
-                            ? `${selectedRooms.length} room${selectedRooms.length !== 1 ? 's' : ''} selected • ${selectedTime} min`
+                            ? `Ready to clean • ${selectedTime} min`
                             : `All ${Object.keys(roomNames).length} rooms • ${selectedTime} min`
                 }
               </p>
