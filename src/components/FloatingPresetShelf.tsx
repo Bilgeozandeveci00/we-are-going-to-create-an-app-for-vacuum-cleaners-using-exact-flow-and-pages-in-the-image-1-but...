@@ -20,10 +20,10 @@ const FloatingPresetShelf = ({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 8 }}
       transition={{ type: "spring", stiffness: 500, damping: 30 }}
-      whileTap={{ scale: 0.97 }}
-      whileHover={{ scale: 1.01 }}
+      whileTap={{ scale: 0.96 }}
+      whileHover={{ scale: 1.02 }}
       onClick={onCustomizeClick}
-      className="w-full flex items-center justify-center gap-6 px-5 py-3.5 rounded-2xl bg-gradient-to-b from-secondary to-secondary/70 border border-border/40 shadow-[0_2px_8px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.05)] active:shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] transition-shadow cursor-pointer"
+      className="w-full flex items-center justify-center gap-6 px-5 py-4 rounded-[20px] backdrop-blur-xl bg-white/10 dark:bg-white/[0.08] border border-white/30 dark:border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.08),inset_0_1px_1px_rgba(255,255,255,0.4),inset_0_-1px_1px_rgba(0,0,0,0.05)] active:shadow-[0_4px_16px_rgba(0,0,0,0.1),inset_0_2px_4px_rgba(0,0,0,0.1)] transition-all cursor-pointer"
     >
       {/* Fan/Vacuum Power */}
       <div className="flex items-center gap-2">
