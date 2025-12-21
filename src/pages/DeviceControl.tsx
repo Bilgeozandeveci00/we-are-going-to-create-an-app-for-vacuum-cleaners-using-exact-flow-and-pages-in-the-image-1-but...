@@ -23,10 +23,6 @@ import {
   Clock,
   Layers,
   Wrench,
-  Map,
-  Volume2,
-  Settings,
-  MapPin,
   Smartphone,
   Battery,
   Info,
@@ -35,6 +31,7 @@ import {
   AlertTriangle,
   Sparkles,
   Route,
+  Plus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FloorMap from "@/components/FloorMap";
@@ -1077,22 +1074,19 @@ const DeviceControl = () => {
                 </div>
               )}
 
-              {/* Add Floor Option */}
+              {/* Add Preset Option */}
               <motion.div
                 whileTap={{ scale: 0.98 }}
-                onClick={() => {
-                  setShowCustomMode(false);
-                  handleAddFloor();
-                }}
+                onClick={() => setShowNewPresetModal(true)}
                 className="p-4 rounded-xl border-2 border-dashed border-primary/40 bg-primary/5 hover:bg-primary/10 transition-all cursor-pointer"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                    <Layers className="w-5 h-5 text-primary" />
+                    <Plus className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-foreground">Add New Floor</p>
-                    <p className="text-xs text-muted-foreground">Map another floor of your home</p>
+                    <p className="text-sm font-medium text-foreground">Add Preset</p>
+                    <p className="text-xs text-muted-foreground">Create a custom cleaning configuration</p>
                   </div>
                 </div>
               </motion.div>
@@ -1784,96 +1778,35 @@ const DeviceControl = () => {
               <ChevronRight className="w-5 h-5 text-muted-foreground" />
             </button>
 
-            {/* Floor Cleaning Settings & Maintenance */}
-            <div className="bg-muted rounded-2xl divide-y divide-border/50">
-              <button 
-                className="w-full flex items-center gap-3 p-4 hover:bg-muted/80 transition-colors"
-                onClick={() => {
-                  setShowSettings(false);
-                  navigate(`/device/${id}/floor-settings`);
-                }}
-              >
-                <div className="w-10 h-10 rounded-full bg-card flex items-center justify-center">
-                  <Layers className="w-5 h-5 text-primary" />
-                </div>
-                <span className="text-foreground font-medium flex-1 text-left">Floor Cleaning Settings</span>
-                <ChevronRight className="w-5 h-5 text-muted-foreground" />
-              </button>
-              <button 
-                className="w-full flex items-center gap-3 p-4 hover:bg-muted/80 transition-colors"
-                onClick={() => {
-                  setShowSettings(false);
-                  navigate(`/device/${id}/maintenance`);
-                }}
-              >
-                <div className="w-10 h-10 rounded-full bg-card flex items-center justify-center">
-                  <Wrench className="w-5 h-5 text-primary" />
-                </div>
-                <span className="text-foreground font-medium flex-1 text-left">Maintenance</span>
-                <ChevronRight className="w-5 h-5 text-muted-foreground" />
-              </button>
-            </div>
+            {/* Maintenance */}
+            <button 
+              className="w-full flex items-center gap-3 bg-muted rounded-2xl p-4 hover:bg-muted/80 transition-colors"
+              onClick={() => {
+                setShowSettings(false);
+                navigate(`/device/${id}/maintenance`);
+              }}
+            >
+              <div className="w-10 h-10 rounded-full bg-card flex items-center justify-center">
+                <Wrench className="w-5 h-5 text-primary" />
+              </div>
+              <span className="text-foreground font-medium flex-1 text-left">Maintenance</span>
+              <ChevronRight className="w-5 h-5 text-muted-foreground" />
+            </button>
 
-            {/* Manage Maps, Robot Sound, Robot Settings */}
-            <div className="bg-muted rounded-2xl divide-y divide-border/50">
-              <button className="w-full flex items-center gap-3 p-4 hover:bg-muted/80 transition-colors">
-                <div className="w-10 h-10 rounded-full bg-card flex items-center justify-center">
-                  <Map className="w-5 h-5 text-primary" />
-                </div>
-                <span className="text-foreground font-medium flex-1 text-left">Manage Maps</span>
-                <ChevronRight className="w-5 h-5 text-muted-foreground" />
-              </button>
-              <button 
-                className="w-full flex items-center gap-3 p-4 hover:bg-muted/80 transition-colors"
-                onClick={() => {
-                  setShowSettings(false);
-                  navigate(`/device/${id}/robot-sound`);
-                }}
-              >
-                <div className="w-10 h-10 rounded-full bg-card flex items-center justify-center">
-                  <Volume2 className="w-5 h-5 text-primary" />
-                </div>
-                <span className="text-foreground font-medium flex-1 text-left">Robot Sound</span>
-                <ChevronRight className="w-5 h-5 text-muted-foreground" />
-              </button>
-              <button 
-                className="w-full flex items-center gap-3 p-4 hover:bg-muted/80 transition-colors"
-                onClick={() => {
-                  setShowSettings(false);
-                  navigate(`/device/${id}/robot-settings`);
-                }}
-              >
-                <div className="w-10 h-10 rounded-full bg-card flex items-center justify-center">
-                  <Settings className="w-5 h-5 text-primary" />
-                </div>
-                <span className="text-foreground font-medium flex-1 text-left">Robot Settings</span>
-                <ChevronRight className="w-5 h-5 text-muted-foreground" />
-              </button>
-            </div>
-
-            {/* Pin n Go & Remote Control */}
-            <div className="bg-muted rounded-2xl divide-y divide-border/50">
-              <button className="w-full flex items-center gap-3 p-4 hover:bg-muted/80 transition-colors">
-                <div className="w-10 h-10 rounded-full bg-card flex items-center justify-center">
-                  <MapPin className="w-5 h-5 text-primary" />
-                </div>
-                <span className="text-foreground font-medium flex-1 text-left">Pin n Go</span>
-                <ChevronRight className="w-5 h-5 text-muted-foreground" />
-              </button>
-              <button 
-                className="w-full flex items-center gap-3 p-4 hover:bg-muted/80 transition-colors"
-                onClick={() => {
-                  setShowSettings(false);
-                  navigate(`/device/${id}/remote-control`);
-                }}
-              >
-                <div className="w-10 h-10 rounded-full bg-card flex items-center justify-center">
-                  <Smartphone className="w-5 h-5 text-primary" />
-                </div>
-                <span className="text-foreground font-medium flex-1 text-left">Remote Control</span>
-                <ChevronRight className="w-5 h-5 text-muted-foreground" />
-              </button>
-            </div>
+            {/* Remote Control */}
+            <button 
+              className="w-full flex items-center gap-3 bg-muted rounded-2xl p-4 hover:bg-muted/80 transition-colors"
+              onClick={() => {
+                setShowSettings(false);
+                navigate(`/device/${id}/remote-control`);
+              }}
+            >
+              <div className="w-10 h-10 rounded-full bg-card flex items-center justify-center">
+                <Smartphone className="w-5 h-5 text-primary" />
+              </div>
+              <span className="text-foreground font-medium flex-1 text-left">Remote Control</span>
+              <ChevronRight className="w-5 h-5 text-muted-foreground" />
+            </button>
 
             {/* Reset App Data - For Testing */}
             <div className="mt-8 pt-4 border-t border-destructive/20">

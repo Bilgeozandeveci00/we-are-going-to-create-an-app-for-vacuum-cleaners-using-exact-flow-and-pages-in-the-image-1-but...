@@ -13,7 +13,7 @@ interface Schedule {
   id: string;
   time: string;
   days: string[];
-  mode: "safe" | "normal" | "deep";
+  mode: "safe" | "deep";
   rooms: string[];
   enabled: boolean;
 }
@@ -48,7 +48,7 @@ const Schedules = () => {
       id: "1",
       time: "09:00",
       days: ["Mon", "Wed", "Fri"],
-      mode: "normal",
+      mode: "safe",
       rooms: [],
       enabled: true,
     },
@@ -68,7 +68,7 @@ const Schedules = () => {
   // New schedule form state
   const [newTime, setNewTime] = useState("09:00");
   const [newDays, setNewDays] = useState<string[]>(["Mon", "Wed", "Fri"]);
-  const [newMode, setNewMode] = useState<"safe" | "normal" | "deep">("normal");
+  const [newMode, setNewMode] = useState<"safe" | "deep">("safe");
   const [newRooms, setNewRooms] = useState<string[]>([]);
   const [showRoomSelector, setShowRoomSelector] = useState(false);
   const [selectedFloor, setSelectedFloor] = useState(1);
@@ -140,7 +140,7 @@ const Schedules = () => {
   const resetForm = () => {
     setNewTime("09:00");
     setNewDays(["Mon", "Wed", "Fri"]);
-    setNewMode("normal");
+    setNewMode("safe");
     setNewRooms([]);
   };
 
@@ -171,16 +171,17 @@ const Schedules = () => {
         </Button>
         <h1 className="text-lg font-semibold text-foreground">Schedules</h1>
         <Button 
-          variant="ghost" 
-          size="icon" 
-          className="text-primary"
+          variant="outline" 
+          size="sm" 
+          className="text-primary border-primary/50 hover:bg-primary/10 px-3"
           onClick={() => {
             resetForm();
             setEditingSchedule(null);
             setShowAddSheet(true);
           }}
         >
-          <Plus className="h-5 w-5" />
+          <Plus className="h-4 w-4 mr-1" />
+          Add
         </Button>
       </header>
 
@@ -389,7 +390,7 @@ const Schedules = () => {
             <div>
               <label className="text-sm font-medium text-foreground mb-3 block">Cleaning Mode</label>
               <div className="bg-muted rounded-xl p-1 flex">
-                {(["safe", "normal", "deep"] as const).map((mode) => (
+                {(["safe", "deep"] as const).map((mode) => (
                   <button
                     key={mode}
                     onClick={() => setNewMode(mode)}
@@ -397,9 +398,7 @@ const Schedules = () => {
                       newMode === mode
                         ? mode === "safe" 
                           ? "bg-emerald-500/20 text-emerald-500"
-                          : mode === "deep"
-                          ? "bg-primary/20 text-primary"
-                          : "bg-card text-foreground shadow"
+                          : "bg-primary/20 text-primary"
                         : "text-muted-foreground"
                     }`}
                   >
@@ -409,7 +408,6 @@ const Schedules = () => {
               </div>
               <p className="text-xs text-muted-foreground mt-2 text-center">
                 {newMode === "safe" && "Avoids risky areas to prevent getting stuck"}
-                {newMode === "normal" && "Balanced cleaning for everyday use"}
                 {newMode === "deep" && "Thorough cleaning that covers every corner"}
               </p>
             </div>
