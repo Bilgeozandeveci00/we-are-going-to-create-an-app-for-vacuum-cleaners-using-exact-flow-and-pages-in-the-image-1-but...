@@ -712,7 +712,7 @@ const DeviceControl = () => {
 
         {/* Control Buttons */}
         <div className="flex items-center justify-center gap-6">
-          {/* Settings Button */}
+          {/* Settings Button - Shows current vacuum/water settings */}
           <button 
             className="flex flex-col items-center gap-1"
             onClick={() => setShowPersonalize(true)}
@@ -721,6 +721,11 @@ const DeviceControl = () => {
               <Settings2 className="w-5 h-5 text-primary" />
             </div>
             <span className="text-xs text-muted-foreground">Customize</span>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <span className="text-[10px] text-primary/80">{vacuumLevels[vacuumPower]}</span>
+              <span className="text-[10px] text-muted-foreground">•</span>
+              <span className="text-[10px] text-primary/80">{waterLevels[waterFlow]}</span>
+            </div>
           </button>
 
           {/* Play/Pause Button */}
