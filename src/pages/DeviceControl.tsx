@@ -459,14 +459,14 @@ const DeviceControl = () => {
   const waterLevels = ["Off", "Low", "Medium", "High", "Max"];
 
   // SVG icons for vacuum power levels
-  const VacuumIcon = ({ level, active }: { level: number; active: boolean }) => {
-    const color = active ? "currentColor" : "currentColor";
+  const VacuumIcon = ({ level, active, size = 20 }: { level: number; active: boolean; size?: number }) => {
     const opacity = active ? 1 : 0.5;
+    const iconSize = size === 20 ? "w-5 h-5" : "w-3.5 h-3.5";
     
-    if (level === 0) return <Ban className="w-5 h-5" style={{ opacity }} />;
+    if (level === 0) return <Ban className={iconSize} style={{ opacity }} />;
     
     return (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" style={{ opacity }}>
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ opacity }} className="text-primary">
         <circle cx="12" cy="12" r="3" />
         {level >= 1 && <path d="M12 5v-2" />}
         {level >= 2 && <><path d="M17 7l1.5-1.5" /><path d="M7 7L5.5 5.5" /></>}
@@ -477,13 +477,14 @@ const DeviceControl = () => {
   };
 
   // SVG icons for water flow levels
-  const WaterIcon = ({ level, active }: { level: number; active: boolean }) => {
+  const WaterIcon = ({ level, active, size = 20 }: { level: number; active: boolean; size?: number }) => {
     const opacity = active ? 1 : 0.5;
+    const iconSize = size === 20 ? "w-5 h-5" : "w-3.5 h-3.5";
     
-    if (level === 0) return <Ban className="w-5 h-5" style={{ opacity }} />;
+    if (level === 0) return <Ban className={iconSize} style={{ opacity }} />;
     
     return (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ opacity }}>
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ opacity }} className="text-primary">
         <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
         {level >= 2 && <path d="M12 8v4" strokeLinecap="round" />}
         {level >= 3 && <path d="M10 11h4" strokeLinecap="round" />}
@@ -712,19 +713,26 @@ const DeviceControl = () => {
 
         {/* Control Buttons */}
         <div className="flex items-center justify-center gap-6">
-          {/* Settings Button - Shows current vacuum/water settings */}
+          {/* Settings Button - Shows current vacuum/water settings preview */}
           <button 
-            className="flex flex-col items-center gap-1"
+            className="flex flex-col items-center gap-1.5"
             onClick={() => setShowPersonalize(true)}
           >
             <div className="w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center">
               <Settings2 className="w-5 h-5 text-primary" />
             </div>
             <span className="text-xs text-muted-foreground">Customize</span>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <span className="text-[10px] text-primary/80">{vacuumLevels[vacuumPower]}</span>
-              <span className="text-[10px] text-muted-foreground">•</span>
-              <span className="text-[10px] text-primary/80">{waterLevels[waterFlow]}</span>
+            {/* Compact settings preview */}
+            <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-muted/60 border border-border/40">
+              <div className="flex items-center gap-1">
+                <VacuumIcon level={vacuumPower} active={true} size={14} />
+                <span className="text-[9px] font-medium text-primary">{vacuumLevels[vacuumPower]}</span>
+              </div>
+              <div className="w-px h-2.5 bg-border/60" />
+              <div className="flex items-center gap-1">
+                <WaterIcon level={waterFlow} active={true} size={14} />
+                <span className="text-[9px] font-medium text-primary">{waterLevels[waterFlow]}</span>
+              </div>
             </div>
           </button>
 
