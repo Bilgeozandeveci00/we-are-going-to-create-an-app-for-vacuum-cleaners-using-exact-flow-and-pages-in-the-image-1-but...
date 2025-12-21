@@ -709,9 +709,9 @@ const DeviceControl = () => {
         </div>
       </div>
 
-      {/* Bottom Control Panel - With Floating Preset Shelf */}
-      <div className="relative mx-4 mb-4">
-        {/* Floating Settings Bubble - Above the control panel */}
+      {/* Bottom Control Panel */}
+      <div className="mx-4 mb-4 space-y-3">
+        {/* Settings Bar - Above controls when idle */}
         <AnimatePresence>
           {!isRunning && !isDocking && !isCharging && !isCompleted && !isStuck && (
             <FloatingPresetShelf
@@ -725,57 +725,60 @@ const DeviceControl = () => {
 
         {/* Main Control Panel */}
         <div className="rounded-2xl bg-card border border-border p-4 safe-area-bottom">
-          {/* Control Buttons */}
-          <div className="flex items-center justify-center gap-6">
-            {/* Settings Button - Simplified, connected to shelf */}
-            <button 
-              className="flex flex-col items-center gap-1.5"
-              onClick={() => setShowPersonalize(true)}
-            >
-              <div className="w-12 h-12 rounded-full bg-primary/10 border-2 border-primary/30 flex items-center justify-center relative">
-                <Settings2 className="w-5 h-5 text-primary" />
-                {/* Connection dot */}
-                <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-primary/40" />
-              </div>
-              <span className="text-xs font-medium text-primary">Customize</span>
-            </button>
+          <div className="flex items-center justify-between">
+            {/* Status indicator */}
+            <div className="flex-1 flex items-center gap-2">
+              {isRunning && (
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="flex items-center gap-2"
+                >
+                  <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                  <span className="text-xs text-muted-foreground">
+                    {Math.floor(remainingTime / 60)}:{(remainingTime % 60).toString().padStart(2, '0')}
+                  </span>
+                </motion.div>
+              )}
+            </div>
 
-            {/* Play/Pause Button */}
+            {/* Center Play/Pause Button */}
             <motion.button
               whileTap={{ scale: (isCharging && battery < 50) ? 1 : 0.95 }}
               onClick={(isCharging && battery < 50) ? undefined : handleStartStop}
-              className="relative flex flex-col items-center"
+              className="relative"
               disabled={isCharging && battery < 50}
             >
-              <div className={`w-16 h-16 rounded-full flex items-center justify-center border-2 ${
+              <div className={`w-14 h-14 rounded-full flex items-center justify-center ${
                 (isCharging && battery < 50)
-                  ? "bg-muted border-muted-foreground/30" 
-                  : "bg-gradient-to-b from-primary/30 to-primary/50 border-primary/40"
+                  ? "bg-muted" 
+                  : "bg-primary glow-primary"
               }`}>
                 {(isCharging && battery < 50) ? (
-                  <span className="text-xs font-medium text-muted-foreground">{Math.ceil((100 - battery) / 10)} min</span>
+                  <span className="text-xs font-medium text-muted-foreground">{Math.ceil((100 - battery) / 10)}m</span>
                 ) : isRunning ? (
-                  <Pause className="w-7 h-7 text-primary" />
+                  <Pause className="w-6 h-6 text-primary-foreground" />
                 ) : (
-                  <Play className="w-7 h-7 text-primary ml-1" />
+                  <Play className="w-6 h-6 text-primary-foreground ml-0.5" fill="currentColor" />
                 )}
               </div>
             </motion.button>
 
-            {/* Return Button - Only visible when running */}
-            {isRunning ? (
-              <button 
-                className="flex flex-col items-center gap-1"
-                onClick={handleDock}
-                disabled={isDocking}
-              >
-                <div className={`w-12 h-12 rounded-full border border-border flex items-center justify-center ${isDocking ? "animate-pulse border-primary bg-primary/10" : "bg-muted/50"}`}>
-                  <span className="text-xs font-semibold text-muted-foreground">Return</span>
-                </div>
-              </button>
-            ) : (
-              <div className="w-12" />
-            )}
+            {/* Right side - Dock button when running */}
+            <div className="flex-1 flex justify-end">
+              {isRunning && (
+                <motion.button
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  onClick={handleDock}
+                  disabled={isDocking}
+                  className="flex items-center gap-2 px-3 py-2 rounded-xl bg-muted/50 border border-border/50"
+                >
+                  <Home className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-xs font-medium text-muted-foreground">Dock</span>
+                </motion.button>
+              )}
+            </div>
           </div>
         </div>
       </div>
