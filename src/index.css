@@ -112,6 +112,11 @@
 }
 
 @layer utilities {
+  /* ============================================
+   * AMPHIBIA DESIGN SYSTEM - Utility Classes
+   * ============================================ */
+
+  /* Glow Effects */
   .glow-primary {
     box-shadow: 0 0 20px hsl(var(--primary) / 0.3), 0 0 40px hsl(var(--primary) / 0.1);
   }
@@ -119,16 +124,150 @@
   .glow-border {
     box-shadow: inset 0 0 0 1px hsl(var(--primary) / 0.3);
   }
+
+  .glow-subtle {
+    box-shadow: 0 0 10px hsl(var(--primary) / 0.15);
+  }
   
+  /* Glass Effects */
   .glass-card {
     background: hsl(var(--surface-glass));
     backdrop-filter: blur(12px);
   }
+
+  .glass-subtle {
+    background: hsl(0 0% 100% / 0.03);
+    backdrop-filter: blur(8px);
+  }
   
+  /* Text Gradients */
   .text-gradient-primary {
     background: linear-gradient(135deg, hsl(var(--primary)), hsl(174 72% 70%));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+  }
+
+  /* ============================================
+   * TYPOGRAPHY UTILITIES
+   * Use <Text> component instead when possible
+   * ============================================ */
+  
+  .text-display {
+    @apply text-3xl font-bold tracking-tight;
+  }
+
+  .text-title-1 {
+    @apply text-2xl font-semibold tracking-tight;
+  }
+
+  .text-title-2 {
+    @apply text-xl font-semibold;
+  }
+
+  .text-title-3 {
+    @apply text-lg font-medium;
+  }
+
+  .text-headline {
+    @apply text-base font-semibold;
+  }
+
+  .text-body {
+    @apply text-sm font-normal;
+  }
+
+  .text-subhead {
+    @apply text-sm font-normal text-muted-foreground;
+  }
+
+  .text-caption {
+    @apply text-xs font-normal;
+  }
+
+  .text-footnote {
+    @apply text-[10px] font-medium uppercase tracking-wider;
+  }
+
+  /* ============================================
+   * ICON SIZE UTILITIES
+   * Use <Icon> component instead when possible
+   * ============================================ */
+
+  .icon-xs {
+    @apply w-3 h-3;
+  }
+
+  .icon-sm {
+    @apply w-4 h-4;
+  }
+
+  .icon-md {
+    @apply w-5 h-5;
+  }
+
+  .icon-lg {
+    @apply w-6 h-6;
+  }
+
+  .icon-xl {
+    @apply w-8 h-8;
+  }
+
+  .icon-2xl {
+    @apply w-12 h-12;
+  }
+
+  /* ============================================
+   * COMPONENT PRESETS
+   * ============================================ */
+
+  .card-base {
+    @apply bg-card rounded-2xl border border-border/50 p-4;
+  }
+
+  .card-elevated {
+    @apply bg-card-elevated rounded-2xl border border-border/50 p-4 shadow-lg;
+  }
+
+  .card-glass {
+    @apply glass-card rounded-2xl border border-border/30 p-4;
+  }
+
+  .card-interactive {
+    @apply bg-card rounded-2xl border border-border/50 p-4 transition-colors hover:bg-card-elevated active:scale-[0.98];
+  }
+
+  .list-item {
+    @apply flex items-center justify-between py-3 border-b border-border/30 last:border-0;
+  }
+
+  /* ============================================
+   * ANIMATION UTILITIES
+   * ============================================ */
+
+  .transition-micro {
+    @apply transition-all duration-150;
+  }
+
+  .transition-fast {
+    @apply transition-all duration-200;
+  }
+
+  .transition-normal {
+    @apply transition-all duration-300;
+  }
+
+  .transition-slow {
+    @apply transition-all duration-500;
+  }
+
+  /* Interactive States */
+  .interactive {
+    @apply transition-all duration-150 active:scale-[0.98];
+  }
+
+  .interactive-opacity {
+    @apply transition-opacity duration-150 hover:opacity-80 active:opacity-60;
   }
 }
