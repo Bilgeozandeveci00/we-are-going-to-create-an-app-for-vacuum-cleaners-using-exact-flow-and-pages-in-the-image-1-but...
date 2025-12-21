@@ -764,13 +764,15 @@ const DeviceControl = () => {
               </div>
             </div>
           ) : (
-            /* Idle state - Simple centered start button */
+            /* Idle state - Start button matching preset shelf design */
             <motion.button
-              whileTap={{ scale: 0.95 }}
+              whileTap={{ scale: 0.97 }}
+              whileHover={{ scale: 1.02 }}
               onClick={() => setShowModeSelector(true)}
-              className="w-16 h-16 rounded-full bg-primary glow-primary flex items-center justify-center"
+              className="flex items-center gap-3 px-6 py-3.5 rounded-2xl bg-gradient-to-b from-primary to-primary/80 border border-primary/40 shadow-[0_2px_8px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.1)] active:shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] transition-shadow"
             >
-              <Play className="w-7 h-7 text-primary-foreground ml-0.5" fill="currentColor" />
+              <Play className="w-5 h-5 text-primary-foreground" fill="currentColor" />
+              <span className="text-sm font-medium text-primary-foreground">Start Clean</span>
             </motion.button>
           )}
         </div>
