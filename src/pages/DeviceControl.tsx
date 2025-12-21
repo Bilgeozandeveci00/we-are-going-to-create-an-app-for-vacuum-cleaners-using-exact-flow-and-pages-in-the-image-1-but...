@@ -711,18 +711,14 @@ const DeviceControl = () => {
 
       {/* Bottom Control Panel - With Floating Preset Shelf */}
       <div className="relative mx-4 mb-4">
-        {/* Floating Preset Shelf - Above the control panel */}
+        {/* Floating Settings Bubble - Above the control panel */}
         <AnimatePresence>
-          {!isRunning && (
+          {!isRunning && !isDocking && !isCharging && !isCompleted && !isStuck && (
             <FloatingPresetShelf
-              presets={customPresets}
-              selectedPreset={selectedPreset}
-              onSelectPreset={setSelectedPreset}
-              onCreateNew={() => setShowNewPresetModal(true)}
               vacuumPower={vacuumPower}
               waterFlow={waterFlow}
-              vacuumLevels={vacuumLevels}
-              waterLevels={waterLevels}
+              currentFloor={floors[selectedFloor - 1]?.name || `Floor ${selectedFloor}`}
+              onCustomizeClick={() => setShowPersonalize(true)}
             />
           )}
         </AnimatePresence>
