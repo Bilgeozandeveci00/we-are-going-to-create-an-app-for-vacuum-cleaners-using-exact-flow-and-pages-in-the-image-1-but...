@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, CheckCircle, AlertCircle, ChevronRight } from "lucide-react";
+import { ArrowLeft, CheckCircle, AlertCircle, ChevronRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const CleaningHistory = () => {
@@ -58,18 +58,8 @@ const CleaningHistory = () => {
             </div>
           </div>
           
-          {/* Robot dock illustration */}
-          <div className="w-32 h-32 relative">
-            <svg viewBox="0 0 100 100" className="w-full h-full">
-              <path
-                d="M50 15 L80 35 L80 75 L50 95 L20 75 L20 35 Z"
-                fill="none"
-                stroke="hsl(var(--primary))"
-                strokeWidth="3"
-              />
-              <ellipse cx="50" cy="80" rx="15" ry="5" fill="hsl(var(--primary))" opacity="0.3" />
-              <circle cx="50" cy="75" r="8" fill="hsl(var(--primary))" />
-            </svg>
+          <div className="w-28 h-28 rounded-full bg-primary/10 flex items-center justify-center">
+            <Sparkles className="w-14 h-14 text-primary" />
           </div>
         </div>
       </div>
