@@ -45,6 +45,8 @@ const BatteryIndicator = ({
 
   const isEnough = !estimatedUsage || percentage >= estimatedUsage;
 
+  const remainingAfterClean = estimatedUsage ? Math.max(0, percentage - estimatedUsage) : null;
+
   return (
     <div className="flex flex-col items-end gap-1">
       <div className="relative flex items-center">
@@ -155,15 +157,37 @@ const BatteryIndicator = ({
         </svg>
       </div>
       
-      {/* Usage label below battery */}
-      {estimatedUsage && !isCharging && (
-        <motion.span 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className={`text-[10px] ${isEnough ? 'text-muted-foreground' : 'text-amber-500'}`}
+      {/* Remaining battery indicator below */}
+      {estimatedUsage && !isCharging && remainingAfterClean !== null && (
+        <motion.div 
+          initial={{ opacity: 0, y: -4 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center gap-1.5"
         >
-          Uses {estimatedUsage}%
-        </motion.span>
+          <span className="text-[9px] text-muted-foreground">After:</span>
+          <div className="flex items-center gap-1">
+            <div 
+              className="h-2 rounded-full"
+              style={{ 
+                width: 24,
+                background: `linear-gradient(to right, ${
+                  remainingAfterClean < 10 ? 'hsl(0, 84%, 60%)' : 
+                  remainingAfterClean < 25 ? 'hsl(45, 93%, 47%)' : 
+                  'hsl(142, 76%, 45%)'
+                } ${remainingAfterClean}%, hsl(var(--muted)) ${remainingAfterClean}%)`
+              }}
+            />
+            <span 
+              className={`text-[10px] font-semibold ${
+                remainingAfterClean < 10 ? 'text-destructive' : 
+                remainingAfterClean < 25 ? 'text-amber-500' : 
+                'text-muted-foreground'
+              }`}
+            >
+              {remainingAfterClean}%
+            </span>
+          </div>
+        </motion.div>
       )}
     </div>
   );
