@@ -766,6 +766,17 @@ const DeviceControl = () => {
                 <span className="text-sm font-medium text-muted-foreground">{Math.ceil((100 - battery) / 10)}m</span>
               </div>
             </div>
+          ) : isStuck ? (
+            /* Stuck state - Continue Cleaning button */
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              whileHover={{ scale: 1.02 }}
+              onClick={handleStartStop}
+              className="flex items-center gap-3 px-6 py-3.5 rounded-2xl bg-gradient-to-b from-amber-500 to-amber-600 border border-amber-400/40 shadow-[0_2px_8px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.1)] active:shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] transition-shadow"
+            >
+              <Play className="w-5 h-5 text-white" fill="currentColor" />
+              <span className="text-sm font-medium text-white">Continue Cleaning</span>
+            </motion.button>
           ) : (
             /* Idle state - Start button matching preset shelf design */
             <motion.button

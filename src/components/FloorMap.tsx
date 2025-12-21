@@ -589,50 +589,50 @@ const FloorMap = ({
           </g>
         ))}
 
-        {/* Dock - Cat bed style for vacuum */}
+        {/* Dock - Vacuum charging station */}
         <g transform="translate(148, 42)">
-          {/* Outer cushion rim */}
-          <ellipse
-            cx="0"
-            cy="0"
-            rx="9"
-            ry="7"
-            fill="hsl(30, 35%, 45%)"
-            stroke="hsl(30, 30%, 35%)"
+          {/* Base platform */}
+          <rect
+            x="-10"
+            y="-2"
+            width="20"
+            height="12"
+            rx="2"
+            fill="hsl(220, 15%, 25%)"
+            stroke="hsl(220, 15%, 35%)"
             strokeWidth="0.8"
           />
-          {/* Inner cushion */}
-          <ellipse
-            cx="0"
-            cy="0"
-            rx="6.5"
-            ry="5"
-            fill="hsl(30, 25%, 55%)"
+          {/* Dock back panel */}
+          <rect
+            x="-8"
+            y="-8"
+            width="16"
+            height="8"
+            rx="1.5"
+            fill="hsl(220, 15%, 30%)"
+            stroke="hsl(220, 15%, 40%)"
+            strokeWidth="0.6"
           />
-          {/* Soft texture lines */}
-          <ellipse
-            cx="0"
-            cy="0"
-            rx="5"
-            ry="3.5"
-            fill="none"
-            stroke="hsl(30, 20%, 50%)"
-            strokeWidth="0.4"
-            strokeDasharray="2 1.5"
-          />
-          {/* Charging indicator */}
-          <circle
-            cx="0"
-            cy="5"
-            r="1.5"
-            fill="hsl(160, 70%, 45%)"
-          />
-          {/* Small charging bolt */}
-          <path
-            d="M0 3.8 L0.8 4.8 L0 4.6 L0 6.2 L-0.8 5.2 L0 5.4 Z"
-            fill="white"
-            opacity="0.9"
-          />
+          {/* Charging contacts */}
+          <rect x="-4" y="-1" width="2" height="4" rx="0.5" fill="hsl(45, 70%, 55%)" />
+          <rect x="2" y="-1" width="2" height="4" rx="0.5" fill="hsl(45, 70%, 55%)" />
+          {/* Status LED */}
+          <circle cx="0" cy="-5" r="1.5" fill="hsl(160, 70%, 50%)">
+            <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite" />
+          </circle>
+          {/* Dock label indicator */}
+          <rect x="-5" y="5" width="10" height="3" rx="1" fill="hsl(220, 15%, 35%)" />
+          <text
+            x="0"
+            y="7.2"
+            textAnchor="middle"
+            fill="hsl(220, 15%, 60%)"
+            fontSize="2.5"
+            fontWeight="600"
+            style={{ fontFamily: 'system-ui, sans-serif' }}
+          >
+            DOCK
+          </text>
         </g>
 
         {/* Completion sparkles */}
