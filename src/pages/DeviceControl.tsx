@@ -98,6 +98,11 @@ const DeviceControl = () => {
   const [editableRoomNames, setEditableRoomNames] = useState<Record<string, string>>({});
   const [selectedPreset, setSelectedPreset] = useState<string | null>("preset-1");
   const [editingPreset, setEditingPreset] = useState<string | null>(null);
+  
+  // Fast button long-press states
+  const [isLongPressing, setIsLongPressing] = useState(false);
+  const [showModePicker, setShowModePicker] = useState(false);
+  const longPressTimer = useRef<NodeJS.Timeout | null>(null);
   const [showNewPresetModal, setShowNewPresetModal] = useState(false);
   const [newPresetName, setNewPresetName] = useState("");
   const [customPresets, setCustomPresets] = useState([
@@ -776,147 +781,150 @@ const DeviceControl = () => {
               </div>
             </button>
           ) : (
-            (() => {
-              const [isLongPressing, setIsLongPressing] = useState(false);
-              const [showModePicker, setShowModePicker] = useState(false);
-              const longPressTimer = useRef<NodeJS.Timeout | null>(null);
-              
-              const handlePressStart = () => {
-                if (isCharging && battery < 50) return;
-                setIsLongPressing(true);
-                longPressTimer.current = setTimeout(() => {
-                  setShowModePicker(true);
-                  setIsLongPressing(false);
-                }, 500);
-              };
-              
-              const handlePressEnd = () => {
-                if (longPressTimer.current) {
-                  clearTimeout(longPressTimer.current);
-                  longPressTimer.current = null;
-                }
-                if (!showModePicker && isLongPressing) {
-                  // Was a tap, start cleaning
-                  startCleaning(lastUsedMode);
-                }
-                setIsLongPressing(false);
-              };
-              
-              return (
-                <Popover open={showModePicker} onOpenChange={setShowModePicker}>
-                  <PopoverTrigger asChild>
-                    <motion.button 
-                      whileTap={{ scale: (isCharging && battery < 50) ? 1 : 0.95 }}
-                      className="flex flex-col items-center gap-1 relative"
-                      onMouseDown={handlePressStart}
-                      onMouseUp={handlePressEnd}
-                      onMouseLeave={() => {
-                        if (longPressTimer.current) {
-                          clearTimeout(longPressTimer.current);
-                          setIsLongPressing(false);
-                        }
-                      }}
-                      onTouchStart={handlePressStart}
-                      onTouchEnd={handlePressEnd}
-                      onContextMenu={(e) => e.preventDefault()}
-                      disabled={isCharging && battery < 50}
-                    >
-                      {/* Long press ring indicator */}
-                      <AnimatePresence>
-                        {isLongPressing && (
-                          <motion.div
-                            initial={{ scale: 1, opacity: 0 }}
-                            animate={{ scale: 1.3, opacity: 1 }}
-                            exit={{ scale: 1, opacity: 0 }}
-                            transition={{ duration: 0.5 }}
-                            className={`absolute w-12 h-12 rounded-full border-2 ${
-                              lastUsedMode === "safe"
-                                ? "border-emerald-500"
-                                : lastUsedMode === "deep"
-                                  ? "border-primary"
-                                  : "border-foreground/50"
-                            }`}
-                          />
-                        )}
-                      </AnimatePresence>
-                      <div className={`w-12 h-12 rounded-full border flex items-center justify-center transition-colors ${
-                        (isCharging && battery < 50) 
-                          ? "bg-muted/30 border-border" 
-                          : lastUsedMode === "safe" 
-                            ? "bg-emerald-500/10 border-emerald-500/30 hover:bg-emerald-500/20"
+            <Popover open={showModePicker} onOpenChange={setShowModePicker}>
+              <PopoverTrigger asChild>
+                <motion.button 
+                  whileTap={{ scale: (isCharging && battery < 50) ? 1 : 0.95 }}
+                  className="flex flex-col items-center gap-1 relative"
+                  onMouseDown={() => {
+                    if (isCharging && battery < 50) return;
+                    setIsLongPressing(true);
+                    longPressTimer.current = setTimeout(() => {
+                      setShowModePicker(true);
+                      setIsLongPressing(false);
+                    }, 500);
+                  }}
+                  onMouseUp={() => {
+                    if (longPressTimer.current) {
+                      clearTimeout(longPressTimer.current);
+                      longPressTimer.current = null;
+                    }
+                    if (!showModePicker && isLongPressing) {
+                      startCleaning(lastUsedMode);
+                    }
+                    setIsLongPressing(false);
+                  }}
+                  onMouseLeave={() => {
+                    if (longPressTimer.current) {
+                      clearTimeout(longPressTimer.current);
+                      setIsLongPressing(false);
+                    }
+                  }}
+                  onTouchStart={() => {
+                    if (isCharging && battery < 50) return;
+                    setIsLongPressing(true);
+                    longPressTimer.current = setTimeout(() => {
+                      setShowModePicker(true);
+                      setIsLongPressing(false);
+                    }, 500);
+                  }}
+                  onTouchEnd={() => {
+                    if (longPressTimer.current) {
+                      clearTimeout(longPressTimer.current);
+                      longPressTimer.current = null;
+                    }
+                    if (!showModePicker && isLongPressing) {
+                      startCleaning(lastUsedMode);
+                    }
+                    setIsLongPressing(false);
+                  }}
+                  onContextMenu={(e) => e.preventDefault()}
+                  disabled={isCharging && battery < 50}
+                >
+                  {/* Long press ring indicator */}
+                  <AnimatePresence>
+                    {isLongPressing && (
+                      <motion.div
+                        initial={{ scale: 1, opacity: 0 }}
+                        animate={{ scale: 1.3, opacity: 1 }}
+                        exit={{ scale: 1, opacity: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className={`absolute w-12 h-12 rounded-full border-2 ${
+                          lastUsedMode === "safe"
+                            ? "border-emerald-500"
                             : lastUsedMode === "deep"
-                              ? "bg-primary/10 border-primary/30 hover:bg-primary/20"
-                              : "bg-muted/50 border-border hover:bg-muted"
+                              ? "border-primary"
+                              : "border-foreground/50"
+                        }`}
+                      />
+                    )}
+                  </AnimatePresence>
+                  <div className={`w-12 h-12 rounded-full border flex items-center justify-center transition-colors ${
+                    (isCharging && battery < 50) 
+                      ? "bg-muted/30 border-border" 
+                      : lastUsedMode === "safe" 
+                        ? "bg-emerald-500/10 border-emerald-500/30 hover:bg-emerald-500/20"
+                        : lastUsedMode === "deep"
+                          ? "bg-primary/10 border-primary/30 hover:bg-primary/20"
+                          : "bg-muted/50 border-border hover:bg-muted"
+                  }`}>
+                    <Zap className={`w-5 h-5 ${
+                      (isCharging && battery < 50) 
+                        ? "text-muted-foreground/50" 
+                        : lastUsedMode === "safe"
+                          ? "text-emerald-500"
+                          : lastUsedMode === "deep"
+                            ? "text-primary"
+                            : "text-foreground"
+                    }`} />
+                  </div>
+                  <span className={`text-xs font-medium ${
+                    (isCharging && battery < 50)
+                      ? "text-muted-foreground/50"
+                      : lastUsedMode === "safe"
+                        ? "text-emerald-500"
+                        : lastUsedMode === "deep"
+                          ? "text-primary"
+                          : "text-muted-foreground"
+                  }`}>
+                    {modeDisplayNames[lastUsedMode]}
+                  </span>
+                </motion.button>
+              </PopoverTrigger>
+              <PopoverContent 
+                side="top" 
+                align="end"
+                sideOffset={12}
+                className="w-auto p-2 bg-card border-border rounded-2xl z-50"
+              >
+                <div className="flex gap-2">
+                  {(["safe", "deep"] as const).map((mode) => (
+                    <motion.button
+                      key={mode}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => {
+                        startCleaning(mode);
+                        setShowModePicker(false);
+                      }}
+                      className={`flex flex-col items-center gap-1.5 p-3 rounded-xl transition-colors ${
+                        mode === "safe"
+                          ? "hover:bg-emerald-500/10"
+                          : "hover:bg-primary/10"
+                      }`}
+                    >
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        mode === "safe"
+                          ? "bg-emerald-500/20 text-emerald-500"
+                          : "bg-primary/20 text-primary"
                       }`}>
-                        <Zap className={`w-5 h-5 ${
-                          (isCharging && battery < 50) 
-                            ? "text-muted-foreground/50" 
-                            : lastUsedMode === "safe"
-                              ? "text-emerald-500"
-                              : lastUsedMode === "deep"
-                                ? "text-primary"
-                                : "text-foreground"
-                        }`} />
+                        {mode === "safe" ? (
+                          <Leaf className="w-5 h-5" />
+                        ) : (
+                          <Sparkles className="w-5 h-5" />
+                        )}
                       </div>
                       <span className={`text-xs font-medium ${
-                        (isCharging && battery < 50)
-                          ? "text-muted-foreground/50"
-                          : lastUsedMode === "safe"
-                            ? "text-emerald-500"
-                            : lastUsedMode === "deep"
-                              ? "text-primary"
-                              : "text-muted-foreground"
+                        mode === "safe"
+                          ? "text-emerald-500"
+                          : "text-primary"
                       }`}>
-                        {modeDisplayNames[lastUsedMode]}
+                        {modeDisplayNames[mode]}
                       </span>
                     </motion.button>
-                  </PopoverTrigger>
-                  <PopoverContent 
-                    side="top" 
-                    align="end"
-                    sideOffset={12}
-                    className="w-auto p-2 bg-card border-border rounded-2xl z-50"
-                  >
-                    <div className="flex gap-2">
-                      {(["safe", "deep"] as const).map((mode) => (
-                        <motion.button
-                          key={mode}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => {
-                            startCleaning(mode);
-                            setShowModePicker(false);
-                          }}
-                          className={`flex flex-col items-center gap-1.5 p-3 rounded-xl transition-colors ${
-                            mode === "safe"
-                              ? "hover:bg-emerald-500/10"
-                              : "hover:bg-primary/10"
-                          }`}
-                        >
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                            mode === "safe"
-                              ? "bg-emerald-500/20 text-emerald-500"
-                              : "bg-primary/20 text-primary"
-                          }`}>
-                            {mode === "safe" ? (
-                              <Leaf className="w-5 h-5" />
-                            ) : (
-                              <Sparkles className="w-5 h-5" />
-                            )}
-                          </div>
-                          <span className={`text-xs font-medium ${
-                            mode === "safe"
-                              ? "text-emerald-500"
-                              : "text-primary"
-                          }`}>
-                            {modeDisplayNames[mode]}
-                          </span>
-                        </motion.button>
-                      ))}
-                    </div>
-                  </PopoverContent>
-                </Popover>
-              );
-            })()
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
           )}
         </div>
       </div>
