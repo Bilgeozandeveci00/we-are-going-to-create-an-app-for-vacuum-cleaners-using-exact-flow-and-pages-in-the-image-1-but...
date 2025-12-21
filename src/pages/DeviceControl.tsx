@@ -64,10 +64,18 @@ const DeviceControl = () => {
   const [isCompleted, setIsCompleted] = useState(false);
   const [battery, setBattery] = useState(93);
   const [selectedTab, setSelectedTab] = useState<"safe" | "normal" | "deep">("normal");
-  const [lastUsedMode, setLastUsedMode] = useState<"safe" | "normal" | "deep">(() => {
-    const saved = localStorage.getItem(`last-mode-${id}`);
-    return (saved as "safe" | "normal" | "deep") || "normal";
-  });
+  const [lastUsedMode, setLastUsedMode] = useState<"safe" | "normal" | "deep">("normal");
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(`last-mode-${id}`);
+      if (saved === "safe" || saved === "normal" || saved === "deep") {
+        setLastUsedMode(saved);
+      }
+    } catch {
+      // Ignore storage errors (privacy mode, blocked storage, etc.)
+    }
+  }, [id]);
   const [selectedFloor, setSelectedFloor] = useState(1);
   const [selectedRooms, setSelectedRooms] = useState<string[]>([]);
   const [showFloorSelector, setShowFloorSelector] = useState(false);
@@ -335,7 +343,11 @@ const DeviceControl = () => {
     
     setSelectedTab(mode);
     setLastUsedMode(mode);
-    localStorage.setItem(`last-mode-${id}`, mode);
+    try {
+      localStorage.setItem(`last-mode-${id}`, mode);
+    } catch {
+      // Ignore storage errors
+    }
     setShowModeSelector(false);
     setIsStuck(false);
     setIsCompleted(false);
