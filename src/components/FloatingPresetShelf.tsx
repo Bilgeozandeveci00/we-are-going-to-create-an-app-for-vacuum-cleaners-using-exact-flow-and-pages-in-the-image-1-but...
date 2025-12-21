@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Droplets, Wind, Layers, ChevronRight, SlidersHorizontal } from "lucide-react";
+import { Droplets, Wind, Layers } from "lucide-react";
 
 interface FloatingPresetShelfProps {
   vacuumPower: number;
@@ -20,59 +20,52 @@ const FloatingPresetShelf = ({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 8 }}
       transition={{ type: "spring", stiffness: 500, damping: 30 }}
-      whileTap={{ scale: 0.98 }}
+      whileTap={{ scale: 0.97 }}
+      whileHover={{ scale: 1.01 }}
       onClick={onCustomizeClick}
-      className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl bg-secondary/80 backdrop-blur-sm border border-border/30 transition-all hover:bg-secondary hover:border-primary/20 group"
+      className="w-full flex items-center justify-center gap-6 px-5 py-3.5 rounded-2xl bg-gradient-to-b from-secondary to-secondary/70 border border-border/40 shadow-[0_2px_8px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.05)] active:shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] transition-shadow cursor-pointer"
     >
-      {/* Icon */}
-      <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-        <SlidersHorizontal className="w-5 h-5 text-primary" />
-      </div>
-
-      {/* Settings preview */}
-      <div className="flex-1 flex items-center gap-4">
-        {/* Fan/Vacuum Power */}
-        <div className="flex items-center gap-1.5">
-          <Wind className="w-3.5 h-3.5 text-muted-foreground" />
-          <div className="flex items-end gap-0.5">
-            {[1, 2, 3, 4].map((level) => (
-              <div
-                key={level}
-                className={`w-1 rounded-full transition-colors ${
-                  level <= vacuumPower ? 'bg-primary' : 'bg-muted-foreground/20'
-                }`}
-                style={{ height: `${4 + level * 2}px` }}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Water Flow */}
-        <div className="flex items-center gap-1.5">
-          <Droplets className="w-3.5 h-3.5 text-muted-foreground" />
-          <div className="flex gap-0.5">
-            {[1, 2, 3, 4].map((level) => (
-              <div
-                key={level}
-                className={`w-1.5 h-1.5 rounded-full transition-colors ${
-                  level <= waterFlow ? 'bg-sky-400' : 'bg-muted-foreground/20'
-                }`}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Floor */}
-        <div className="flex items-center gap-1.5">
-          <Layers className="w-3.5 h-3.5 text-muted-foreground" />
-          <span className="text-xs text-muted-foreground">{currentFloor}</span>
+      {/* Fan/Vacuum Power */}
+      <div className="flex items-center gap-2">
+        <Wind className="w-4 h-4 text-muted-foreground" />
+        <div className="flex items-end gap-0.5">
+          {[1, 2, 3, 4].map((level) => (
+            <div
+              key={level}
+              className={`w-1.5 rounded-full transition-colors ${
+                level <= vacuumPower ? 'bg-primary' : 'bg-muted-foreground/20'
+              }`}
+              style={{ height: `${5 + level * 2}px` }}
+            />
+          ))}
         </div>
       </div>
 
-      {/* CTA */}
-      <div className="flex items-center gap-1 text-primary group-hover:gap-2 transition-all">
-        <span className="text-xs font-medium">Tap to adjust</span>
-        <ChevronRight className="w-4 h-4" />
+      {/* Divider */}
+      <div className="w-px h-5 bg-border/50" />
+
+      {/* Water Flow */}
+      <div className="flex items-center gap-2">
+        <Droplets className="w-4 h-4 text-muted-foreground" />
+        <div className="flex gap-1">
+          {[1, 2, 3, 4].map((level) => (
+            <div
+              key={level}
+              className={`w-1.5 h-1.5 rounded-full transition-colors ${
+                level <= waterFlow ? 'bg-sky-400' : 'bg-muted-foreground/20'
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Divider */}
+      <div className="w-px h-5 bg-border/50" />
+
+      {/* Floor */}
+      <div className="flex items-center gap-2">
+        <Layers className="w-4 h-4 text-muted-foreground" />
+        <span className="text-xs font-medium text-muted-foreground">{currentFloor}</span>
       </div>
     </motion.button>
   );
