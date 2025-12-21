@@ -723,63 +723,90 @@ const DeviceControl = () => {
           )}
         </AnimatePresence>
 
-        {/* Main Control Panel */}
-        <div className="rounded-2xl bg-card border border-border p-4 safe-area-bottom">
-          <div className="flex items-center justify-between">
-            {/* Status indicator */}
-            <div className="flex-1 flex items-center gap-2">
-              {isRunning && (
-                <motion.div
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="flex items-center gap-2"
-                >
+      {/* Main Control Panel */}
+        <div className="rounded-2xl bg-card border border-border p-3 safe-area-bottom">
+          {isRunning ? (
+            /* Running state - Pause button with status */
+            <div className="flex items-center gap-3">
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={handleStartStop}
+                className="w-16 h-16 rounded-full bg-primary glow-primary flex items-center justify-center flex-shrink-0"
+              >
+                <Pause className="w-7 h-7 text-primary-foreground" />
+              </motion.button>
+              
+              <div className="flex-1 flex flex-col gap-1">
+                <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                  <span className="text-xs text-muted-foreground">
-                    {Math.floor(remainingTime / 60)}:{(remainingTime % 60).toString().padStart(2, '0')}
-                  </span>
-                </motion.div>
-              )}
-            </div>
-
-            {/* Center Play/Pause Button */}
-            <motion.button
-              whileTap={{ scale: (isCharging && battery < 50) ? 1 : 0.95 }}
-              onClick={(isCharging && battery < 50) ? undefined : handleStartStop}
-              className="relative"
-              disabled={isCharging && battery < 50}
-            >
-              <div className={`w-14 h-14 rounded-full flex items-center justify-center ${
-                (isCharging && battery < 50)
-                  ? "bg-muted" 
-                  : "bg-primary glow-primary"
-              }`}>
-                {(isCharging && battery < 50) ? (
-                  <span className="text-xs font-medium text-muted-foreground">{Math.ceil((100 - battery) / 10)}m</span>
-                ) : isRunning ? (
-                  <Pause className="w-6 h-6 text-primary-foreground" />
-                ) : (
-                  <Play className="w-6 h-6 text-primary-foreground ml-0.5" fill="currentColor" />
-                )}
+                  <span className="text-sm font-medium">Cleaning in progress</span>
+                </div>
+                <span className="text-xs text-muted-foreground">
+                  {Math.floor(remainingTime / 60)}:{(remainingTime % 60).toString().padStart(2, '0')} remaining
+                </span>
               </div>
-            </motion.button>
-
-            {/* Right side - Dock button when running */}
-            <div className="flex-1 flex justify-end">
-              {isRunning && (
-                <motion.button
-                  initial={{ opacity: 0, x: 10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  onClick={handleDock}
-                  disabled={isDocking}
-                  className="flex items-center gap-2 px-3 py-2 rounded-xl bg-muted/50 border border-border/50"
-                >
-                  <Home className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-xs font-medium text-muted-foreground">Dock</span>
-                </motion.button>
-              )}
+              
+              <motion.button
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                onClick={handleDock}
+                disabled={isDocking}
+                className="flex items-center gap-2 px-4 py-3 rounded-xl bg-muted/50 border border-border/50"
+              >
+                <Home className="w-5 h-5 text-muted-foreground" />
+              </motion.button>
             </div>
-          </div>
+          ) : (isCharging && battery < 50) ? (
+            /* Charging state - disabled */
+            <div className="flex items-center justify-center gap-3 py-2">
+              <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+                <span className="text-sm font-medium text-muted-foreground">{Math.ceil((100 - battery) / 10)}m</span>
+              </div>
+              <span className="text-sm text-muted-foreground">Charging before clean</span>
+            </div>
+          ) : (
+            /* Idle state - Slide to start */
+            <motion.div
+              className="relative h-16 rounded-full bg-muted/50 border border-border/50 overflow-hidden"
+            >
+              {/* Track label */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <motion.span 
+                  className="text-sm font-medium text-muted-foreground"
+                  animate={{ opacity: [0.5, 0.8, 0.5] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  Slide to start cleaning
+                </motion.span>
+                <motion.div
+                  className="absolute right-20 flex items-center gap-1 text-muted-foreground/50"
+                  animate={{ x: [0, 5, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                >
+                  <ChevronRight className="w-4 h-4" />
+                  <ChevronRight className="w-4 h-4 -ml-2" />
+                </motion.div>
+              </div>
+              
+              {/* Draggable button */}
+              <motion.button
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.1}
+                onDragEnd={(_, info) => {
+                  if (info.offset.x > 150) {
+                    handleStartStop();
+                  }
+                }}
+                whileDrag={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleStartStop}
+                className="absolute left-1 top-1 w-14 h-14 rounded-full bg-primary glow-primary flex items-center justify-center cursor-grab active:cursor-grabbing z-10"
+              >
+                <Play className="w-6 h-6 text-primary-foreground ml-0.5" fill="currentColor" />
+              </motion.button>
+            </motion.div>
+          )}
         </div>
       </div>
 
