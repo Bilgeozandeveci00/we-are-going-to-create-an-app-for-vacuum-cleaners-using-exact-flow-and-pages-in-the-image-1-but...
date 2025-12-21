@@ -734,34 +734,29 @@ const DeviceControl = () => {
         {/* Main Control - Now above customize bar for hierarchy */}
         <div className="flex items-center justify-center">
           {isRunning ? (
-            /* Running state - Pause button with status */
-            <div className="flex items-center gap-4">
+            /* Running state - Stop and Return buttons side by side */
+            <div className="flex items-center gap-3 w-full">
               <motion.button
-                whileTap={{ scale: 0.95 }}
+                whileTap={{ scale: 0.97 }}
+                whileHover={{ scale: 1.02 }}
                 onClick={handleStartStop}
-                className="w-16 h-16 rounded-full bg-primary glow-primary flex items-center justify-center"
+                className="flex-1 flex items-center justify-center gap-3 py-3.5 rounded-2xl bg-gradient-to-b from-destructive to-destructive/80 border border-destructive/40 shadow-[0_2px_8px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.1)]"
               >
-                <Pause className="w-7 h-7 text-primary-foreground" />
+                <Pause className="w-5 h-5 text-destructive-foreground" />
+                <span className="text-sm font-medium text-destructive-foreground">Stop</span>
               </motion.button>
-              
-              <div className="flex flex-col gap-0.5">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                  <span className="text-sm font-medium">Cleaning</span>
-                </div>
-                <span className="text-xs text-muted-foreground">
-                  {Math.floor(remainingTime / 60)}:{(remainingTime % 60).toString().padStart(2, '0')} left
-                </span>
-              </div>
               
               <motion.button
                 initial={{ opacity: 0, x: 10 }}
                 animate={{ opacity: 1, x: 0 }}
+                whileTap={{ scale: 0.97 }}
+                whileHover={{ scale: 1.02 }}
                 onClick={handleDock}
                 disabled={isDocking}
-                className="w-12 h-12 rounded-full bg-muted/80 border border-border/50 flex items-center justify-center"
+                className="flex-1 flex items-center justify-center gap-3 py-3.5 rounded-2xl bg-gradient-to-b from-muted to-muted/80 border border-border/40 shadow-[0_2px_8px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.05)]"
               >
-                <Home className="w-5 h-5 text-muted-foreground" />
+                <Home className="w-5 h-5 text-foreground" />
+                <span className="text-sm font-medium text-foreground">Return</span>
               </motion.button>
             </div>
           ) : (isCharging && battery < 50) ? (
@@ -785,9 +780,9 @@ const DeviceControl = () => {
           )}
         </div>
 
-        {/* Settings Bar - Below start button */}
+        {/* Settings Bar - Below buttons */}
         <AnimatePresence>
-          {!isRunning && !isDocking && !isCharging && !isCompleted && !isStuck && (
+          {!isDocking && !isCharging && !isCompleted && !isStuck && (
             <FloatingPresetShelf
               vacuumPower={vacuumPower}
               waterFlow={waterFlow}
@@ -847,39 +842,19 @@ const DeviceControl = () => {
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={() => startCleaning("safe")}
-                className="flex-1 bg-emerald-500 rounded-xl p-3 text-center"
+                className="flex-1 flex items-center justify-center gap-2 bg-emerald-500 rounded-xl py-3.5"
               >
-                <div className="flex items-center justify-center gap-2">
-                  <Play className="w-4 h-4 text-white" fill="white" />
-                  <span className="text-white font-semibold text-sm">Smooth</span>
-                </div>
-                <div className="flex items-center justify-center gap-3 mt-1">
-                  <span className="text-white/70 text-xs">{Math.round(selectedTime * 0.7)} min</span>
-                  <span className="text-white/50 text-[10px]">•</span>
-                  <span className="text-white/70 text-xs flex items-center gap-1">
-                    <Battery className="w-3 h-3" />
-                    {Math.round(selectedTime * 0.7 * 0.5)}%
-                  </span>
-                </div>
+                <Play className="w-4 h-4 text-white" fill="white" />
+                <span className="text-white font-semibold text-sm">Smooth</span>
               </motion.button>
 
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={() => startCleaning("deep")}
-                className="flex-1 bg-primary rounded-xl p-3 text-center"
+                className="flex-1 flex items-center justify-center gap-2 bg-primary rounded-xl py-3.5"
               >
-                <div className="flex items-center justify-center gap-2">
-                  <Play className="w-4 h-4 text-primary-foreground" fill="currentColor" />
-                  <span className="text-primary-foreground font-semibold text-sm">Deep</span>
-                </div>
-                <div className="flex items-center justify-center gap-3 mt-1">
-                  <span className="text-primary-foreground/70 text-xs">{selectedTime} min</span>
-                  <span className="text-primary-foreground/50 text-[10px]">•</span>
-                  <span className="text-primary-foreground/70 text-xs flex items-center gap-1">
-                    <Battery className="w-3 h-3" />
-                    {Math.round(selectedTime * 0.8)}%
-                  </span>
-                </div>
+                <Play className="w-4 h-4 text-primary-foreground" fill="currentColor" />
+                <span className="text-primary-foreground font-semibold text-sm">Deep</span>
               </motion.button>
             </div>
 
@@ -889,11 +864,10 @@ const DeviceControl = () => {
                 setShowModeSelector(false);
                 setShowCustomMode(true);
               }}
-              className="w-full bg-muted border border-border rounded-xl p-3 flex items-center justify-center gap-2"
+              className="w-full flex items-center justify-center gap-2 bg-muted border border-border rounded-xl py-3.5"
             >
               <Settings2 className="w-4 h-4 text-muted-foreground" />
               <span className="text-foreground font-medium text-sm">Custom</span>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </motion.button>
 
             {/* Show info toggle when hidden */}
@@ -926,31 +900,23 @@ const DeviceControl = () => {
             <h2 className="text-lg font-semibold text-foreground text-center">Custom Cleaning</h2>
           </SheetHeader>
           
-          {/* Big Play Button at Top */}
-          <div className="py-6">
+          {/* Start Button - Same size as other start buttons */}
+          <div className="py-4">
             <motion.button
-              whileTap={{ scale: 0.95 }}
+              whileTap={{ scale: 0.97 }}
+              whileHover={{ scale: 1.02 }}
               onClick={startCustomCleaning}
               disabled={!selectedPreset}
-              className={`w-full flex flex-col items-center justify-center py-6 rounded-2xl transition-all ${
+              className={`w-full flex items-center justify-center gap-3 py-3.5 rounded-2xl transition-all ${
                 selectedPreset 
-                  ? "bg-primary shadow-lg shadow-primary/30" 
+                  ? "bg-gradient-to-b from-primary to-primary/80 border border-primary/40 shadow-[0_2px_8px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.1)]" 
                   : "bg-muted cursor-not-allowed"
               }`}
             >
-              <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-3 ${
-                selectedPreset ? "bg-white/20" : "bg-muted-foreground/20"
-              }`}>
-                <Play className={`w-8 h-8 ml-1 ${selectedPreset ? "text-white" : "text-muted-foreground"}`} fill="currentColor" />
-              </div>
-              <span className={`font-bold text-lg ${selectedPreset ? "text-white" : "text-muted-foreground"}`}>
+              <Play className={`w-5 h-5 ${selectedPreset ? "text-primary-foreground" : "text-muted-foreground"}`} fill="currentColor" />
+              <span className={`font-medium text-sm ${selectedPreset ? "text-primary-foreground" : "text-muted-foreground"}`}>
                 {selectedPreset ? "Start Custom Clean" : "Select a Preset"}
               </span>
-              {selectedPreset && (
-                <span className="text-white/70 text-sm mt-1">
-                  {customPresets.find(p => p.id === selectedPreset)?.name}
-                </span>
-              )}
             </motion.button>
           </div>
 

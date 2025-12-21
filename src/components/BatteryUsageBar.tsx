@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import { Zap } from "lucide-react";
 
 interface BatteryUsageBarProps {
   currentBattery: number;
@@ -14,7 +13,6 @@ const BatteryUsageBar = ({
 
   return (
     <div className="flex items-center gap-3 w-full">
-      <Zap className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
       <div className="flex-1">
         <div className="h-2 w-full bg-muted-foreground/10 rounded-full overflow-hidden">
           <motion.div
@@ -26,7 +24,7 @@ const BatteryUsageBar = ({
         </div>
       </div>
       <span className="text-xs text-muted-foreground whitespace-nowrap">
-        Uses <span className="font-semibold text-foreground">{estimatedUsage}%</span> battery
+        Uses <span className="font-semibold text-foreground">{estimatedUsage}%</span>
       </span>
     </div>
   );
