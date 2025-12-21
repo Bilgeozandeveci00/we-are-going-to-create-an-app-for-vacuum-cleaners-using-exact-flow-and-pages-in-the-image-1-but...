@@ -517,10 +517,10 @@ const DeviceControl = () => {
         </button>
       </header>
 
-      {/* Status Bar - Redesigned with Visual Indicators */}
-      <div className="mx-4 mb-2">
+      {/* Status Bar - Hero Focus */}
+      <div className="mx-4 mb-3">
         <motion.div 
-          className={`rounded-2xl p-4 ${
+          className={`rounded-2xl p-5 ${
             isStuck 
               ? "bg-destructive/10 border border-destructive/20" 
               : isCompleted 
@@ -534,57 +534,57 @@ const DeviceControl = () => {
           animate={isRunning || isCharging ? { opacity: [0.95, 1, 0.95] } : {}}
           transition={{ duration: 2, repeat: Infinity }}
         >
-          {/* Top Row - Status Text + Battery Visual */}
-          <div className="flex items-start justify-between gap-4">
-            {/* Left - Status Info */}
+          {/* Main Content Row */}
+          <div className="flex items-center justify-between gap-4">
+            {/* Left - Hero Statement */}
             <div className="flex-1">
-              {/* Status Title */}
-              <div className="flex items-center gap-2 mb-0.5">
+              {/* Primary Statement - Large and Clear */}
+              <div className="flex items-center gap-2.5 mb-1">
                 <motion.div 
-                  className={`w-2 h-2 rounded-full ${
-                    isStuck ? "bg-destructive" : isCompleted ? "bg-emerald-500" : isCharging ? "bg-emerald-500" : isRunning ? "bg-primary" : "bg-muted-foreground/60"
+                  className={`w-2.5 h-2.5 rounded-full ${
+                    isStuck ? "bg-destructive" : isCompleted ? "bg-emerald-500" : isCharging ? "bg-emerald-500" : isRunning ? "bg-primary" : "bg-primary"
                   }`}
                   animate={isRunning || isCharging ? { scale: [1, 1.4, 1], opacity: [1, 0.7, 1] } : {}}
                   transition={{ duration: 1.2, repeat: Infinity }}
                 />
-                <span className={`text-sm font-semibold ${
+                <h2 className={`text-lg font-semibold ${
                   isStuck ? "text-destructive" : isCompleted ? "text-emerald-500" : isCharging ? "text-emerald-500" : "text-foreground"
                 }`}>
                   {isStuck
-                    ? "Help! I'm Stuck"
+                    ? "Amphibia needs help"
                     : isCompleted
-                      ? "All Done!"
+                      ? "Cleaning complete"
                       : isCharging
-                        ? "Charging at Dock"
+                        ? "Charging"
                         : isDocking 
-                          ? "Heading Back Home" 
+                          ? "Returning to dock" 
                           : isRunning 
-                            ? "Cleaning in Progress"
-                            : "Ready to Clean"
+                            ? "Cleaning in progress"
+                            : "Amphibia is ready"
                   }
-                </span>
+                </h2>
               </div>
               
-              {/* Status Description - More context */}
-              <p className="text-xs text-muted-foreground leading-relaxed">
+              {/* Secondary Info - Contextual */}
+              <p className="text-sm text-muted-foreground">
                 {isStuck
-                  ? "Please check and move the robot to continue cleaning."
+                  ? "Please move me to continue"
                   : isCompleted
-                    ? `Successfully cleaned ${cleanedRooms.length} room${cleanedRooms.length !== 1 ? 's' : ''}. Tap to dismiss.`
+                    ? `${cleanedRooms.length} room${cleanedRooms.length !== 1 ? 's' : ''} cleaned`
                     : isCharging
-                      ? `Battery at ${battery}%. Fully charged in ~25 minutes.`
+                      ? `${battery}% • Full in ~25 min`
                       : isDocking 
-                        ? "Cleaning finished, returning to charging dock."
+                        ? "Heading home" 
                         : isRunning 
-                          ? `Cleaning ${selectedRooms.length > 0 ? selectedRooms.length : Object.keys(roomNames).length} room${(selectedRooms.length > 0 ? selectedRooms.length : Object.keys(roomNames).length) !== 1 ? 's' : ''}. ${Math.floor(remainingTime / 60)}:${String(remainingTime % 60).padStart(2, '0')} remaining.`
+                          ? `${Math.floor(remainingTime / 60)}:${String(remainingTime % 60).padStart(2, '0')} left`
                           : selectedRooms.length > 0
-                            ? `${selectedRooms.length} room${selectedRooms.length !== 1 ? 's' : ''} selected. About ${selectedTime} minutes to clean.`
-                            : `All ${Object.keys(roomNames).length} rooms selected. About ${selectedTime} minutes to clean.`
+                            ? `${selectedRooms.length} room${selectedRooms.length !== 1 ? 's' : ''} selected • ${selectedTime} min`
+                            : `All ${Object.keys(roomNames).length} rooms • ${selectedTime} min`
                 }
               </p>
             </div>
             
-            {/* Right - Battery Visual Indicator */}
+            {/* Right - Battery Visual */}
             <BatteryIndicator 
               percentage={battery} 
               isCharging={isCharging}
@@ -592,13 +592,12 @@ const DeviceControl = () => {
             />
           </div>
           
-          {/* Battery Usage Estimate - Only when idle and not charging */}
-          {!isRunning && !isCompleted && !isStuck && !isCharging && (
+          {/* Battery Usage - Simple drain indicator when idle */}
+          {!isRunning && !isCompleted && !isStuck && !isCharging && !isDocking && (
             <div className="mt-3 pt-3 border-t border-border/20">
               <BatteryUsageBar 
                 currentBattery={battery}
                 estimatedUsage={Math.round(selectedTime * 0.65)}
-                estimatedTime={selectedTime}
               />
             </div>
           )}
@@ -606,13 +605,7 @@ const DeviceControl = () => {
           {/* Progress when running */}
           {isRunning && (
             <div className="mt-3 pt-3 border-t border-border/20">
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-xs text-muted-foreground">Room progress</span>
-                <span className="text-xs font-medium text-primary">
-                  {cleanedRooms.length} of {selectedRooms.length > 0 ? selectedRooms.length : Object.keys(roomNames).length} rooms done
-                </span>
-              </div>
-              <div className="h-2 bg-muted-foreground/10 rounded-full overflow-hidden">
+              <div className="h-1.5 bg-muted-foreground/10 rounded-full overflow-hidden">
                 <motion.div
                   className="h-full bg-primary rounded-full"
                   initial={{ width: 0 }}
