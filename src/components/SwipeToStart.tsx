@@ -1,6 +1,6 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { motion, useMotionValue, useTransform, animate } from "framer-motion";
-import { Play, ChevronRight, Sparkles, Zap, Settings2 } from "lucide-react";
+import { Play, Sparkles, Zap, Settings2 } from "lucide-react";
 
 interface SwipeToStartProps {
   onTap: () => void;
@@ -9,119 +9,129 @@ interface SwipeToStartProps {
   lastMode?: "safe" | "normal" | "deep";
 }
 
-const modeLabels = {
-  safe: { name: "Smooth", icon: Sparkles, color: "text-emerald-500" },
-  normal: { name: "Custom", icon: Settings2, color: "text-foreground" },
-  deep: { name: "Deep", icon: Zap, color: "text-primary" },
+const modeConfig = {
+  safe: { 
+    name: "Smooth", 
+    icon: Sparkles, 
+    bg: "bg-emerald-500",
+    glow: "shadow-emerald-500/50"
+  },
+  normal: { 
+    name: "Custom", 
+    icon: Settings2, 
+    bg: "bg-muted",
+    glow: "shadow-muted/50"
+  },
+  deep: { 
+    name: "Deep", 
+    icon: Zap, 
+    bg: "bg-primary",
+    glow: "shadow-primary/50"
+  },
 };
 
 const SwipeToStart = ({ onTap, onSwipe, disabled = false, lastMode = "deep" }: SwipeToStartProps) => {
   const [isComplete, setIsComplete] = useState(false);
-  const constraintsRef = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
   
-  const trackWidth = 280;
-  const handleWidth = 56;
-  const threshold = trackWidth - handleWidth - 16;
+  const trackWidth = 260;
+  const handleSize = 48;
+  const destinationSize = 40;
+  const threshold = trackWidth - handleSize - 8;
   
-  const textOpacity = useTransform(x, [0, threshold * 0.5], [1, 0]);
-  const arrowOpacity = useTransform(x, [0, threshold * 0.3], [1, 0]);
-  const successOpacity = useTransform(x, [threshold * 0.7, threshold], [0, 1]);
+  // Visual feedback transforms
+  const handleScale = useTransform(x, [0, threshold], [1, 0.9]);
+  const destinationScale = useTransform(x, [threshold * 0.5, threshold], [1, 1.15]);
+  const destinationGlow = useTransform(x, [threshold * 0.5, threshold], [0, 1]);
+  const trackFill = useTransform(x, [0, threshold], ["0%", "100%"]);
   
   const handleDragEnd = () => {
     const currentX = x.get();
-    if (currentX >= threshold) {
+    if (currentX >= threshold * 0.85) {
       setIsComplete(true);
+      // Snap to end
+      animate(x, threshold, { duration: 0.15 });
       onSwipe();
       setTimeout(() => {
-        animate(x, 0, { duration: 0.3 });
+        animate(x, 0, { duration: 0.4, ease: "easeOut" });
         setIsComplete(false);
-      }, 500);
+      }, 600);
     } else {
-      animate(x, 0, { type: "spring", stiffness: 500, damping: 30 });
+      animate(x, 0, { type: "spring", stiffness: 400, damping: 25 });
     }
   };
 
   const handleTap = () => {
-    // Only trigger tap if not dragging
-    if (Math.abs(x.get()) < 5) {
+    if (Math.abs(x.get()) < 8) {
       onTap();
     }
   };
 
-  const ModeIcon = modeLabels[lastMode].icon;
+  const ModeIcon = modeConfig[lastMode].icon;
 
   if (disabled) {
     return (
-      <div className="w-[280px] h-14 rounded-full bg-muted/50 border border-border flex items-center justify-center">
-        <span className="text-sm text-muted-foreground">Charging...</span>
+      <div className="w-[260px] h-14 rounded-full bg-muted/30 border border-border/50 flex items-center justify-center">
+        <span className="text-sm text-muted-foreground/70">Charging...</span>
       </div>
     );
   }
 
   return (
-    <div 
-      ref={constraintsRef}
-      className="relative w-[280px] h-14 rounded-full bg-gradient-to-r from-primary/20 to-primary/5 border border-primary/30 overflow-hidden"
-    >
-      {/* Swipe hint arrows on the right side */}
+    <div className="relative w-[260px] h-14 rounded-full bg-card border border-border overflow-hidden">
+      {/* Track fill - shows progress */}
       <motion.div 
-        className="absolute inset-y-0 right-4 flex items-center gap-0.5 pointer-events-none"
-        style={{ opacity: arrowOpacity }}
+        className={`absolute inset-y-0 left-0 ${modeConfig[lastMode].bg} opacity-20`}
+        style={{ width: trackFill }}
+      />
+      
+      {/* Subtle track line connecting handle to destination */}
+      <div className="absolute inset-y-0 left-14 right-14 flex items-center">
+        <div className="w-full h-[2px] bg-border/50 rounded-full" />
+      </div>
+
+      {/* Destination indicator (right side) - the mode icon */}
+      <motion.div 
+        className="absolute right-1.5 top-1/2 -translate-y-1/2 flex items-center justify-center"
+        style={{ scale: destinationScale }}
       >
-        {[0, 1, 2].map((i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0.2 }}
-            animate={{ opacity: [0.2, 0.6, 0.2], x: [-2, 2, -2] }}
-            transition={{
-              duration: 1.2,
-              repeat: Infinity,
-              delay: i * 0.15,
-              ease: "easeInOut"
-            }}
-          >
-            <ChevronRight className="w-4 h-4 text-primary/40" />
-          </motion.div>
-        ))}
+        <motion.div 
+          className={`w-10 h-10 rounded-full ${modeConfig[lastMode].bg} flex items-center justify-center`}
+          style={{ 
+            boxShadow: useTransform(
+              destinationGlow, 
+              [0, 1], 
+              ["0 0 0 0 transparent", `0 0 20px 4px var(--${lastMode === 'safe' ? 'emerald' : lastMode === 'deep' ? 'primary' : 'muted'})`]
+            )
+          }}
+        >
+          <ModeIcon className={`w-5 h-5 ${lastMode === 'normal' ? 'text-foreground' : 'text-white'}`} />
+        </motion.div>
       </motion.div>
 
-      {/* Center content - tap to choose, shows last mode for swipe */}
-      <motion.div 
-        className="absolute inset-0 flex items-center justify-center pointer-events-none pl-14 pr-16"
-        style={{ opacity: textOpacity }}
-      >
-        <div className="flex flex-col items-center">
-          <span className="text-sm font-medium text-foreground">Tap to choose</span>
-          <div className="flex items-center gap-1 mt-0.5">
-            <ModeIcon className={`w-3 h-3 ${modeLabels[lastMode].color}`} />
-            <span className={`text-[10px] ${modeLabels[lastMode].color}`}>
-              Swipe for {modeLabels[lastMode].name}
-            </span>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Success indicator */}
-      <motion.span 
-        className="absolute inset-0 flex items-center justify-center text-sm font-medium text-primary pointer-events-none"
-        style={{ opacity: successOpacity }}
-      >
-        Starting {modeLabels[lastMode].name}...
-      </motion.span>
-
-      {/* Draggable handle */}
+      {/* Draggable play handle */}
       <motion.div
         drag="x"
         dragConstraints={{ left: 0, right: threshold }}
-        dragElastic={0.1}
+        dragElastic={0.05}
         onDragEnd={handleDragEnd}
         onTap={handleTap}
-        style={{ x }}
+        style={{ x, scale: handleScale }}
+        whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.95 }}
-        className="absolute left-1 top-1 bottom-1 w-12 rounded-full bg-primary flex items-center justify-center cursor-pointer shadow-lg"
+        className="absolute left-1 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-primary flex items-center justify-center cursor-pointer shadow-lg shadow-primary/30 z-10"
       >
         <Play className="w-5 h-5 text-primary-foreground ml-0.5" fill="currentColor" />
+      </motion.div>
+
+      {/* Center hint text - very subtle */}
+      <motion.div 
+        className="absolute inset-0 flex items-center justify-center pointer-events-none"
+        style={{ opacity: useTransform(x, [0, 40], [1, 0]) }}
+      >
+        <span className="text-xs text-muted-foreground/60 tracking-wide">
+          {isComplete ? "" : ""}
+        </span>
       </motion.div>
     </div>
   );
