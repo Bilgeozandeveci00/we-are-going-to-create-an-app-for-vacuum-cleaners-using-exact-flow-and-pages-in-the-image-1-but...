@@ -9,10 +9,8 @@ interface FloatingPresetShelfProps {
 }
 
 // SVG icon for vacuum power - matches the one inside the sheet
-const VacuumIcon = ({ level, size = 16 }: { level: number; size?: number }) => {
-  const iconSize = size === 16 ? "w-4 h-4" : "w-3.5 h-3.5";
-  
-  if (level === 0) return <Ban className={iconSize + " text-muted-foreground"} />;
+const VacuumIcon = ({ level, size = 20 }: { level: number; size?: number }) => {
+  if (level === 0) return <Ban className="w-5 h-5 text-muted-foreground" />;
   
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-primary">
@@ -26,10 +24,8 @@ const VacuumIcon = ({ level, size = 16 }: { level: number; size?: number }) => {
 };
 
 // SVG icon for water flow - matches the one inside the sheet
-const WaterIcon = ({ level, size = 16 }: { level: number; size?: number }) => {
-  const iconSize = size === 16 ? "w-4 h-4" : "w-3.5 h-3.5";
-  
-  if (level === 0) return <Ban className={iconSize + " text-muted-foreground"} />;
+const WaterIcon = ({ level, size = 20 }: { level: number; size?: number }) => {
+  if (level === 0) return <Ban className="w-5 h-5 text-muted-foreground" />;
   
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-sky-400">
@@ -56,35 +52,35 @@ const FloatingPresetShelf = ({
       whileTap={{ scale: 0.97 }}
       whileHover={{ scale: 1.01 }}
       onClick={onCustomizeClick}
-      className="w-full flex items-center justify-center gap-6 px-5 py-3.5 rounded-2xl bg-gradient-to-b from-secondary to-secondary/70 border border-border/40 shadow-[0_2px_8px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.05)] active:shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] transition-shadow cursor-pointer"
+      className="w-full flex items-center justify-between px-5 py-4 rounded-2xl bg-gradient-to-b from-secondary to-secondary/70 border border-border/40 shadow-[0_2px_8px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.05)] active:shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] transition-shadow cursor-pointer"
     >
       {/* Fan/Vacuum Power */}
-      <div className="flex items-center gap-2">
-        <VacuumIcon level={vacuumPower} />
-        <div className="flex items-end gap-0.5">
+      <div className="flex items-center gap-3 flex-1 justify-center">
+        <VacuumIcon level={vacuumPower} size={22} />
+        <div className="flex items-end gap-1">
           {[1, 2, 3, 4].map((level) => (
             <div
               key={level}
-              className={`w-1.5 rounded-full transition-colors ${
+              className={`w-2 rounded-full transition-colors ${
                 level <= vacuumPower ? 'bg-primary' : 'bg-muted-foreground/20'
               }`}
-              style={{ height: `${5 + level * 2}px` }}
+              style={{ height: `${6 + level * 3}px` }}
             />
           ))}
         </div>
       </div>
 
       {/* Divider */}
-      <div className="w-px h-5 bg-border/50" />
+      <div className="w-px h-8 bg-border/50" />
 
       {/* Water Flow */}
-      <div className="flex items-center gap-2">
-        <WaterIcon level={waterFlow} />
-        <div className="flex gap-1">
+      <div className="flex items-center gap-3 flex-1 justify-center">
+        <WaterIcon level={waterFlow} size={22} />
+        <div className="flex gap-1.5">
           {[1, 2, 3, 4].map((level) => (
             <div
               key={level}
-              className={`w-1.5 h-1.5 rounded-full transition-colors ${
+              className={`w-2 h-2 rounded-full transition-colors ${
                 level <= waterFlow ? 'bg-sky-400' : 'bg-muted-foreground/20'
               }`}
             />
@@ -93,12 +89,12 @@ const FloatingPresetShelf = ({
       </div>
 
       {/* Divider */}
-      <div className="w-px h-5 bg-border/50" />
+      <div className="w-px h-8 bg-border/50" />
 
       {/* Floor */}
-      <div className="flex items-center gap-2">
-        <Layers className="w-4 h-4 text-muted-foreground" />
-        <span className="text-xs font-medium text-muted-foreground">{currentFloor}</span>
+      <div className="flex items-center gap-2.5 flex-1 justify-center">
+        <Layers className="w-5 h-5 text-primary" />
+        <span className="text-sm font-medium text-foreground">{currentFloor}</span>
       </div>
     </motion.button>
   );
