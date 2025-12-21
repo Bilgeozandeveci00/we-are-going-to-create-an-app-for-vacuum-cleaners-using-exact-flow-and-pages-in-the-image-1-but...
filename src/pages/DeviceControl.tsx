@@ -507,14 +507,12 @@ const DeviceControl = () => {
           <ChevronDown className="h-5 w-5 rotate-90" />
         </Button>
         <h1 className="text-base font-medium text-foreground">{device.name}</h1>
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="text-foreground"
+        <button 
+          className="w-10 h-10 rounded-lg bg-card/80 backdrop-blur-sm border border-border/50 flex items-center justify-center shadow-md hover:bg-card transition-colors"
           onClick={() => setShowSettings(true)}
         >
-          <MoreHorizontal className="h-5 w-5" />
-        </Button>
+          <MoreHorizontal className="w-4 h-4 text-foreground" />
+        </button>
       </header>
 
       {/* Status Bar - More Prominent */}
