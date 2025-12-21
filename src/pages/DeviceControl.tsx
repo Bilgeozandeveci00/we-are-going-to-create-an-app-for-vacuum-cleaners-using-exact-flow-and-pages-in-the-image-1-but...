@@ -58,6 +58,10 @@ const DeviceControl = () => {
   const [isCompleted, setIsCompleted] = useState(false);
   const [battery, setBattery] = useState(93);
   const [selectedTab, setSelectedTab] = useState<"safe" | "normal" | "deep">("normal");
+  const [lastUsedMode, setLastUsedMode] = useState<"safe" | "normal" | "deep">(() => {
+    const saved = localStorage.getItem(`last-mode-${id}`);
+    return (saved as "safe" | "normal" | "deep") || "normal";
+  });
   const [selectedFloor, setSelectedFloor] = useState(1);
   const [selectedRooms, setSelectedRooms] = useState<string[]>([]);
   const [showFloorSelector, setShowFloorSelector] = useState(false);
@@ -306,12 +310,21 @@ const DeviceControl = () => {
   }, [isRunning, isStuck, remainingTime]);
 
   // Reset stuck/completed state when starting new cleaning session
+  // Mode display names
+  const modeDisplayNames: Record<"safe" | "normal" | "deep", string> = {
+    safe: "Smooth",
+    normal: "Normal", 
+    deep: "Deep",
+  };
+
   const startCleaning = (mode: "safe" | "normal" | "deep") => {
     const cleaningTime = selectedRooms.length > 0 
       ? selectedRooms.reduce((acc, roomId) => acc + (roomTimes[roomId] || 0), 0)
       : totalRoomTime;
     
     setSelectedTab(mode);
+    setLastUsedMode(mode);
+    localStorage.setItem(`last-mode-${id}`, mode);
     setShowModeSelector(false);
     setIsStuck(false);
     setIsCompleted(false);
@@ -757,18 +770,43 @@ const DeviceControl = () => {
               </div>
             </button>
           ) : (
-            <button 
+            <motion.button 
+              whileTap={{ scale: (isCharging && battery < 50) ? 1 : 0.95 }}
               className="flex flex-col items-center gap-1"
-              onClick={() => startCleaning("normal")}
+              onClick={() => startCleaning(lastUsedMode)}
               disabled={isCharging && battery < 50}
             >
-              <div className={`w-12 h-12 rounded-full border border-border flex items-center justify-center ${
-                (isCharging && battery < 50) ? "bg-muted/30" : "bg-muted/50 hover:bg-muted"
-              } transition-colors`}>
-                <Zap className={`w-5 h-5 ${(isCharging && battery < 50) ? "text-muted-foreground/50" : "text-primary"}`} />
+              <div className={`w-12 h-12 rounded-full border flex items-center justify-center transition-colors ${
+                (isCharging && battery < 50) 
+                  ? "bg-muted/30 border-border" 
+                  : lastUsedMode === "safe" 
+                    ? "bg-emerald-500/10 border-emerald-500/30 hover:bg-emerald-500/20"
+                    : lastUsedMode === "deep"
+                      ? "bg-primary/10 border-primary/30 hover:bg-primary/20"
+                      : "bg-muted/50 border-border hover:bg-muted"
+              }`}>
+                <Zap className={`w-5 h-5 ${
+                  (isCharging && battery < 50) 
+                    ? "text-muted-foreground/50" 
+                    : lastUsedMode === "safe"
+                      ? "text-emerald-500"
+                      : lastUsedMode === "deep"
+                        ? "text-primary"
+                        : "text-foreground"
+                }`} />
               </div>
-              <span className="text-xs text-muted-foreground">Fast</span>
-            </button>
+              <span className={`text-xs font-medium ${
+                (isCharging && battery < 50)
+                  ? "text-muted-foreground/50"
+                  : lastUsedMode === "safe"
+                    ? "text-emerald-500"
+                    : lastUsedMode === "deep"
+                      ? "text-primary"
+                      : "text-muted-foreground"
+              }`}>
+                {modeDisplayNames[lastUsedMode]}
+              </span>
+            </motion.button>
           )}
         </div>
       </div>
