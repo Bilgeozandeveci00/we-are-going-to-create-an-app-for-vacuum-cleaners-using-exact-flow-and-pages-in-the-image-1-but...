@@ -32,6 +32,7 @@ import {
   AlertTriangle,
   Sparkles,
   Route,
+  Leaf,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FloorMap from "@/components/FloorMap";
@@ -40,6 +41,11 @@ import {
   SheetContent,
   SheetHeader,
 } from "@/components/ui/sheet";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 // Room settings for custom mode
 interface RoomCustomSettings {
@@ -770,43 +776,100 @@ const DeviceControl = () => {
               </div>
             </button>
           ) : (
-            <motion.button 
-              whileTap={{ scale: (isCharging && battery < 50) ? 1 : 0.95 }}
-              className="flex flex-col items-center gap-1"
-              onClick={() => startCleaning(lastUsedMode)}
-              disabled={isCharging && battery < 50}
-            >
-              <div className={`w-12 h-12 rounded-full border flex items-center justify-center transition-colors ${
-                (isCharging && battery < 50) 
-                  ? "bg-muted/30 border-border" 
-                  : lastUsedMode === "safe" 
-                    ? "bg-emerald-500/10 border-emerald-500/30 hover:bg-emerald-500/20"
-                    : lastUsedMode === "deep"
-                      ? "bg-primary/10 border-primary/30 hover:bg-primary/20"
-                      : "bg-muted/50 border-border hover:bg-muted"
-              }`}>
-                <Zap className={`w-5 h-5 ${
-                  (isCharging && battery < 50) 
-                    ? "text-muted-foreground/50" 
-                    : lastUsedMode === "safe"
-                      ? "text-emerald-500"
-                      : lastUsedMode === "deep"
-                        ? "text-primary"
-                        : "text-foreground"
-                }`} />
-              </div>
-              <span className={`text-xs font-medium ${
-                (isCharging && battery < 50)
-                  ? "text-muted-foreground/50"
-                  : lastUsedMode === "safe"
-                    ? "text-emerald-500"
-                    : lastUsedMode === "deep"
-                      ? "text-primary"
-                      : "text-muted-foreground"
-              }`}>
-                {modeDisplayNames[lastUsedMode]}
-              </span>
-            </motion.button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <motion.button 
+                  whileTap={{ scale: (isCharging && battery < 50) ? 1 : 0.95 }}
+                  className="flex flex-col items-center gap-1 relative"
+                  onClick={(e) => {
+                    if (isCharging && battery < 50) return;
+                    // Tap starts cleaning immediately
+                    startCleaning(lastUsedMode);
+                  }}
+                  onContextMenu={(e) => e.preventDefault()}
+                  disabled={isCharging && battery < 50}
+                >
+                  <div className={`w-12 h-12 rounded-full border flex items-center justify-center transition-colors ${
+                    (isCharging && battery < 50) 
+                      ? "bg-muted/30 border-border" 
+                      : lastUsedMode === "safe" 
+                        ? "bg-emerald-500/10 border-emerald-500/30 hover:bg-emerald-500/20"
+                        : lastUsedMode === "deep"
+                          ? "bg-primary/10 border-primary/30 hover:bg-primary/20"
+                          : "bg-muted/50 border-border hover:bg-muted"
+                  }`}>
+                    <Zap className={`w-5 h-5 ${
+                      (isCharging && battery < 50) 
+                        ? "text-muted-foreground/50" 
+                        : lastUsedMode === "safe"
+                          ? "text-emerald-500"
+                          : lastUsedMode === "deep"
+                            ? "text-primary"
+                            : "text-foreground"
+                    }`} />
+                  </div>
+                  <span className={`text-xs font-medium ${
+                    (isCharging && battery < 50)
+                      ? "text-muted-foreground/50"
+                      : lastUsedMode === "safe"
+                        ? "text-emerald-500"
+                        : lastUsedMode === "deep"
+                          ? "text-primary"
+                          : "text-muted-foreground"
+                  }`}>
+                    {modeDisplayNames[lastUsedMode]}
+                  </span>
+                </motion.button>
+              </PopoverTrigger>
+              <PopoverContent 
+                side="top" 
+                align="end"
+                sideOffset={12}
+                className="w-auto p-2 bg-card/95 backdrop-blur-lg border-border rounded-2xl"
+              >
+                <div className="flex gap-2">
+                  {(["safe", "normal", "deep"] as const).map((mode) => (
+                    <motion.button
+                      key={mode}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => startCleaning(mode)}
+                      className={`flex flex-col items-center gap-1.5 p-3 rounded-xl transition-colors ${
+                        mode === "safe"
+                          ? "hover:bg-emerald-500/10"
+                          : mode === "deep"
+                            ? "hover:bg-primary/10"
+                            : "hover:bg-muted"
+                      }`}
+                    >
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        mode === "safe"
+                          ? "bg-emerald-500/20 text-emerald-500"
+                          : mode === "deep"
+                            ? "bg-primary/20 text-primary"
+                            : "bg-muted text-foreground"
+                      }`}>
+                        {mode === "safe" ? (
+                          <Leaf className="w-5 h-5" />
+                        ) : mode === "deep" ? (
+                          <Sparkles className="w-5 h-5" />
+                        ) : (
+                          <Play className="w-5 h-5" />
+                        )}
+                      </div>
+                      <span className={`text-xs font-medium ${
+                        mode === "safe"
+                          ? "text-emerald-500"
+                          : mode === "deep"
+                            ? "text-primary"
+                            : "text-muted-foreground"
+                      }`}>
+                        {modeDisplayNames[mode]}
+                      </span>
+                    </motion.button>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
           )}
         </div>
       </div>
