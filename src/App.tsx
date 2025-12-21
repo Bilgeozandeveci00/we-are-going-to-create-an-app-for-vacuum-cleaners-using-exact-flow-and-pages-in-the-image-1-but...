@@ -17,7 +17,7 @@ import Notifications from "./pages/Notifications";
 import Profile from "./pages/Profile";
 import NoGoZones from "./pages/NoGoZones";
 import RoomEditor from "./pages/RoomEditor";
-import CleaningHistory from "./pages/CleaningHistory";
+
 import Schedules from "./pages/Schedules";
 import Maintenance from "./pages/Maintenance";
 import RobotSound from "./pages/RobotSound";
@@ -47,7 +47,7 @@ const App = () => (
             <Route path="/device/:id/mapping" element={<MappingSimulation />} />
             <Route path="/device/:id/no-go-zones" element={<NoGoZones />} />
             <Route path="/device/:id/room-editor" element={<RoomEditor />} />
-            <Route path="/device/:id/cleaning-history" element={<CleaningHistory />} />
+            
             <Route path="/device/:id/schedules" element={<Schedules />} />
             <Route path="/device/:id/maintenance" element={<Maintenance />} />
             <Route path="/device/:id/robot-sound" element={<RobotSound />} />
