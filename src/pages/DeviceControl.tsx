@@ -765,47 +765,60 @@ const DeviceControl = () => {
               <span className="text-sm text-muted-foreground">Charging before clean</span>
             </div>
           ) : (
-            /* Idle state - Slide to start */
-            <motion.div
-              className="relative h-16 rounded-full bg-muted/50 border border-border/50 overflow-hidden"
-            >
-              {/* Track label */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <motion.span 
-                  className="text-sm font-medium text-muted-foreground"
-                  animate={{ opacity: [0.5, 0.8, 0.5] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                >
-                  Slide to start cleaning
-                </motion.span>
-                <motion.div
-                  className="absolute right-20 flex items-center gap-1 text-muted-foreground/50"
-                  animate={{ x: [0, 5, 0] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
-                >
-                  <ChevronRight className="w-4 h-4" />
-                  <ChevronRight className="w-4 h-4 -ml-2" />
-                </motion.div>
-              </div>
-              
-              {/* Draggable button */}
-              <motion.button
-                drag="x"
-                dragConstraints={{ left: 0, right: 0 }}
-                dragElastic={0.1}
-                onDragEnd={(_, info) => {
-                  if (info.offset.x > 150) {
-                    handleStartStop();
-                  }
-                }}
-                whileDrag={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={handleStartStop}
-                className="absolute left-1 top-1 w-14 h-14 rounded-full bg-primary glow-primary flex items-center justify-center cursor-grab active:cursor-grabbing z-10"
+            /* Idle state - Slide to quick start with last settings */
+            <div className="flex items-center gap-3">
+              {/* Quick start slide track */}
+              <motion.div
+                className="relative flex-1 h-14 rounded-full bg-muted/50 border border-border/50 overflow-hidden"
               >
-                <Play className="w-6 h-6 text-primary-foreground ml-0.5" fill="currentColor" />
+                {/* Track label */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none pl-12">
+                  <motion.div 
+                    className="flex flex-col items-center"
+                    animate={{ opacity: [0.5, 0.8, 0.5] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    <span className="text-xs font-medium text-muted-foreground">Swipe to quick start</span>
+                    <span className="text-[10px] text-muted-foreground/60">with last settings</span>
+                  </motion.div>
+                  <motion.div
+                    className="absolute right-4 flex items-center text-muted-foreground/40"
+                    animate={{ x: [0, 4, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                    <ChevronRight className="w-4 h-4 -ml-2.5" />
+                  </motion.div>
+                </div>
+                
+                {/* Draggable button */}
+                <motion.button
+                  drag="x"
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.1}
+                  onDragEnd={(_, info) => {
+                    if (info.offset.x > 120) {
+                      // Quick start with current/last settings
+                      startCleaning(selectedTab);
+                    }
+                  }}
+                  whileDrag={{ scale: 1.05 }}
+                  className="absolute left-1 top-1 w-12 h-12 rounded-full bg-primary glow-primary flex items-center justify-center cursor-grab active:cursor-grabbing z-10"
+                >
+                  <Play className="w-5 h-5 text-primary-foreground ml-0.5" fill="currentColor" />
+                </motion.button>
+              </motion.div>
+              
+              {/* Full options button */}
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setShowModeSelector(true)}
+                className="h-14 px-4 rounded-full bg-primary flex items-center justify-center gap-2"
+              >
+                <Settings2 className="w-5 h-5 text-primary-foreground" />
+                <span className="text-sm font-medium text-primary-foreground">Start</span>
               </motion.button>
-            </motion.div>
+            </div>
           )}
         </div>
       </div>
