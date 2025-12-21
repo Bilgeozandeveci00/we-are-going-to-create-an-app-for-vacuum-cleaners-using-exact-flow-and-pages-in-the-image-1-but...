@@ -1715,44 +1715,6 @@ const DeviceControl = () => {
           </SheetHeader>
           
           <div className="space-y-4 pb-8">
-            {/* Cleaning History Card */}
-            <div className="bg-muted rounded-2xl p-4">
-              <button 
-                className="w-full flex items-center gap-3 mb-4"
-                onClick={() => {
-                  setShowSettings(false);
-                  navigate(`/device/${id}/cleaning-history`);
-                }}
-              >
-                <div className="w-10 h-10 rounded-full bg-card flex items-center justify-center">
-                  <Clock className="w-5 h-5 text-primary" />
-                </div>
-                <span className="text-foreground font-medium flex-1 text-left">Cleaning History</span>
-                <ChevronRight className="w-5 h-5 text-muted-foreground" />
-              </button>
-              
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-card rounded-xl p-4">
-                  <div className="flex items-baseline">
-                    <span className="text-3xl font-light text-foreground">{device.duration}</span>
-                    <span className="text-sm text-muted-foreground ml-1">min</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">Last cleaning time</p>
-                </div>
-                <div className="bg-card rounded-xl p-4">
-                  <div className="flex items-baseline">
-                    <span className="text-3xl font-light text-foreground">{device.area}</span>
-                    <span className="text-sm text-muted-foreground ml-1">m²</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">Last cleaning area</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/50">
-                <span className="text-sm text-muted-foreground">Total cleaning time and area</span>
-                <span className="text-sm text-foreground font-medium">508h | 23Km²</span>
-              </div>
-            </div>
 
             {/* Schedules */}
             <button 
