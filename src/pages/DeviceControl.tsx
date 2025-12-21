@@ -35,7 +35,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FloorMap from "@/components/FloorMap";
-import SwipeToStart from "@/components/SwipeToStart";
 import {
   Sheet,
   SheetContent,
@@ -712,7 +711,7 @@ const DeviceControl = () => {
       <div className="mx-4 mb-4 rounded-2xl bg-card border border-border p-4 safe-area-bottom">
 
         {/* Control Buttons */}
-        <div className="flex items-center justify-center gap-4">
+        <div className="flex items-center justify-center gap-6">
           {/* Settings Button */}
           <button 
             className="flex flex-col items-center gap-1"
@@ -724,33 +723,27 @@ const DeviceControl = () => {
             <span className="text-xs text-muted-foreground">Customize</span>
           </button>
 
-          {/* Swipe to Start / Pause Button */}
-          {isRunning ? (
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={handleStartStop}
-              className="w-[280px] h-14 rounded-full bg-gradient-to-r from-primary/30 to-primary/10 border border-primary/30 flex items-center justify-center gap-2"
-            >
-              <Pause className="w-6 h-6 text-primary" />
-              <span className="text-sm font-medium text-primary">Pause Cleaning</span>
-            </motion.button>
-          ) : isStuck ? (
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={handleStartStop}
-              className="w-[280px] h-14 rounded-full bg-gradient-to-r from-amber-500/30 to-amber-500/10 border border-amber-500/30 flex items-center justify-center gap-2"
-            >
-              <Play className="w-6 h-6 text-amber-500" />
-              <span className="text-sm font-medium text-amber-500">Resume Cleaning</span>
-            </motion.button>
-          ) : (
-            <SwipeToStart 
-              onTap={() => setShowModeSelector(true)}
-              onSwipe={() => startCleaning(selectedTab)}
-              disabled={isCharging && battery < 50}
-              lastMode={selectedTab}
-            />
-          )}
+          {/* Play/Pause Button */}
+          <motion.button
+            whileTap={{ scale: (isCharging && battery < 50) ? 1 : 0.95 }}
+            onClick={(isCharging && battery < 50) ? undefined : handleStartStop}
+            className="relative flex flex-col items-center"
+            disabled={isCharging && battery < 50}
+          >
+            <div className={`w-16 h-16 rounded-full flex items-center justify-center border-2 ${
+              (isCharging && battery < 50)
+                ? "bg-muted border-muted-foreground/30" 
+                : "bg-gradient-to-b from-primary/30 to-primary/50 border-primary/40"
+            }`}>
+              {(isCharging && battery < 50) ? (
+                <span className="text-xs font-medium text-muted-foreground">{Math.ceil((100 - battery) / 10)} min</span>
+              ) : isRunning ? (
+                <Pause className="w-7 h-7 text-primary" />
+              ) : (
+                <Play className="w-7 h-7 text-primary ml-1" />
+              )}
+            </div>
+          </motion.button>
 
           {/* Return Button - Only visible when running */}
           {isRunning ? (
