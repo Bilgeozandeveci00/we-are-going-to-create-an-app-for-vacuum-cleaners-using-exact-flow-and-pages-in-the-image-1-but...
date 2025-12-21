@@ -1,14 +1,161 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Check, ChevronRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowLeft, Check, ChevronRight, ChevronDown, Clock, Calendar, Trash2, Plus, Home, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+} from "@/components/ui/sheet";
+
+interface Schedule {
+  id: string;
+  time: string;
+  days: string[];
+  mode: "safe" | "normal" | "deep";
+  rooms: string[];
+  enabled: boolean;
+}
+
+const daysOfWeek = [
+  { short: "S", full: "Sun" },
+  { short: "M", full: "Mon" },
+  { short: "T", full: "Tue" },
+  { short: "W", full: "Wed" },
+  { short: "T", full: "Thu" },
+  { short: "F", full: "Fri" },
+  { short: "S", full: "Sat" },
+];
+
+const roomNames: Record<string, string> = {
+  living: "Living Room",
+  dining: "Dining",
+  hallway: "Hallway",
+  bedroom1: "Master Bed",
+  bedroom2: "Bedroom",
+  bathroom: "Bathroom",
+  kitchen: "Kitchen",
+  laundry: "Laundry",
+};
 
 const Schedules = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [startTime, setStartTime] = useState<string | null>(null);
-  const [repeatMode, setRepeatMode] = useState("Once");
-  const [cleaningMode, setCleaningMode] = useState<"safe" | "normal" | "deep">("normal");
+  
+  const [schedules, setSchedules] = useState<Schedule[]>([
+    {
+      id: "1",
+      time: "09:00",
+      days: ["Mon", "Wed", "Fri"],
+      mode: "normal",
+      rooms: [],
+      enabled: true,
+    },
+    {
+      id: "2", 
+      time: "14:00",
+      days: ["Sat"],
+      mode: "deep",
+      rooms: ["kitchen", "bathroom"],
+      enabled: true,
+    },
+  ]);
+  
+  const [showAddSheet, setShowAddSheet] = useState(false);
+  const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null);
+  
+  // New schedule form state
+  const [newTime, setNewTime] = useState("09:00");
+  const [newDays, setNewDays] = useState<string[]>(["Mon", "Wed", "Fri"]);
+  const [newMode, setNewMode] = useState<"safe" | "normal" | "deep">("normal");
+  const [newRooms, setNewRooms] = useState<string[]>([]);
+  const [showRoomSelector, setShowRoomSelector] = useState(false);
+  const [selectedFloor, setSelectedFloor] = useState(1);
+
+  // Load floors from localStorage
+  const floors = (() => {
+    const saved = localStorage.getItem(`floors-${id}`);
+    return saved ? JSON.parse(saved) : [{ id: 1, name: "Floor 1" }];
+  })();
+
+  const toggleDay = (day: string) => {
+    setNewDays(prev => 
+      prev.includes(day) 
+        ? prev.filter(d => d !== day)
+        : [...prev, day]
+    );
+  };
+
+  const toggleRoom = (roomId: string) => {
+    setNewRooms(prev =>
+      prev.includes(roomId)
+        ? prev.filter(r => r !== roomId)
+        : [...prev, roomId]
+    );
+  };
+
+  const handleSaveSchedule = () => {
+    if (editingSchedule) {
+      setSchedules(prev => prev.map(s => 
+        s.id === editingSchedule.id 
+          ? { ...s, time: newTime, days: newDays, mode: newMode, rooms: newRooms }
+          : s
+      ));
+    } else {
+      const newSchedule: Schedule = {
+        id: Date.now().toString(),
+        time: newTime,
+        days: newDays,
+        mode: newMode,
+        rooms: newRooms,
+        enabled: true,
+      };
+      setSchedules(prev => [...prev, newSchedule]);
+    }
+    resetForm();
+    setShowAddSheet(false);
+    setEditingSchedule(null);
+  };
+
+  const handleEditSchedule = (schedule: Schedule) => {
+    setNewTime(schedule.time);
+    setNewDays(schedule.days);
+    setNewMode(schedule.mode);
+    setNewRooms(schedule.rooms);
+    setEditingSchedule(schedule);
+    setShowAddSheet(true);
+  };
+
+  const handleDeleteSchedule = (scheduleId: string) => {
+    setSchedules(prev => prev.filter(s => s.id !== scheduleId));
+  };
+
+  const toggleScheduleEnabled = (scheduleId: string) => {
+    setSchedules(prev => prev.map(s =>
+      s.id === scheduleId ? { ...s, enabled: !s.enabled } : s
+    ));
+  };
+
+  const resetForm = () => {
+    setNewTime("09:00");
+    setNewDays(["Mon", "Wed", "Fri"]);
+    setNewMode("normal");
+    setNewRooms([]);
+  };
+
+  const formatDays = (days: string[]) => {
+    if (days.length === 7) return "Every day";
+    if (days.length === 5 && !days.includes("Sat") && !days.includes("Sun")) return "Weekdays";
+    if (days.length === 2 && days.includes("Sat") && days.includes("Sun")) return "Weekends";
+    return days.join(", ");
+  };
+
+  const formatRooms = (rooms: string[]) => {
+    if (rooms.length === 0) return "All rooms";
+    if (rooms.length === 1) return roomNames[rooms[0]];
+    return `${rooms.length} rooms`;
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -22,99 +169,349 @@ const Schedules = () => {
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <h1 className="text-lg font-semibold text-foreground">Schedule</h1>
-        <Button variant="ghost" size="icon" className="text-primary">
-          <Check className="h-5 w-5" />
+        <h1 className="text-lg font-semibold text-foreground">Schedules</h1>
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="text-primary"
+          onClick={() => {
+            resetForm();
+            setEditingSchedule(null);
+            setShowAddSheet(true);
+          }}
+        >
+          <Plus className="h-5 w-5" />
         </Button>
       </header>
 
-      <div className="flex-1 px-4 py-6 space-y-6">
-        {/* Time Settings */}
-        <div className="bg-card rounded-2xl divide-y divide-border/50">
-          <button className="w-full flex items-center justify-between p-4">
-            <span className="text-foreground font-medium">Start Time</span>
-            <div className="flex items-center gap-2">
-              <span className="text-muted-foreground">
-                {startTime || "Not Set"}
-              </span>
-              <ChevronRight className="w-5 h-5 text-muted-foreground" />
+      <div className="flex-1 px-4 py-4 space-y-4">
+        {/* Floor Selector */}
+        {floors.length > 1 && (
+          <div className="flex items-center gap-2 mb-4">
+            <Layers className="w-4 h-4 text-muted-foreground" />
+            <div className="flex gap-2">
+              {floors.map((floor: { id: number; name: string }) => (
+                <button
+                  key={floor.id}
+                  onClick={() => setSelectedFloor(floor.id)}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                    selectedFloor === floor.id
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  {floor.name}
+                </button>
+              ))}
             </div>
-          </button>
-          <button className="w-full flex items-center justify-between p-4">
-            <span className="text-foreground font-medium">Repeat</span>
-            <div className="flex items-center gap-2">
-              <span className="text-muted-foreground">{repeatMode}</span>
-              <ChevronRight className="w-5 h-5 text-muted-foreground" />
-            </div>
-          </button>
-        </div>
-
-        {/* Cleaning Mode Section */}
-        <div>
-          <p className="text-sm text-muted-foreground mb-3 px-1">Cleaning Mode</p>
-          <div className="bg-card rounded-2xl p-4 space-y-4">
-            {/* Mode Toggle */}
-            <div className="bg-muted rounded-full p-1 flex">
-              <button
-                onClick={() => setCleaningMode("safe")}
-                className={`flex-1 py-2.5 rounded-full text-sm font-medium transition-colors ${
-                  cleaningMode === "safe"
-                    ? "bg-card text-foreground shadow"
-                    : "text-muted-foreground"
-                }`}
-              >
-                Safe
-              </button>
-              <button
-                onClick={() => setCleaningMode("normal")}
-                className={`flex-1 py-2.5 rounded-full text-sm font-medium transition-colors ${
-                  cleaningMode === "normal"
-                    ? "bg-card text-foreground shadow"
-                    : "text-muted-foreground"
-                }`}
-              >
-                Normal
-              </button>
-              <button
-                onClick={() => setCleaningMode("deep")}
-                className={`flex-1 py-2.5 rounded-full text-sm font-medium transition-colors ${
-                  cleaningMode === "deep"
-                    ? "bg-card text-foreground shadow"
-                    : "text-muted-foreground"
-                }`}
-              >
-                Deep
-              </button>
-            </div>
-
-            {/* Mode Description */}
-            <p className="text-xs text-muted-foreground text-center">
-              {cleaningMode === "safe" && "Cleans carefully without getting stuck on obstacles"}
-              {cleaningMode === "normal" && "Balanced cleaning while avoiding risky areas"}
-              {cleaningMode === "deep" && "Thorough cleaning that covers every area"}
-            </p>
-
-            {/* Power Settings */}
-            <button className="w-full flex items-center justify-between py-2">
-              <span className="text-foreground">Power Settings</span>
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted-foreground">
-                    <circle cx="12" cy="12" r="3" />
-                    <path d="M12 5v-2" />
-                    <path d="M17 7l1.5-1.5" />
-                    <path d="M7 7L5.5 5.5" />
-                  </svg>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted-foreground">
-                    <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
-                  </svg>
-                </div>
-                <ChevronRight className="w-5 h-5 text-muted-foreground" />
-              </div>
-            </button>
           </div>
-        </div>
+        )}
+
+        {/* Schedules List */}
+        {schedules.length === 0 ? (
+          <div className="flex-1 flex flex-col items-center justify-center py-12">
+            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+              <Clock className="w-8 h-8 text-muted-foreground" />
+            </div>
+            <p className="text-foreground font-medium mb-1">No schedules yet</p>
+            <p className="text-sm text-muted-foreground text-center mb-4">
+              Add a schedule to automatically start cleaning
+            </p>
+            <Button onClick={() => setShowAddSheet(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Schedule
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {schedules.map((schedule) => (
+              <motion.div
+                key={schedule.id}
+                layout
+                className={`bg-card rounded-2xl border ${schedule.enabled ? 'border-border' : 'border-border/50'} overflow-hidden`}
+              >
+                <button 
+                  onClick={() => handleEditSchedule(schedule)}
+                  className="w-full p-4 text-left"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-baseline gap-2 mb-2">
+                        <span className={`text-2xl font-bold ${schedule.enabled ? 'text-foreground' : 'text-muted-foreground'}`}>
+                          {schedule.time}
+                        </span>
+                        <span className={`text-sm ${
+                          schedule.mode === "safe" ? "text-emerald-500" :
+                          schedule.mode === "deep" ? "text-primary" :
+                          "text-muted-foreground"
+                        }`}>
+                          {schedule.mode.charAt(0).toUpperCase() + schedule.mode.slice(1)} Mode
+                        </span>
+                      </div>
+                      
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <span>{formatDays(schedule.days)}</span>
+                        <span>•</span>
+                        <span>{formatRooms(schedule.rooms)}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleScheduleEnabled(schedule.id);
+                        }}
+                        className={`w-12 h-7 rounded-full transition-colors relative ${
+                          schedule.enabled ? 'bg-primary' : 'bg-muted'
+                        }`}
+                      >
+                        <motion.div
+                          animate={{ x: schedule.enabled ? 22 : 2 }}
+                          className="absolute top-1 w-5 h-5 rounded-full bg-white shadow"
+                        />
+                      </button>
+                    </div>
+                  </div>
+                </button>
+                
+                {/* Days indicator */}
+                <div className="px-4 pb-4">
+                  <div className="flex gap-1">
+                    {daysOfWeek.map((day, index) => (
+                      <div
+                        key={index}
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ${
+                          schedule.days.includes(day.full)
+                            ? schedule.enabled 
+                              ? 'bg-primary/20 text-primary' 
+                              : 'bg-muted text-muted-foreground'
+                            : 'bg-muted/50 text-muted-foreground/50'
+                        }`}
+                      >
+                        {day.short}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </div>
+
+      {/* Add/Edit Schedule Sheet */}
+      <Sheet open={showAddSheet} onOpenChange={(open) => {
+        setShowAddSheet(open);
+        if (!open) {
+          setEditingSchedule(null);
+          resetForm();
+        }
+      }}>
+        <SheetContent side="bottom" className="bg-card rounded-t-3xl border-border h-[85vh] overflow-y-auto [&>button]:hidden">
+          <SheetHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <button 
+                onClick={() => {
+                  setShowAddSheet(false);
+                  setEditingSchedule(null);
+                }}
+                className="text-muted-foreground"
+              >
+                Cancel
+              </button>
+              <h2 className="text-lg font-semibold text-foreground">
+                {editingSchedule ? "Edit Schedule" : "New Schedule"}
+              </h2>
+              <button 
+                onClick={handleSaveSchedule}
+                disabled={newDays.length === 0}
+                className="text-primary font-medium disabled:opacity-50"
+              >
+                Save
+              </button>
+            </div>
+          </SheetHeader>
+
+          <div className="space-y-6 pb-8">
+            {/* Time Picker */}
+            <div>
+              <label className="text-sm font-medium text-foreground mb-3 block">Start Time</label>
+              <input
+                type="time"
+                value={newTime}
+                onChange={(e) => setNewTime(e.target.value)}
+                className="w-full bg-muted border border-border rounded-xl px-4 py-4 text-2xl font-bold text-foreground text-center focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+
+            {/* Days Selector */}
+            <div>
+              <label className="text-sm font-medium text-foreground mb-3 block">Repeat</label>
+              <div className="flex gap-2">
+                {daysOfWeek.map((day, index) => (
+                  <button
+                    key={index}
+                    onClick={() => toggleDay(day.full)}
+                    className={`flex-1 h-12 rounded-xl text-sm font-medium transition-colors ${
+                      newDays.includes(day.full)
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-muted-foreground'
+                    }`}
+                  >
+                    {day.short}
+                  </button>
+                ))}
+              </div>
+              <div className="flex gap-2 mt-3">
+                <button
+                  onClick={() => setNewDays(["Mon", "Tue", "Wed", "Thu", "Fri"])}
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium bg-muted text-muted-foreground hover:bg-muted/80"
+                >
+                  Weekdays
+                </button>
+                <button
+                  onClick={() => setNewDays(["Sat", "Sun"])}
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium bg-muted text-muted-foreground hover:bg-muted/80"
+                >
+                  Weekends
+                </button>
+                <button
+                  onClick={() => setNewDays(daysOfWeek.map(d => d.full))}
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium bg-muted text-muted-foreground hover:bg-muted/80"
+                >
+                  Every day
+                </button>
+              </div>
+            </div>
+
+            {/* Cleaning Mode */}
+            <div>
+              <label className="text-sm font-medium text-foreground mb-3 block">Cleaning Mode</label>
+              <div className="bg-muted rounded-xl p-1 flex">
+                {(["safe", "normal", "deep"] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    onClick={() => setNewMode(mode)}
+                    className={`flex-1 py-3 rounded-lg text-sm font-medium transition-colors ${
+                      newMode === mode
+                        ? mode === "safe" 
+                          ? "bg-emerald-500/20 text-emerald-500"
+                          : mode === "deep"
+                          ? "bg-primary/20 text-primary"
+                          : "bg-card text-foreground shadow"
+                        : "text-muted-foreground"
+                    }`}
+                  >
+                    {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground mt-2 text-center">
+                {newMode === "safe" && "Avoids risky areas to prevent getting stuck"}
+                {newMode === "normal" && "Balanced cleaning for everyday use"}
+                {newMode === "deep" && "Thorough cleaning that covers every corner"}
+              </p>
+            </div>
+
+            {/* Room Selection */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <label className="text-sm font-medium text-foreground">Rooms</label>
+                <button 
+                  onClick={() => setShowRoomSelector(!showRoomSelector)}
+                  className="text-xs text-primary font-medium"
+                >
+                  {showRoomSelector ? "Done" : "Select"}
+                </button>
+              </div>
+              
+              <AnimatePresence>
+                {showRoomSelector ? (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="space-y-2"
+                  >
+                    <button
+                      onClick={() => setNewRooms([])}
+                      className={`w-full flex items-center gap-3 p-3 rounded-xl border transition-colors ${
+                        newRooms.length === 0 
+                          ? 'bg-primary/10 border-primary' 
+                          : 'bg-muted border-transparent'
+                      }`}
+                    >
+                      <Home className="w-4 h-4 text-primary" />
+                      <span className="text-sm font-medium text-foreground">All Rooms</span>
+                      {newRooms.length === 0 && (
+                        <Check className="w-4 h-4 text-primary ml-auto" />
+                      )}
+                    </button>
+                    
+                    <div className="grid grid-cols-2 gap-2">
+                      {Object.entries(roomNames).map(([roomId, name]) => (
+                        <button
+                          key={roomId}
+                          onClick={() => toggleRoom(roomId)}
+                          className={`flex items-center gap-2 p-3 rounded-xl border transition-colors ${
+                            newRooms.includes(roomId)
+                              ? 'bg-primary/10 border-primary'
+                              : 'bg-muted border-transparent'
+                          }`}
+                        >
+                          <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
+                            newRooms.includes(roomId)
+                              ? 'border-primary bg-primary'
+                              : 'border-muted-foreground'
+                          }`}>
+                            {newRooms.includes(roomId) && (
+                              <Check className="w-3 h-3 text-white" />
+                            )}
+                          </div>
+                          <span className="text-sm text-foreground">{name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="bg-muted rounded-xl p-4"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Home className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-sm text-foreground">
+                        {newRooms.length === 0 
+                          ? "All rooms" 
+                          : newRooms.map(r => roomNames[r]).join(", ")
+                        }
+                      </span>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Delete Button (for editing) */}
+            {editingSchedule && (
+              <Button
+                variant="outline"
+                className="w-full border-destructive/50 text-destructive hover:bg-destructive/10"
+                onClick={() => {
+                  handleDeleteSchedule(editingSchedule.id);
+                  setShowAddSheet(false);
+                  setEditingSchedule(null);
+                }}
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete Schedule
+              </Button>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };

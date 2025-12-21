@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, HelpCircle, Plus, X, Check, Move, RotateCcw } from "lucide-react";
+import { ArrowLeft, HelpCircle, Plus, X, Check, Move, RotateCcw, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Zone {
@@ -13,15 +13,99 @@ interface Zone {
   height: number;
 }
 
+// Room data matching FloorMap.tsx
+const rooms = [
+  {
+    id: "living",
+    name: "Living Room",
+    path: "M20 20 L20 85 L70 85 L70 60 L100 60 L100 20 Z",
+    color: "hsl(210, 55%, 58%)",
+    labelX: 55,
+    labelY: 50,
+  },
+  {
+    id: "dining",
+    name: "Dining",
+    path: "M20 90 L20 140 L65 140 L65 90 Z",
+    color: "hsl(210, 55%, 55%)",
+    labelX: 42,
+    labelY: 115,
+  },
+  {
+    id: "hallway",
+    name: "Hall",
+    path: "M70 65 L70 140 L90 140 L90 65 Z",
+    color: "hsl(210, 50%, 50%)",
+    labelX: 80,
+    labelY: 100,
+  },
+  {
+    id: "bedroom1",
+    name: "Master Bed",
+    path: "M105 20 L105 65 L155 65 L155 20 Z",
+    color: "hsl(45, 60%, 62%)",
+    labelX: 130,
+    labelY: 42,
+  },
+  {
+    id: "bedroom2",
+    name: "Bedroom",
+    path: "M95 70 L95 115 L155 115 L155 70 Z",
+    color: "hsl(45, 55%, 58%)",
+    labelX: 125,
+    labelY: 92,
+  },
+  {
+    id: "bathroom",
+    name: "Bath",
+    path: "M95 120 L95 160 L130 160 L130 120 Z",
+    color: "hsl(180, 50%, 55%)",
+    labelX: 112,
+    labelY: 140,
+  },
+  {
+    id: "kitchen",
+    name: "Kitchen",
+    path: "M20 145 L20 195 L85 195 L85 165 L65 165 L65 145 Z",
+    color: "hsl(15, 55%, 58%)",
+    labelX: 50,
+    labelY: 175,
+  },
+  {
+    id: "laundry",
+    name: "Laundry",
+    path: "M135 120 L135 160 L155 160 L155 120 Z",
+    color: "hsl(270, 45%, 58%)",
+    labelX: 145,
+    labelY: 140,
+  },
+];
+
+// Furniture matching FloorMap.tsx
+const furniture = [
+  { type: "sofa", x: 28, y: 35, width: 25, height: 10 },
+  { type: "tv", x: 28, y: 70, width: 20, height: 3 },
+  { type: "table", x: 75, y: 35, width: 18, height: 12 },
+  { type: "table", x: 32, y: 105, width: 20, height: 16 },
+  { type: "bed", x: 115, y: 28, width: 28, height: 22 },
+  { type: "bed", x: 105, y: 78, width: 24, height: 18 },
+  { type: "toilet", x: 100, y: 145, width: 8, height: 10 },
+  { type: "sink", x: 118, y: 125, width: 8, height: 6 },
+  { type: "counter", x: 22, y: 180, width: 55, height: 8 },
+  { type: "counter", x: 22, y: 148, width: 8, height: 35 },
+  { type: "washer", x: 140, y: 135, width: 10, height: 12 },
+];
+
 const NoGoZones = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [zones, setZones] = useState<Zone[]>([
-    { id: "wall1", type: "wall", x: 125, y: 30, width: 4, height: 30 },
-    { id: "zone1", type: "zone", x: 40, y: 70, width: 60, height: 50 },
+    // Default no-go zone near furniture
+    { id: "zone1", type: "zone", x: 28, y: 35, width: 30, height: 15 },
+    // Default invisible wall in hallway
+    { id: "wall1", type: "wall", x: 70, y: 100, width: 4, height: 25 },
   ]);
   const [selectedZone, setSelectedZone] = useState<string | null>(null);
-  const [isAdding, setIsAdding] = useState<"wall" | "zone" | null>(null);
 
   const addZone = (type: "wall" | "zone") => {
     const newZone: Zone = {
@@ -29,12 +113,11 @@ const NoGoZones = () => {
       type,
       x: 80,
       y: 80,
-      width: type === "wall" ? 4 : 40,
-      height: type === "wall" ? 40 : 40,
+      width: type === "wall" ? 4 : 30,
+      height: type === "wall" ? 30 : 25,
     };
     setZones([...zones, newZone]);
     setSelectedZone(newZone.id);
-    setIsAdding(null);
   };
 
   const removeZone = (zoneId: string) => {
@@ -73,126 +156,147 @@ const NoGoZones = () => {
 
       {/* Map Area */}
       <div className="flex-1 relative mx-4">
-        <svg className="w-full h-full min-h-[400px]" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid meet">
-          {/* Room paths */}
-          <path
-            d="M20 20 L120 20 L120 100 L90 100 L90 140 L20 140 Z"
-            fill="hsl(200, 70%, 55%)"
-            fillOpacity="0.7"
-            stroke="hsl(var(--background))"
-            strokeWidth="2"
-          />
-          <path
-            d="M125 20 L180 20 L180 80 L125 80 Z"
-            fill="hsl(45, 80%, 55%)"
-            fillOpacity="0.7"
-            stroke="hsl(var(--background))"
-            strokeWidth="2"
-          />
-          <path
-            d="M125 85 L180 85 L180 180 L95 180 L95 145 L125 145 Z"
-            fill="hsl(15, 70%, 60%)"
-            fillOpacity="0.7"
-            stroke="hsl(var(--background))"
-            strokeWidth="2"
-          />
+        <svg className="w-full h-full min-h-[400px]" viewBox="0 0 175 210" preserveAspectRatio="xMidYMid meet">
+          {/* Background */}
+          <rect x="0" y="0" width="175" height="210" fill="hsl(var(--background))" />
+          
+          {/* Rooms */}
+          {rooms.map((room) => (
+            <path
+              key={room.id}
+              d={room.path}
+              fill={room.color}
+              fillOpacity="0.6"
+              stroke="hsl(var(--background))"
+              strokeWidth="1.5"
+            />
+          ))}
 
-          {/* Cleaning paths */}
-          <path
-            d="M30 30 L100 30 L100 50 L30 50 L30 70 L100 70 L100 90 L30 90"
-            fill="none"
-            stroke="rgba(255,255,255,0.4)"
-            strokeWidth="1"
-            strokeLinecap="round"
-          />
-          <path
-            d="M135 95 L170 95 L170 110 L135 110 L135 125 L170 125 L170 140 L135 140"
-            fill="none"
-            stroke="rgba(255,255,255,0.4)"
-            strokeWidth="1"
-            strokeLinecap="round"
-          />
+          {/* Room Labels */}
+          {rooms.map((room) => (
+            <text
+              key={`label-${room.id}`}
+              x={room.labelX}
+              y={room.labelY}
+              fontSize="6"
+              fill="white"
+              textAnchor="middle"
+              fontWeight="500"
+              opacity="0.9"
+            >
+              {room.name}
+            </text>
+          ))}
 
-          {/* Dock station */}
+          {/* Furniture (simplified) */}
+          {furniture.map((item, index) => (
+            <rect
+              key={index}
+              x={item.x}
+              y={item.y}
+              width={item.width}
+              height={item.height}
+              fill="hsl(var(--foreground))"
+              fillOpacity="0.15"
+              rx="1"
+            />
+          ))}
+
+          {/* Dock Station */}
           <g>
-            <line x1="145" y1="30" x2="145" y2="45" stroke="hsl(0, 70%, 55%)" strokeWidth="2" />
-            <circle cx="145" cy="28" r="3" fill="hsl(0, 70%, 55%)" />
-            <circle cx="145" cy="47" r="3" fill="hsl(0, 70%, 55%)" />
+            {/* Base platform */}
+            <rect
+              x="140"
+              y="28"
+              width="12"
+              height="8"
+              fill="hsl(220, 15%, 25%)"
+              rx="1"
+            />
+            {/* Back panel */}
+            <rect
+              x="142"
+              y="26"
+              width="8"
+              height="3"
+              fill="hsl(220, 15%, 30%)"
+              rx="0.5"
+            />
+            {/* Status LED */}
+            <circle cx="146" cy="27" r="1" fill="hsl(160, 70%, 50%)">
+              <animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite" />
+            </circle>
           </g>
 
-          {/* Zones */}
+          {/* No-Go Zones */}
           {zones.map((zone) => (
-            <g key={zone.id} onClick={() => setSelectedZone(zone.id)} className="cursor-pointer">
+            <g 
+              key={zone.id} 
+              onClick={() => setSelectedZone(selectedZone === zone.id ? null : zone.id)} 
+              className="cursor-pointer"
+            >
               {zone.type === "wall" ? (
                 <rect
                   x={zone.x}
                   y={zone.y}
                   width={zone.width}
                   height={zone.height}
-                  fill="hsl(0, 70%, 55%)"
-                  stroke={selectedZone === zone.id ? "white" : "none"}
-                  strokeWidth="2"
+                  fill="hsl(0, 70%, 50%)"
+                  stroke={selectedZone === zone.id ? "white" : "hsl(0, 70%, 40%)"}
+                  strokeWidth={selectedZone === zone.id ? "2" : "1"}
+                  rx="1"
                 />
               ) : (
-                <rect
-                  x={zone.x}
-                  y={zone.y}
-                  width={zone.width}
-                  height={zone.height}
-                  fill="hsl(0, 70%, 55%)"
-                  fillOpacity="0.4"
-                  stroke="hsl(0, 70%, 55%)"
-                  strokeWidth="2"
-                  strokeDasharray={selectedZone === zone.id ? "none" : "4 2"}
-                />
+                <>
+                  <rect
+                    x={zone.x}
+                    y={zone.y}
+                    width={zone.width}
+                    height={zone.height}
+                    fill="hsl(0, 70%, 50%)"
+                    fillOpacity="0.3"
+                    stroke="hsl(0, 70%, 50%)"
+                    strokeWidth={selectedZone === zone.id ? "2" : "1.5"}
+                    strokeDasharray={selectedZone === zone.id ? "none" : "4 2"}
+                    rx="2"
+                  />
+                  {/* Zone label */}
+                  <text
+                    x={zone.x + zone.width / 2}
+                    y={zone.y + zone.height / 2 + 2}
+                    fontSize="5"
+                    fill="hsl(0, 70%, 50%)"
+                    textAnchor="middle"
+                    fontWeight="600"
+                  >
+                    NO-GO
+                  </text>
+                </>
               )}
 
-              {/* Zone controls when selected */}
+              {/* Selection handles */}
               {selectedZone === zone.id && (
                 <>
-                  {/* Delete button */}
-                  <g onClick={(e) => { e.stopPropagation(); removeZone(zone.id); }}>
-                    <circle cx={zone.x - 8} cy={zone.y - 8} r="8" fill="hsl(0, 70%, 55%)" />
-                    <path
-                      d={`M${zone.x - 11} ${zone.y - 11} L${zone.x - 5} ${zone.y - 5} M${zone.x - 5} ${zone.y - 11} L${zone.x - 11} ${zone.y - 5}`}
-                      stroke="white"
-                      strokeWidth="2"
-                    />
-                  </g>
-
-                  {/* Rotate button */}
-                  <circle cx={zone.x + zone.width / 2} cy={zone.y - 10} r="8" fill="hsl(210, 80%, 55%)" />
-                  <g transform={`translate(${zone.x + zone.width / 2 - 4}, ${zone.y - 14})`}>
-                    <path d="M0 4 A4 4 0 1 1 4 0" stroke="white" strokeWidth="1.5" fill="none" />
-                    <path d="M4 0 L6 2 L4 4" stroke="white" strokeWidth="1.5" fill="none" />
-                  </g>
-
-                  {/* Move button */}
-                  <circle cx={zone.x + zone.width + 10} cy={zone.y + zone.height + 10} r="8" fill="hsl(210, 80%, 55%)" />
-                  <g transform={`translate(${zone.x + zone.width + 6}, ${zone.y + zone.height + 6})`}>
-                    <path d="M4 0 L4 8 M0 4 L8 4" stroke="white" strokeWidth="1.5" />
-                    <path d="M2 2 L4 0 L6 2 M2 6 L4 8 L6 6 M0 2 L0 4 L2 4 M6 4 L8 4 L8 6" stroke="white" strokeWidth="1" />
-                  </g>
-
-                  {/* Size label */}
-                  {zone.type === "zone" && (
-                    <text
-                      x={zone.x + zone.width / 2}
-                      y={zone.y + zone.height + 25}
-                      fontSize="8"
-                      fill="white"
-                      textAnchor="middle"
-                    >
-                      1.8m x 1.8m
-                    </text>
-                  )}
+                  {/* Corner handles */}
+                  <circle cx={zone.x} cy={zone.y} r="3" fill="white" stroke="hsl(0, 70%, 50%)" strokeWidth="1" />
+                  <circle cx={zone.x + zone.width} cy={zone.y} r="3" fill="white" stroke="hsl(0, 70%, 50%)" strokeWidth="1" />
+                  <circle cx={zone.x} cy={zone.y + zone.height} r="3" fill="white" stroke="hsl(0, 70%, 50%)" strokeWidth="1" />
+                  <circle cx={zone.x + zone.width} cy={zone.y + zone.height} r="3" fill="white" stroke="hsl(0, 70%, 50%)" strokeWidth="1" />
                 </>
               )}
             </g>
           ))}
 
           {/* Robot */}
-          <circle cx="140" cy="130" r="6" fill="white" stroke="hsl(var(--primary))" strokeWidth="2" />
+          <motion.g
+            animate={{ 
+              x: 0,
+              y: 0 
+            }}
+          >
+            <circle cx="146" cy="40" r="5" fill="white" stroke="hsl(var(--primary))" strokeWidth="1.5" />
+            <circle cx="146" cy="38" r="1" fill="hsl(var(--primary))" />
+          </motion.g>
         </svg>
       </div>
 
@@ -225,37 +329,70 @@ const NoGoZones = () => {
             initial={{ y: 100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 100, opacity: 0 }}
-            className="bg-card rounded-t-3xl px-6 py-4 safe-area-bottom"
+            className="bg-card rounded-t-3xl px-6 py-4 safe-area-bottom border-t border-border"
           >
-            <div className="flex items-center justify-between bg-muted rounded-full px-2 py-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setSelectedZone(null)}
-                className="rounded-full"
-              >
-                <X className="w-5 h-5" />
-              </Button>
-              <span className="text-foreground font-medium">
-                {zones.find((z) => z.id === selectedZone)?.type === "wall"
-                  ? "Invisible Wall"
-                  : "Restricted Area"}
-              </span>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleSave}
-                className="rounded-full text-primary"
-              >
-                <Check className="w-5 h-5" />
-              </Button>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                  zones.find((z) => z.id === selectedZone)?.type === "wall" 
+                    ? "bg-destructive/20" 
+                    : "bg-destructive/10"
+                }`}>
+                  {zones.find((z) => z.id === selectedZone)?.type === "wall" ? (
+                    <div className="w-1 h-6 bg-destructive rounded-full" />
+                  ) : (
+                    <div className="w-6 h-6 border-2 border-destructive border-dashed rounded" />
+                  )}
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-foreground">
+                    {zones.find((z) => z.id === selectedZone)?.type === "wall"
+                      ? "Invisible Wall"
+                      : "No-Go Zone"}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Drag corners to resize
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => removeZone(selectedZone)}
+                  className="text-destructive hover:bg-destructive/10"
+                >
+                  <Trash2 className="w-5 h-5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setSelectedZone(null)}
+                  className="text-primary"
+                >
+                  <Check className="w-5 h-5" />
+                </Button>
+              </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
       {!selectedZone && (
-        <div className="bg-card rounded-t-3xl px-6 py-4 safe-area-bottom">
+        <div className="bg-card rounded-t-3xl px-6 py-4 safe-area-bottom border-t border-border">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-sm text-muted-foreground">
+              {zones.length} zone{zones.length !== 1 ? 's' : ''} configured
+            </p>
+            {zones.length > 0 && (
+              <button 
+                onClick={() => setZones([])}
+                className="text-xs text-destructive"
+              >
+                Clear All
+              </button>
+            )}
+          </div>
           <Button className="w-full" onClick={handleSave}>
             Save Changes
           </Button>
