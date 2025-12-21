@@ -745,9 +745,10 @@ const DeviceControl = () => {
             </motion.button>
           ) : (
             <SwipeToStart 
-              onSwipe={() => setShowModeSelector(true)}
+              onTap={() => setShowModeSelector(true)}
+              onSwipe={() => startCleaning(selectedTab)}
               disabled={isCharging && battery < 50}
-              label="Swipe to Start"
+              lastMode={selectedTab}
             />
           )}
 
