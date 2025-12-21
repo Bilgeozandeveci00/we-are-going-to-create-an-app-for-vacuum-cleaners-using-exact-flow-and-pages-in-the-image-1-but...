@@ -710,20 +710,8 @@ const DeviceControl = () => {
 
       {/* Bottom Control Panel */}
       <div className="mx-4 mb-4 space-y-3">
-        {/* Settings Bar - Above controls when idle */}
-        <AnimatePresence>
-          {!isRunning && !isDocking && !isCharging && !isCompleted && !isStuck && (
-            <FloatingPresetShelf
-              vacuumPower={vacuumPower}
-              waterFlow={waterFlow}
-              currentFloor={floors[selectedFloor - 1]?.name || `Floor ${selectedFloor}`}
-              onCustomizeClick={() => setShowPersonalize(true)}
-            />
-          )}
-        </AnimatePresence>
-
-      {/* Main Control */}
-        <div className="flex items-center justify-center pb-2 safe-area-bottom">
+        {/* Main Control - Now above customize bar for hierarchy */}
+        <div className="flex items-center justify-center">
           {isRunning ? (
             /* Running state - Pause button with status */
             <div className="flex items-center gap-4">
@@ -775,6 +763,18 @@ const DeviceControl = () => {
             </motion.button>
           )}
         </div>
+
+        {/* Settings Bar - Below start button */}
+        <AnimatePresence>
+          {!isRunning && !isDocking && !isCharging && !isCompleted && !isStuck && (
+            <FloatingPresetShelf
+              vacuumPower={vacuumPower}
+              waterFlow={waterFlow}
+              currentFloor={floors[selectedFloor - 1]?.name || `Floor ${selectedFloor}`}
+              onCustomizeClick={() => setShowPersonalize(true)}
+            />
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Mode Selector Sheet - Compact */}
