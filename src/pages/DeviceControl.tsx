@@ -1762,18 +1762,14 @@ const DeviceControl = () => {
             </button>
 
             {/* Reset App Data - For Testing */}
-            <div className="mt-8 pt-4 border-t border-destructive/20">
-              <p className="text-xs text-destructive mb-3 text-center font-medium">FOR TESTING ONLY</p>
+            <div className="mt-4 pt-3 border-t border-destructive/10">
               <button 
                 onClick={resetAllAppData}
-                className="w-full flex items-center justify-center gap-2 bg-destructive/10 border border-destructive/30 rounded-2xl p-4 hover:bg-destructive/20 transition-colors"
+                className="w-full flex items-center justify-center gap-1.5 text-destructive/60 hover:text-destructive transition-colors py-2"
               >
-                <Trash2 className="w-5 h-5 text-destructive" />
-                <span className="text-destructive font-medium">Reset All App Data</span>
+                <Trash2 className="w-3.5 h-3.5" />
+                <span className="text-xs">Reset App (Testing)</span>
               </button>
-              <p className="text-xs text-muted-foreground mt-2 text-center">
-                Removes device, map, and all settings to restart from scratch
-              </p>
             </div>
           </div>
         </SheetContent>
