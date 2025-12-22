@@ -7,6 +7,8 @@ import {
   Sheet,
   SheetContent,
   SheetHeader,
+  SheetTitle,
+  SheetDescription,
 } from "@/components/ui/sheet";
 
 interface Schedule {
@@ -341,9 +343,10 @@ const Schedules = () => {
               >
                 Cancel
               </button>
-              <h2 className="text-lg font-semibold text-foreground">
-                {editingSchedule ? "Edit Schedule" : "New Schedule"}
-              </h2>
+              <div className="text-center">
+                <SheetTitle>{editingSchedule ? "Edit Schedule" : "New Schedule"}</SheetTitle>
+                <SheetDescription className="sr-only">Create or edit an automatic cleaning schedule</SheetDescription>
+              </div>
               <div className="w-12" /> {/* Spacer for balance */}
             </div>
           </SheetHeader>

@@ -32,6 +32,7 @@ import {
   Sparkles,
   Route,
   Plus,
+  History,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FloorMap from "@/components/FloorMap";
@@ -39,6 +40,8 @@ import {
   Sheet,
   SheetContent,
   SheetHeader,
+  SheetTitle,
+  SheetDescription,
 } from "@/components/ui/sheet";
 
 // Room settings for custom mode
@@ -1736,10 +1739,26 @@ const DeviceControl = () => {
       <Sheet open={showSettings} onOpenChange={setShowSettings}>
         <SheetContent side="bottom" className="bg-card rounded-t-3xl border-border h-auto max-h-[85vh] overflow-y-auto">
           <SheetHeader className="pb-4">
-            <h2 className="text-lg font-semibold text-foreground text-center">Settings</h2>
+            <SheetTitle className="text-center">Settings</SheetTitle>
+            <SheetDescription className="sr-only">Device settings and shortcuts</SheetDescription>
           </SheetHeader>
           
           <div className="space-y-4 pb-8">
+
+            {/* Cleaning History */}
+            <button
+              className="w-full flex items-center gap-3 bg-muted rounded-2xl p-4 hover:bg-muted/80 transition-colors"
+              onClick={() => {
+                setShowSettings(false);
+                navigate(`/device/${id}/cleaning-history`);
+              }}
+            >
+              <div className="w-10 h-10 rounded-full bg-card flex items-center justify-center">
+                <History className="w-5 h-5 text-primary" />
+              </div>
+              <span className="text-foreground font-medium flex-1 text-left">Cleaning History</span>
+              <ChevronRight className="w-5 h-5 text-muted-foreground" />
+            </button>
 
             {/* Schedules */}
             <button 
