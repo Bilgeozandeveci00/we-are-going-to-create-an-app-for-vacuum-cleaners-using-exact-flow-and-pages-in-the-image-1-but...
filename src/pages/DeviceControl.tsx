@@ -74,7 +74,7 @@ const DeviceControl = () => {
   const [cleanedRooms, setCleanedRooms] = useState<string[]>([]);
   
   // New states for enhancements
-  const [showModeInfo, setShowModeInfo] = useState(true);
+  const [showModeInfo, setShowModeInfo] = useState(false);
   const [showCustomMode, setShowCustomMode] = useState(false);
   const [skippedAreas, setSkippedAreas] = useState<{id: string; name: string; x: number; y: number; width: number; height: number}[]>([]);
   const [showSkippedOnMap, setShowSkippedOnMap] = useState(false);
@@ -895,7 +895,7 @@ const DeviceControl = () => {
                       <span className="text-emerald-500 font-semibold">Smooth</span> — Avoids tight spaces, won&apos;t get stuck. Best when you&apos;re away.
                     </p>
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      <span className="text-primary font-semibold">Deep</span> — Thorough cleaning of every corner. May need help if stuck.
+                      <span className="text-orange-500 font-semibold">Deep</span> — Thorough cleaning of every corner. May need help if stuck.
                     </p>
                     <p className="text-sm text-muted-foreground leading-relaxed">
                       <span className="text-foreground font-semibold">Custom</span> — Create presets with different settings per room.
@@ -921,10 +921,10 @@ const DeviceControl = () => {
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={() => startCleaning("deep")}
-                className="flex-1 flex items-center justify-center gap-2 bg-primary rounded-xl py-3.5"
+                className="flex-1 flex items-center justify-center gap-2 bg-orange-500 rounded-xl py-3.5"
               >
-                <Play className="w-4 h-4 text-primary-foreground" fill="currentColor" />
-                <span className="text-primary-foreground font-semibold text-sm">Deep</span>
+                <Play className="w-4 h-4 text-white" fill="white" />
+                <span className="text-white font-semibold text-sm">Deep</span>
               </motion.button>
             </div>
 
