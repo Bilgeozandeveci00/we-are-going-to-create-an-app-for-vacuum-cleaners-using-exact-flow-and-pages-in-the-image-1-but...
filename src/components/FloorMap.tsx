@@ -297,13 +297,7 @@ const FloorMap = ({
               <animate attributeName="stopOpacity" values="0.4;0.7;0.4" dur="1.5s" repeatCount="indefinite"/>
             </stop>
           </linearGradient>
-          <pattern id="gridPattern" width="4" height="4" patternUnits="userSpaceOnUse">
-            <path d="M 4 0 L 0 0 0 4" fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="0.3"/>
-          </pattern>
         </defs>
-
-        {/* Background grid */}
-        <rect x="0" y="0" width="175" height="210" fill="url(#gridPattern)" />
 
         {/* Outer walls - removed border, just for structure */}
 
@@ -378,15 +372,6 @@ const FloorMap = ({
               />
             )}
             
-            {/* Cleaning path lines */}
-            <path
-              d={getCleaningPaths(room)}
-              stroke={isRoomCleaned(room.id) ? "rgba(52, 211, 153, 0.4)" : "rgba(255,255,255,0.18)"}
-              strokeWidth="0.6"
-              strokeLinecap="round"
-              fill="none"
-              pointerEvents="none"
-            />
 
             {/* Room label */}
             {showLabels && (
