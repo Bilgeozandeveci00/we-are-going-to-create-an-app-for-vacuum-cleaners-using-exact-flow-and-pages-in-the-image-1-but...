@@ -592,6 +592,15 @@ const Schedules = () => {
               </AnimatePresence>
             </div>
 
+            {/* Save Button */}
+            <Button
+              onClick={handleSaveSchedule}
+              disabled={newDays.length === 0}
+              className="w-full h-14 text-base font-semibold"
+            >
+              {editingSchedule ? "Save Changes" : "Create Schedule"}
+            </Button>
+            
             {/* Delete Button (for editing) */}
             {editingSchedule && (
               <Button
@@ -607,15 +616,6 @@ const Schedules = () => {
                 Delete Schedule
               </Button>
             )}
-            
-            {/* Save Button */}
-            <Button
-              onClick={handleSaveSchedule}
-              disabled={newDays.length === 0}
-              className="w-full h-14 text-base font-semibold"
-            >
-              {editingSchedule ? "Save Changes" : "Create Schedule"}
-            </Button>
           </div>
         </SheetContent>
       </Sheet>

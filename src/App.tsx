@@ -23,6 +23,7 @@ import Maintenance from "./pages/Maintenance";
 import RobotSound from "./pages/RobotSound";
 import FloorSettings from "./pages/FloorSettings";
 import RobotSettings from "./pages/RobotSettings";
+import CleaningHistory from "./pages/CleaningHistory";
 import RemoteControl from "./pages/RemoteControl";
 import NotFound from "./pages/NotFound";
 
@@ -53,6 +54,7 @@ const App = () => (
             <Route path="/device/:id/robot-sound" element={<RobotSound />} />
             <Route path="/device/:id/floor-settings" element={<FloorSettings />} />
             <Route path="/device/:id/robot-settings" element={<RobotSettings />} />
+            <Route path="/device/:id/cleaning-history" element={<CleaningHistory />} />
             <Route path="/device/:id/remote-control" element={<RemoteControl />} />
             <Route path="/add-device" element={<AddDevice />} />
             <Route path="/notifications" element={<Notifications />} />

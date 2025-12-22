@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, ChevronRight, Palette, MessageCircle, Globe, Download, Wifi, Trash2 } from "lucide-react";
+import { ArrowLeft, ChevronRight, Palette, MessageCircle, Globe, Download, Wifi, Trash2, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const RobotSettings = () => {
@@ -7,6 +7,11 @@ const RobotSettings = () => {
   const { id } = useParams();
 
   const settingsGroups = [
+    {
+      items: [
+        { icon: History, label: "Cleaning History", value: "", onClick: () => navigate(`/device/${id}/cleaning-history`) },
+      ],
+    },
     {
       items: [
         { icon: Palette, label: "Theme", value: "" },
@@ -45,6 +50,7 @@ const RobotSettings = () => {
             {group.items.map((item, index) => (
               <button
                 key={index}
+                onClick={item.onClick}
                 className="w-full flex items-center gap-4 p-4 hover:bg-muted/50 transition-colors"
               >
                 <item.icon className="w-5 h-5 text-muted-foreground" />
