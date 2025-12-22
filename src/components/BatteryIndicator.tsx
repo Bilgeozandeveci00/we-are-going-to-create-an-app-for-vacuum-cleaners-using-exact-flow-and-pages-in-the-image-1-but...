@@ -30,11 +30,11 @@ const BatteryIndicator = ({
     return "hsl(var(--muted-foreground) / 0.3)"; // Normal
   };
 
-  // Size configurations - made wider to fit text
+  // Size configurations - made wider to fit text (1.4x scaled)
   const sizes = {
-    sm: { width: 36, height: 18, tipWidth: 3, tipHeight: 8, radius: 4, padding: 2, fontSize: 8 },
-    md: { width: 44, height: 22, tipWidth: 4, tipHeight: 10, radius: 5, padding: 2.5, fontSize: 10 },
-    lg: { width: 56, height: 28, tipWidth: 5, tipHeight: 12, radius: 6, padding: 3, fontSize: 12 },
+    sm: { width: 50, height: 25, tipWidth: 4, tipHeight: 11, radius: 6, padding: 3, fontSize: 11 },
+    md: { width: 62, height: 31, tipWidth: 6, tipHeight: 14, radius: 7, padding: 3.5, fontSize: 14 },
+    lg: { width: 78, height: 39, tipWidth: 7, tipHeight: 17, radius: 8, padding: 4, fontSize: 17 },
   };
 
   const s = sizes[size];
