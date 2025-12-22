@@ -28,11 +28,13 @@ const Splash = () => {
           transition={{ delay: 0.3, duration: 0.5 }}
           className="relative"
         >
-          <img 
-            src={arcelikLogo} 
-            alt="Arçelik" 
-            className="h-16 w-auto"
-          />
+          <div className="flex items-center justify-center w-32 h-32 rounded-full bg-white shadow-lg">
+            <img 
+              src={arcelikLogo} 
+              alt="Arçelik" 
+              className="h-12 w-auto"
+            />
+          </div>
         </motion.div>
 
         {/* Brand Name */}
