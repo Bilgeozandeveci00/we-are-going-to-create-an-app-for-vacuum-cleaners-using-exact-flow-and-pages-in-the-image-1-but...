@@ -879,27 +879,41 @@ const DeviceControl = () => {
                 exit={{ opacity: 0, height: 0 }}
                 className="overflow-hidden"
               >
-                <div className="bg-muted/30 border border-border rounded-xl p-4 mb-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-sm font-semibold text-foreground">Mode Guide</span>
+                <div className="bg-muted/30 border border-border rounded-xl p-3 mb-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs font-medium text-muted-foreground">Mode Guide</span>
                     <button 
                       onClick={dismissModeInfo}
-                      className="flex items-center gap-1 px-2 py-1 rounded-lg bg-muted text-xs text-muted-foreground hover:bg-muted/80"
+                      className="p-1 rounded-full hover:bg-muted"
                     >
-                      <X className="w-3 h-3" />
-                      Close
+                      <X className="w-3.5 h-3.5 text-muted-foreground" />
                     </button>
                   </div>
-                  <div className="space-y-3">
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      <span className="text-emerald-500 font-semibold">Smooth</span> — Avoids tight spaces, won&apos;t get stuck. Best when you&apos;re away.
-                    </p>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      <span className="text-orange-500 font-semibold">Deep</span> — Thorough cleaning of every corner. May need help if stuck.
-                    </p>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      <span className="text-foreground font-semibold">Custom</span> — Create presets with different settings per room.
-                    </p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {/* Smooth */}
+                    <div className="flex flex-col items-center text-center p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                      <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center mb-1.5">
+                        <Check className="w-4 h-4 text-emerald-500" />
+                      </div>
+                      <span className="text-xs font-semibold text-emerald-500 mb-0.5">Smooth</span>
+                      <span className="text-[10px] text-muted-foreground leading-tight">Won't get stuck</span>
+                    </div>
+                    {/* Deep */}
+                    <div className="flex flex-col items-center text-center p-2 rounded-lg bg-orange-500/10 border border-orange-500/20">
+                      <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center mb-1.5">
+                        <Sparkles className="w-4 h-4 text-orange-500" />
+                      </div>
+                      <span className="text-xs font-semibold text-orange-500 mb-0.5">Deep</span>
+                      <span className="text-[10px] text-muted-foreground leading-tight">Every corner</span>
+                    </div>
+                    {/* Custom */}
+                    <div className="flex flex-col items-center text-center p-2 rounded-lg bg-muted border border-border">
+                      <div className="w-8 h-8 rounded-full bg-muted-foreground/10 flex items-center justify-center mb-1.5">
+                        <Settings2 className="w-4 h-4 text-muted-foreground" />
+                      </div>
+                      <span className="text-xs font-semibold text-foreground mb-0.5">Custom</span>
+                      <span className="text-[10px] text-muted-foreground leading-tight">Per room</span>
+                    </div>
                   </div>
                 </div>
               </motion.div>
