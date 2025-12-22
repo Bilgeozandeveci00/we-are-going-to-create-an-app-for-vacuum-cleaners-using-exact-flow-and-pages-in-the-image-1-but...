@@ -912,20 +912,20 @@ const DeviceControl = () => {
                   </div>
 
                   {/* Deep Mode Card */}
-                  <div className="bg-orange-500/10 border border-orange-500/30 rounded-2xl p-4">
+                  <div className="bg-blue-700/10 border border-blue-500/30 rounded-2xl p-4 shadow-[0_0_15px_rgba(59,130,246,0.2)]">
                     <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center flex-shrink-0">
+                      <div className="w-10 h-10 rounded-xl bg-blue-700 flex items-center justify-center flex-shrink-0 shadow-[0_0_12px_rgba(59,130,246,0.6)]">
                         <Sparkles className="w-5 h-5 text-white" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-sm font-bold text-orange-500 mb-1">Deep Mode</h3>
+                        <h3 className="text-sm font-bold text-blue-400 mb-1">Deep Mode</h3>
                         <p className="text-xs text-muted-foreground leading-relaxed mb-2">
                           Thorough cleaning that reaches every corner, under furniture, and along edges. Maximizes coverage for the cleanest results.
                         </p>
                         <div className="flex flex-wrap gap-2">
-                          <span className="px-2 py-0.5 bg-orange-500/20 rounded-full text-[10px] font-medium text-orange-600">Full coverage</span>
-                          <span className="px-2 py-0.5 bg-orange-500/20 rounded-full text-[10px] font-medium text-orange-600">Under furniture</span>
-                          <span className="px-2 py-0.5 bg-orange-500/20 rounded-full text-[10px] font-medium text-orange-600">May need help</span>
+                          <span className="px-2 py-0.5 bg-blue-500/20 rounded-full text-[10px] font-medium text-blue-400">Full coverage</span>
+                          <span className="px-2 py-0.5 bg-blue-500/20 rounded-full text-[10px] font-medium text-blue-400">Under furniture</span>
+                          <span className="px-2 py-0.5 bg-blue-500/20 rounded-full text-[10px] font-medium text-blue-400">May need help</span>
                         </div>
                       </div>
                     </div>
@@ -970,7 +970,7 @@ const DeviceControl = () => {
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={() => startCleaning("deep")}
-                className="flex-1 flex items-center justify-center gap-2 bg-orange-500 rounded-xl py-3.5"
+                className="flex-1 flex items-center justify-center gap-2 bg-blue-700 rounded-xl py-3.5 shadow-[0_0_20px_rgba(59,130,246,0.5)]"
               >
                 <Play className="w-4 h-4 text-white" fill="white" />
                 <span className="text-white font-semibold text-sm">Deep</span>
