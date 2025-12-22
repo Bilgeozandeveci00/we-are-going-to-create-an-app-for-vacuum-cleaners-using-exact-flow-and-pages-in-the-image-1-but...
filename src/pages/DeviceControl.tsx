@@ -870,7 +870,7 @@ const DeviceControl = () => {
             <h2 className="text-lg font-bold text-foreground text-center">Choose Cleaning Mode</h2>
           </SheetHeader>
           
-          {/* Info Panel - Collapsible, above buttons */}
+          {/* Info Panel - Full expanded guide */}
           <AnimatePresence>
             {showModeInfo && (
               <motion.div
@@ -879,40 +879,75 @@ const DeviceControl = () => {
                 exit={{ opacity: 0, height: 0 }}
                 className="overflow-hidden"
               >
-                <div className="bg-muted/30 border border-border rounded-xl p-3 mb-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-medium text-muted-foreground">Mode Guide</span>
+                <div className="mb-4 space-y-3">
+                  {/* Header */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-semibold text-foreground">Cleaning Modes Explained</span>
                     <button 
                       onClick={dismissModeInfo}
-                      className="p-1 rounded-full hover:bg-muted"
+                      className="p-1.5 rounded-full hover:bg-muted"
                     >
-                      <X className="w-3.5 h-3.5 text-muted-foreground" />
+                      <X className="w-4 h-4 text-muted-foreground" />
                     </button>
                   </div>
-                  <div className="grid grid-cols-3 gap-2">
-                    {/* Smooth */}
-                    <div className="flex flex-col items-center text-center p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-                      <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center mb-1.5">
-                        <Check className="w-4 h-4 text-emerald-500" />
+
+                  {/* Smooth Mode Card */}
+                  <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center flex-shrink-0">
+                        <Check className="w-5 h-5 text-white" />
                       </div>
-                      <span className="text-xs font-semibold text-emerald-500 mb-0.5">Smooth</span>
-                      <span className="text-[10px] text-muted-foreground leading-tight">Won't get stuck</span>
+                      <div className="flex-1">
+                        <h3 className="text-sm font-bold text-emerald-500 mb-1">Smooth Mode</h3>
+                        <p className="text-xs text-muted-foreground leading-relaxed mb-2">
+                          Safe and reliable cleaning that avoids tight spaces and obstacles. The robot stays on open paths to prevent getting stuck.
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          <span className="px-2 py-0.5 bg-emerald-500/20 rounded-full text-[10px] font-medium text-emerald-600">Best when away</span>
+                          <span className="px-2 py-0.5 bg-emerald-500/20 rounded-full text-[10px] font-medium text-emerald-600">No supervision</span>
+                          <span className="px-2 py-0.5 bg-emerald-500/20 rounded-full text-[10px] font-medium text-emerald-600">May skip areas</span>
+                        </div>
+                      </div>
                     </div>
-                    {/* Deep */}
-                    <div className="flex flex-col items-center text-center p-2 rounded-lg bg-orange-500/10 border border-orange-500/20">
-                      <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center mb-1.5">
-                        <Sparkles className="w-4 h-4 text-orange-500" />
+                  </div>
+
+                  {/* Deep Mode Card */}
+                  <div className="bg-orange-500/10 border border-orange-500/30 rounded-2xl p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center flex-shrink-0">
+                        <Sparkles className="w-5 h-5 text-white" />
                       </div>
-                      <span className="text-xs font-semibold text-orange-500 mb-0.5">Deep</span>
-                      <span className="text-[10px] text-muted-foreground leading-tight">Every corner</span>
+                      <div className="flex-1">
+                        <h3 className="text-sm font-bold text-orange-500 mb-1">Deep Mode</h3>
+                        <p className="text-xs text-muted-foreground leading-relaxed mb-2">
+                          Thorough cleaning that reaches every corner, under furniture, and along edges. Maximizes coverage for the cleanest results.
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          <span className="px-2 py-0.5 bg-orange-500/20 rounded-full text-[10px] font-medium text-orange-600">Full coverage</span>
+                          <span className="px-2 py-0.5 bg-orange-500/20 rounded-full text-[10px] font-medium text-orange-600">Under furniture</span>
+                          <span className="px-2 py-0.5 bg-orange-500/20 rounded-full text-[10px] font-medium text-orange-600">May need help</span>
+                        </div>
+                      </div>
                     </div>
-                    {/* Custom */}
-                    <div className="flex flex-col items-center text-center p-2 rounded-lg bg-muted border border-border">
-                      <div className="w-8 h-8 rounded-full bg-muted-foreground/10 flex items-center justify-center mb-1.5">
-                        <Settings2 className="w-4 h-4 text-muted-foreground" />
+                  </div>
+
+                  {/* Custom Mode Card */}
+                  <div className="bg-muted/50 border border-border rounded-2xl p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-muted-foreground/20 flex items-center justify-center flex-shrink-0">
+                        <Settings2 className="w-5 h-5 text-muted-foreground" />
                       </div>
-                      <span className="text-xs font-semibold text-foreground mb-0.5">Custom</span>
-                      <span className="text-[10px] text-muted-foreground leading-tight">Per room</span>
+                      <div className="flex-1">
+                        <h3 className="text-sm font-bold text-foreground mb-1">Custom Mode</h3>
+                        <p className="text-xs text-muted-foreground leading-relaxed mb-2">
+                          Create personalized cleaning presets with different settings for each room. Set suction power, water flow, and passes individually.
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          <span className="px-2 py-0.5 bg-muted rounded-full text-[10px] font-medium text-muted-foreground">Per-room settings</span>
+                          <span className="px-2 py-0.5 bg-muted rounded-full text-[10px] font-medium text-muted-foreground">Save presets</span>
+                          <span className="px-2 py-0.5 bg-muted rounded-full text-[10px] font-medium text-muted-foreground">Full control</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
