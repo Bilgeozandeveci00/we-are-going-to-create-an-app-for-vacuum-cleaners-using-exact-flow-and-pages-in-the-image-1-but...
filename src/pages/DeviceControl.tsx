@@ -1312,30 +1312,6 @@ const DeviceControl = () => {
         </SheetContent>
       </Sheet>
 
-      {/* Skipped Areas Info Banner - shown when smooth mode completes */}
-      {showSkippedOnMap && skippedAreas.length > 0 && isCompleted && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="fixed bottom-24 left-4 right-4 z-30 bg-amber-500/90 backdrop-blur-sm rounded-xl p-4 shadow-lg"
-        >
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
-            <div className="flex-1">
-              <p className="text-white font-medium text-sm mb-1">Areas Skipped</p>
-              <p className="text-white/80 text-xs">
-                {skippedAreas.length} areas marked yellow on map were avoided to prevent getting stuck.
-              </p>
-            </div>
-            <button 
-              onClick={() => setShowSkippedOnMap(false)}
-              className="text-white/80 hover:text-white"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </motion.div>
-      )}
 
       {/* Map Editor Sheet */}
       <Sheet open={showMapEditor} onOpenChange={setShowMapEditor}>
