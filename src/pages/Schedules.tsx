@@ -13,10 +13,18 @@ interface Schedule {
   id: string;
   time: string;
   days: string[];
-  mode: "safe" | "deep";
+  mode: "safe" | "deep" | "custom";
+  customMode?: string;
   rooms: string[];
   enabled: boolean;
 }
+
+const customModes = [
+  { id: "eco", name: "Eco Mode", description: "Energy efficient cleaning" },
+  { id: "turbo", name: "Turbo Mode", description: "Maximum suction power" },
+  { id: "quiet", name: "Quiet Mode", description: "Low noise operation" },
+  { id: "pet", name: "Pet Mode", description: "Optimized for pet hair" },
+];
 
 const daysOfWeek = [
   { short: "S", full: "Sun" },
@@ -68,9 +76,11 @@ const Schedules = () => {
   // New schedule form state
   const [newTime, setNewTime] = useState("09:00");
   const [newDays, setNewDays] = useState<string[]>(["Mon", "Wed", "Fri"]);
-  const [newMode, setNewMode] = useState<"safe" | "deep">("safe");
+  const [newMode, setNewMode] = useState<"safe" | "deep" | "custom">("safe");
+  const [newCustomMode, setNewCustomMode] = useState<string>("");
   const [newRooms, setNewRooms] = useState<string[]>([]);
   const [showRoomSelector, setShowRoomSelector] = useState(false);
+  const [showModeSelector, setShowModeSelector] = useState(false);
   const [selectedFloor, setSelectedFloor] = useState(1);
 
   // Load floors from localStorage
@@ -99,7 +109,7 @@ const Schedules = () => {
     if (editingSchedule) {
       setSchedules(prev => prev.map(s => 
         s.id === editingSchedule.id 
-          ? { ...s, time: newTime, days: newDays, mode: newMode, rooms: newRooms }
+          ? { ...s, time: newTime, days: newDays, mode: newMode, customMode: newCustomMode, rooms: newRooms }
           : s
       ));
     } else {
@@ -108,6 +118,7 @@ const Schedules = () => {
         time: newTime,
         days: newDays,
         mode: newMode,
+        customMode: newCustomMode,
         rooms: newRooms,
         enabled: true,
       };
@@ -122,6 +133,7 @@ const Schedules = () => {
     setNewTime(schedule.time);
     setNewDays(schedule.days);
     setNewMode(schedule.mode);
+    setNewCustomMode(schedule.customMode || "");
     setNewRooms(schedule.rooms);
     setEditingSchedule(schedule);
     setShowAddSheet(true);
@@ -141,7 +153,10 @@ const Schedules = () => {
     setNewTime("09:00");
     setNewDays(["Mon", "Wed", "Fri"]);
     setNewMode("safe");
+    setNewCustomMode("");
     setNewRooms([]);
+    setShowRoomSelector(false);
+    setShowModeSelector(false);
   };
 
   const formatDays = (days: string[]) => {
@@ -170,19 +185,7 @@ const Schedules = () => {
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <h1 className="text-lg font-semibold text-foreground">Schedules</h1>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="text-primary border-primary/50 hover:bg-primary/10 px-3"
-          onClick={() => {
-            resetForm();
-            setEditingSchedule(null);
-            setShowAddSheet(true);
-          }}
-        >
-          <Plus className="h-4 w-4 mr-1" />
-          Add
-        </Button>
+        <div className="w-10" /> {/* Spacer for balance */}
       </header>
 
       <div className="flex-1 px-4 py-4 space-y-4">
@@ -244,9 +247,13 @@ const Schedules = () => {
                         <span className={`text-sm ${
                           schedule.mode === "safe" ? "text-emerald-500" :
                           schedule.mode === "deep" ? "text-primary" :
+                          schedule.mode === "custom" ? "text-amber-500" :
                           "text-muted-foreground"
                         }`}>
-                          {schedule.mode.charAt(0).toUpperCase() + schedule.mode.slice(1)} Mode
+                          {schedule.mode === "custom" && schedule.customMode 
+                            ? customModes.find(m => m.id === schedule.customMode)?.name || "Custom"
+                            : schedule.mode.charAt(0).toUpperCase() + schedule.mode.slice(1) + " Mode"
+                          }
                         </span>
                       </div>
                       
@@ -297,6 +304,19 @@ const Schedules = () => {
                 </div>
               </motion.div>
             ))}
+            
+            {/* Add New Schedule Button */}
+            <button
+              onClick={() => {
+                resetForm();
+                setEditingSchedule(null);
+                setShowAddSheet(true);
+              }}
+              className="w-full p-4 rounded-2xl border-2 border-dashed border-primary/30 bg-primary/5 hover:bg-primary/10 hover:border-primary/50 transition-colors flex items-center justify-center gap-2 text-primary font-medium"
+            >
+              <Plus className="w-5 h-5" />
+              Add New Schedule
+            </button>
           </div>
         )}
       </div>
@@ -324,13 +344,7 @@ const Schedules = () => {
               <h2 className="text-lg font-semibold text-foreground">
                 {editingSchedule ? "Edit Schedule" : "New Schedule"}
               </h2>
-              <button 
-                onClick={handleSaveSchedule}
-                disabled={newDays.length === 0}
-                className="text-primary font-medium disabled:opacity-50"
-              >
-                Save
-              </button>
+              <div className="w-12" /> {/* Spacer for balance */}
             </div>
           </SheetHeader>
 
@@ -389,48 +403,150 @@ const Schedules = () => {
             {/* Cleaning Mode */}
             <div>
               <label className="text-sm font-medium text-foreground mb-3 block">Cleaning Mode</label>
-              <div className="bg-muted rounded-xl p-1 flex">
-                {(["safe", "deep"] as const).map((mode) => (
-                  <button
-                    key={mode}
-                    onClick={() => setNewMode(mode)}
-                    className={`flex-1 py-3 rounded-lg text-sm font-medium transition-colors ${
-                      newMode === mode
-                        ? mode === "safe" 
-                          ? "bg-emerald-500/20 text-emerald-500"
-                          : "bg-primary/20 text-primary"
-                        : "text-muted-foreground"
-                    }`}
-                  >
-                    {mode.charAt(0).toUpperCase() + mode.slice(1)}
-                  </button>
-                ))}
-              </div>
-              <p className="text-xs text-muted-foreground mt-2 text-center">
-                {newMode === "safe" && "Avoids risky areas to prevent getting stuck"}
-                {newMode === "deep" && "Thorough cleaning that covers every corner"}
-              </p>
-            </div>
-
-            {/* Room Selection */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <label className="text-sm font-medium text-foreground">Rooms</label>
-                <button 
-                  onClick={() => setShowRoomSelector(!showRoomSelector)}
-                  className="text-xs text-primary font-medium"
-                >
-                  {showRoomSelector ? "Done" : "Select"}
-                </button>
-              </div>
+              <button
+                onClick={() => setShowModeSelector(!showModeSelector)}
+                className="w-full bg-muted rounded-xl p-4 flex items-center justify-between"
+              >
+                <span className={`text-sm font-medium ${
+                  newMode === "safe" ? "text-emerald-500" :
+                  newMode === "deep" ? "text-primary" :
+                  newMode === "custom" ? "text-amber-500" :
+                  "text-foreground"
+                }`}>
+                  {newMode === "custom" && newCustomMode
+                    ? customModes.find(m => m.id === newCustomMode)?.name || "Custom"
+                    : newMode === "safe" ? "Safe Mode" 
+                    : newMode === "deep" ? "Deep Mode"
+                    : "Select Mode"
+                  }
+                </span>
+                <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showModeSelector ? 'rotate-180' : ''}`} />
+              </button>
               
               <AnimatePresence>
-                {showRoomSelector ? (
+                {showModeSelector && (
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
-                    className="space-y-2"
+                    className="mt-2 space-y-2"
+                  >
+                    {/* Safe Mode */}
+                    <button
+                      onClick={() => {
+                        setNewMode("safe");
+                        setNewCustomMode("");
+                        setShowModeSelector(false);
+                      }}
+                      className={`w-full flex items-center gap-3 p-3 rounded-xl border transition-colors ${
+                        newMode === "safe" 
+                          ? 'bg-emerald-500/10 border-emerald-500' 
+                          : 'bg-muted border-transparent'
+                      }`}
+                    >
+                      <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                        newMode === "safe" ? 'border-emerald-500 bg-emerald-500' : 'border-muted-foreground'
+                      }`}>
+                        {newMode === "safe" && <Check className="w-3 h-3 text-white" />}
+                      </div>
+                      <div className="text-left">
+                        <span className="text-sm font-medium text-foreground block">Safe Mode</span>
+                        <span className="text-xs text-muted-foreground">Avoids risky areas to prevent getting stuck</span>
+                      </div>
+                    </button>
+                    
+                    {/* Deep Mode */}
+                    <button
+                      onClick={() => {
+                        setNewMode("deep");
+                        setNewCustomMode("");
+                        setShowModeSelector(false);
+                      }}
+                      className={`w-full flex items-center gap-3 p-3 rounded-xl border transition-colors ${
+                        newMode === "deep" 
+                          ? 'bg-primary/10 border-primary' 
+                          : 'bg-muted border-transparent'
+                      }`}
+                    >
+                      <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                        newMode === "deep" ? 'border-primary bg-primary' : 'border-muted-foreground'
+                      }`}>
+                        {newMode === "deep" && <Check className="w-3 h-3 text-white" />}
+                      </div>
+                      <div className="text-left">
+                        <span className="text-sm font-medium text-foreground block">Deep Mode</span>
+                        <span className="text-xs text-muted-foreground">Thorough cleaning that covers every corner</span>
+                      </div>
+                    </button>
+                    
+                    {/* Custom Modes */}
+                    <div className="pt-2 border-t border-border">
+                      <span className="text-xs font-medium text-muted-foreground mb-2 block">Custom Modes</span>
+                      <div className="space-y-2">
+                        {customModes.map((mode) => (
+                          <button
+                            key={mode.id}
+                            onClick={() => {
+                              setNewMode("custom");
+                              setNewCustomMode(mode.id);
+                              setShowModeSelector(false);
+                            }}
+                            className={`w-full flex items-center gap-3 p-3 rounded-xl border transition-colors ${
+                              newMode === "custom" && newCustomMode === mode.id
+                                ? 'bg-amber-500/10 border-amber-500' 
+                                : 'bg-muted border-transparent'
+                            }`}
+                          >
+                            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                              newMode === "custom" && newCustomMode === mode.id 
+                                ? 'border-amber-500 bg-amber-500' 
+                                : 'border-muted-foreground'
+                            }`}>
+                              {newMode === "custom" && newCustomMode === mode.id && (
+                                <Check className="w-3 h-3 text-white" />
+                              )}
+                            </div>
+                            <div className="text-left">
+                              <span className="text-sm font-medium text-foreground block">{mode.name}</span>
+                              <span className="text-xs text-muted-foreground">{mode.description}</span>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Room Selection */}
+            <div>
+              <label className="text-sm font-medium text-foreground mb-3 block">Rooms</label>
+              <button
+                onClick={() => setShowRoomSelector(!showRoomSelector)}
+                className="w-full bg-muted rounded-xl p-4 flex items-center justify-between"
+              >
+                <div className="flex items-center gap-2">
+                  <Home className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm font-medium text-foreground">
+                    {newRooms.length === 0 
+                      ? "All rooms" 
+                      : newRooms.length === 1 
+                        ? roomNames[newRooms[0]]
+                        : `${newRooms.length} rooms selected`
+                    }
+                  </span>
+                </div>
+                <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showRoomSelector ? 'rotate-180' : ''}`} />
+              </button>
+              
+              <AnimatePresence>
+                {showRoomSelector && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="mt-2 space-y-2"
                   >
                     <button
                       onClick={() => setNewRooms([])}
@@ -472,22 +588,6 @@ const Schedules = () => {
                       ))}
                     </div>
                   </motion.div>
-                ) : (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="bg-muted rounded-xl p-4"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Home className="w-4 h-4 text-muted-foreground" />
-                      <span className="text-sm text-foreground">
-                        {newRooms.length === 0 
-                          ? "All rooms" 
-                          : newRooms.map(r => roomNames[r]).join(", ")
-                        }
-                      </span>
-                    </div>
-                  </motion.div>
                 )}
               </AnimatePresence>
             </div>
@@ -507,6 +607,15 @@ const Schedules = () => {
                 Delete Schedule
               </Button>
             )}
+            
+            {/* Save Button */}
+            <Button
+              onClick={handleSaveSchedule}
+              disabled={newDays.length === 0}
+              className="w-full h-14 text-base font-semibold"
+            >
+              {editingSchedule ? "Save Changes" : "Create Schedule"}
+            </Button>
           </div>
         </SheetContent>
       </Sheet>
