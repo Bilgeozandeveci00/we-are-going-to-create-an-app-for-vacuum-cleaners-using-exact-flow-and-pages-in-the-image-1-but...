@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import arcelikLogo from "@/assets/arcelik-logo.png";
 
 const Splash = () => {
   const navigate = useNavigate();
@@ -27,26 +28,10 @@ const Splash = () => {
           transition={{ delay: 0.3, duration: 0.5 }}
           className="relative"
         >
-          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/70 shadow-lg shadow-primary/30 relative overflow-hidden">
-            {/* Abstract robot vacuum design */}
-            <svg viewBox="0 0 48 48" className="h-12 w-12 text-primary-foreground">
-              {/* Main circular body */}
-              <circle cx="24" cy="24" r="18" fill="currentColor" opacity="0.2" />
-              <circle cx="24" cy="24" r="14" fill="currentColor" opacity="0.4" />
-              <circle cx="24" cy="24" r="10" fill="currentColor" />
-              {/* Center sensor/camera */}
-              <circle cx="24" cy="24" r="4" fill="hsl(var(--primary))" />
-              {/* Motion lines */}
-              <path d="M8 24 Q12 20 16 24" stroke="currentColor" strokeWidth="2" fill="none" opacity="0.6" />
-              <path d="M32 24 Q36 28 40 24" stroke="currentColor" strokeWidth="2" fill="none" opacity="0.6" />
-              {/* Cleaning path hint */}
-              <path d="M24 6 Q30 12 24 18" stroke="currentColor" strokeWidth="1.5" fill="none" opacity="0.4" strokeDasharray="2 2" />
-            </svg>
-          </div>
-          <motion.div
-            animate={{ opacity: [0.5, 1, 0.5] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="absolute -inset-2 -z-10 rounded-3xl bg-primary/20 blur-xl"
+          <img 
+            src={arcelikLogo} 
+            alt="Arçelik" 
+            className="h-16 w-auto"
           />
         </motion.div>
 
